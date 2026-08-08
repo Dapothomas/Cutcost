@@ -10,6 +10,7 @@ use App\Models\Booking;
 use App\Models\Business;
 use App\Models\Service;
 use App\Models\User;
+use App\Support\ShopNotifier;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Stripe\Checkout\Session;
@@ -205,13 +206,21 @@ class StripeCheckoutService
             $session->client_reference_id ?? $session->metadata['booking_id'] ?? null
         );
 
+        $alreadyPaid = $booking->payment_status === PaymentStatus::Paid;
+
         $booking->update([
             'status' => BookingStatus::Scheduled,
             'payment_status' => PaymentStatus::Paid,
             'stripe_checkout_session_id' => $session->id,
         ]);
 
-        return $booking->fresh();
+        $booking = $booking->fresh();
+
+        if (! $alreadyPaid) {
+            ShopNotifier::bookingPaid($booking);
+        }
+
+        return $booking;
     }
 
     public function cancelPendingBooking(Booking $booking): void
@@ -224,6 +233,8 @@ class StripeCheckoutService
             'status' => BookingStatus::Cancelled,
             'payment_status' => PaymentStatus::Failed,
         ]);
+
+        ShopNotifier::bookingCancelled($booking->fresh(), 'cancelled');
     }
 
     public function handleWebhook(string $payload, ?string $signature): void
@@ -297,11 +308,17 @@ class StripeCheckoutService
             return;
         }
 
+        $alreadyPaid = $booking->payment_status === PaymentStatus::Paid;
+
         $booking->update([
             'status' => BookingStatus::Scheduled,
             'payment_status' => PaymentStatus::Paid,
             'stripe_checkout_session_id' => $session->id,
         ]);
+
+        if (! $alreadyPaid) {
+            ShopNotifier::bookingPaid($booking->fresh());
+        }
     }
 
     public function cancelSubscription(User $user): User

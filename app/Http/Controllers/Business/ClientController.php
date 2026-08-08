@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Business;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Support\ShopNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -41,7 +42,8 @@ class ClientController extends Controller
             'notes' => ['nullable', 'string', 'max:2000'],
         ]);
 
-        $business->clients()->create($data);
+        $client = $business->clients()->create($data);
+        ShopNotifier::clientAdded($business, $client);
 
         return redirect()->route('business.clients.index')
             ->with('status', 'Client added.');

@@ -8,6 +8,7 @@ use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Service;
+use App\Support\ShopNotifier;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -93,7 +94,7 @@ class BookingController extends Controller
         $service = Service::findOrFail($data['service_id']);
         $startsAt = Carbon::parse($data['starts_at']);
 
-        $business->bookings()->create([
+        $booking = $business->bookings()->create([
             'client_id' => $data['client_id'],
             'service_id' => $data['service_id'],
             'barber_id' => $data['barber_id'],
@@ -104,6 +105,8 @@ class BookingController extends Controller
             'amount_cents' => $service->price_cents,
             'notes' => $data['notes'] ?? null,
         ]);
+
+        ShopNotifier::bookingCreated($booking);
 
         return redirect()->route('business.bookings.index')
             ->with('status', 'Appointment booked.');
@@ -117,7 +120,12 @@ class BookingController extends Controller
             'status' => ['required', Rule::enum(BookingStatus::class)],
         ]);
 
-        $booking->update(['status' => $data['status']]);
+        $status = $data['status'] instanceof BookingStatus
+            ? $data['status']
+            : BookingStatus::from($data['status']);
+
+        $booking->update(['status' => $status]);
+        ShopNotifier::bookingStatusChanged($booking->fresh(), $status->label());
 
         return back()->with('status', 'Appointment updated.');
     }
@@ -126,6 +134,7 @@ class BookingController extends Controller
     {
         $this->authorizeBooking($request, $booking);
 
+        ShopNotifier::bookingCancelled($booking, 'removed');
         $booking->delete();
 
         return redirect()->route('business.bookings.index')

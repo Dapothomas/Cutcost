@@ -5,6 +5,7 @@ use App\Http\Controllers\Barber\DashboardController as BarberDashboardController
 use App\Http\Controllers\Business\BookingController as BusinessBookingController;
 use App\Http\Controllers\Business\ClientController;
 use App\Http\Controllers\Business\DashboardController as BusinessDashboardController;
+use App\Http\Controllers\Business\NotificationController;
 use App\Http\Controllers\Business\PaymentsController;
 use App\Http\Controllers\Business\ServiceController;
 use App\Http\Controllers\Business\SettingsController;
@@ -57,6 +58,10 @@ Route::middleware(['auth', 'verified', 'role:owner', 'subscribed'])->prefix('bus
     Route::resource('staff', StaffController::class)->only(['index', 'create', 'store', 'destroy']);
     Route::resource('bookings', BusinessBookingController::class)->only(['index', 'create', 'store', 'destroy']);
     Route::patch('bookings/{booking}/status', [BusinessBookingController::class, 'updateStatus'])->name('bookings.status');
+
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::get('notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
 });
 
 Route::middleware(['auth', 'verified', 'role:barber'])->prefix('barber')->name('barber.')->group(function () {

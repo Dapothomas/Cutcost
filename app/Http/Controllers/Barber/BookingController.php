@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Barber;
 use App\Enums\BookingStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Support\ShopNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -40,7 +41,12 @@ class BookingController extends Controller
             'status' => ['required', Rule::enum(BookingStatus::class)],
         ]);
 
-        $booking->update(['status' => $data['status']]);
+        $status = $data['status'] instanceof BookingStatus
+            ? $data['status']
+            : BookingStatus::from($data['status']);
+
+        $booking->update(['status' => $status]);
+        ShopNotifier::bookingStatusChanged($booking->fresh(), $status->label());
 
         return back()->with('status', 'Appointment updated.');
     }

@@ -10,6 +10,7 @@ use App\Models\Client;
 use App\Models\Service;
 use App\Services\StripeCheckoutService;
 use App\Support\BookingSlots;
+use App\Support\ShopNotifier;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -170,6 +171,8 @@ class PublicBookingController extends Controller
                 'notes' => $data['notes'] ?? null,
             ]);
         });
+
+        ShopNotifier::bookingCreated($booking, 'public');
 
         if (! $requiresPayment) {
             return redirect()

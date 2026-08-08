@@ -14,7 +14,7 @@ const page = usePage();
 const user = computed(() => page.props.auth.user);
 const flash = computed(() => page.props.flash?.status);
 const themeTokens = computed(() => page.props.theme?.tokens ?? null);
-const notifications = computed(() => page.props.notifications ?? { items: [], unread_count: 0 });
+const notifications = computed(() => page.props.notifications ?? { items: [], unread_count: 0, see_all_href: null });
 const sidebarOpen = ref(false);
 const bookingLinkCopied = ref(false);
 const notificationsOpen = ref(false);
@@ -22,6 +22,7 @@ const profileOpen = ref(false);
 const headerRef = ref(null);
 const heroRef = ref(null);
 const scrolled = ref(false);
+const headerHeight = ref(64);
 
 const ownerNav = [
     { href: '/business', label: 'Dashboard', icon: 'dashboard' },
@@ -163,32 +164,52 @@ function onDocumentClick(event) {
     }
 }
 
+function measureHeader() {
+    if (headerRef.value) {
+        headerHeight.value = headerRef.value.offsetHeight;
+    }
+}
+
 function onScroll() {
     if (!props.hero || !heroRef.value) {
         scrolled.value = false;
         return;
     }
 
-    const headerH = headerRef.value?.offsetHeight ?? 64;
-    scrolled.value = heroRef.value.getBoundingClientRect().bottom <= headerH + 8;
+    scrolled.value = heroRef.value.getBoundingClientRect().bottom <= headerHeight.value + 8;
 }
 
 let removeListener;
+let headerObserver;
 onMounted(() => {
     document.addEventListener('click', onDocumentClick);
-    if (props.hero) {
-        window.addEventListener('scroll', onScroll, { passive: true });
-        onScroll();
+    measureHeader();
+    headerObserver = typeof ResizeObserver !== 'undefined' && headerRef.value
+        ? new ResizeObserver(() => {
+            measureHeader();
+            onScroll();
+        })
+        : null;
+    if (headerRef.value) {
+        headerObserver?.observe(headerRef.value);
     }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', measureHeader, { passive: true });
+    onScroll();
     removeListener = router.on('navigate', () => {
         sidebarOpen.value = false;
         closeMenus();
-        requestAnimationFrame(onScroll);
+        requestAnimationFrame(() => {
+            measureHeader();
+            onScroll();
+        });
     });
 });
 onUnmounted(() => {
     document.removeEventListener('click', onDocumentClick);
     window.removeEventListener('scroll', onScroll);
+    window.removeEventListener('resize', measureHeader);
+    headerObserver?.disconnect();
     removeListener?.();
 });
 </script>
@@ -271,198 +292,33 @@ onUnmounted(() => {
         </aside>
 
         <div class="app-main relative flex min-h-dvh min-w-0 flex-1 flex-col lg:pl-[264px]">
-            <!-- Full-bleed hero band (header lives inside until scroll) -->
-            <div v-if="hero" class="dash-hero-band">
-                <header
-                    ref="headerRef"
-                    :class="[
-                        'sticky top-0 z-30 pt-[env(safe-area-inset-top)] transition-all duration-300',
-                        headerSolid
-                            ? 'border-b border-border/50 bg-background/92 shadow-sm backdrop-blur-xl'
-                            : 'border-b border-transparent bg-transparent',
-                    ]"
-                >
-                    <div class="flex min-h-14 w-full items-center gap-2 px-3 py-2.5 sm:min-h-16 sm:gap-3 sm:px-5 sm:py-3 lg:px-8">
-                        <div class="flex min-w-0 flex-1 items-center gap-2">
-                            <button
-                                type="button"
-                                :class="[
-                                    'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl lg:hidden',
-                                    headerSolid ? 'bg-card text-foreground shadow-sm' : 'bg-white/70 text-foreground shadow-sm backdrop-blur',
-                                ]"
-                                aria-label="Open menu"
-                                @click="sidebarOpen = true"
-                            >
-                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
-                            </button>
-
-                            <div
-                                class="min-w-0 transition-all duration-300"
-                                :class="showCompactTitle ? 'opacity-100' : 'pointer-events-none absolute opacity-0'"
-                            >
-                                <div class="flex min-w-0 items-center gap-2.5">
-                                    <Link :href="homeHref" class="hidden shrink-0 lg:inline-flex">
-                                        <span class="brand-logo brand-logo-gradient text-[1.05rem]">
-                                            Cut<span class="brand-logo-accent">cost</span>
-                                        </span>
-                                    </Link>
-                                    <span v-if="title" class="hidden h-4 w-px shrink-0 bg-border/70 lg:block" />
-                                    <div class="min-w-0">
-                                        <h1 v-if="title" class="page-title truncate">{{ title }}</h1>
-                                        <p v-if="subtitle" class="page-sub hidden truncate sm:block">{{ subtitle }}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <Link
-                                v-if="!showCompactTitle"
-                                :href="homeHref"
-                                class="hidden min-w-0 lg:inline-flex"
-                            >
-                                <span class="brand-logo brand-logo-gradient text-[1.05rem]">
-                                    Cut<span class="brand-logo-accent">cost</span>
-                                </span>
-                            </Link>
-                        </div>
-
-                        <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
-                            <div v-if="$slots.actions" class="mr-0.5 hidden items-center gap-2 md:flex">
-                                <slot name="actions" />
-                            </div>
-
-                            <div class="relative">
-                                <button
-                                    type="button"
-                                    :class="[
-                                        'relative inline-flex h-10 w-10 items-center justify-center rounded-xl transition-colors',
-                                        headerSolid ? 'bg-card text-foreground shadow-sm hover:bg-muted/70' : 'bg-white/70 text-foreground shadow-sm backdrop-blur hover:bg-white/90',
-                                    ]"
-                                    aria-label="Notifications"
-                                    :aria-expanded="notificationsOpen"
-                                    @click.stop="toggleNotifications"
-                                >
-                                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-                                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-                                    </svg>
-                                    <span
-                                        v-if="notifications.unread_count"
-                                        class="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground"
-                                    >
-                                        {{ notifications.unread_count > 9 ? '9+' : notifications.unread_count }}
-                                    </span>
-                                </button>
-
-                                <div
-                                    v-if="notificationsOpen"
-                                    class="absolute right-0 mt-2 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-card py-1 shadow-card sm:max-w-none"
-                                >
-                                    <div class="flex items-center justify-between px-4 py-3">
-                                        <p class="text-sm font-semibold">Notifications</p>
-                                        <span class="text-xs text-muted-foreground">Today</span>
-                                    </div>
-                                    <div v-if="notifications.items?.length" class="max-h-72 overflow-y-auto overscroll-contain">
-                                        <Link
-                                            v-for="item in notifications.items"
-                                            :key="item.id"
-                                            :href="item.href"
-                                            class="block px-4 py-3 transition-colors hover:bg-muted/50"
-                                            @click="closeMenus"
-                                        >
-                                            <p class="truncate text-sm font-medium text-foreground">{{ item.title }}</p>
-                                            <p class="mt-0.5 text-xs text-muted-foreground">{{ item.body }}</p>
-                                        </Link>
-                                    </div>
-                                    <div v-else class="px-4 py-8 text-center">
-                                        <p class="text-sm font-medium text-foreground">You’re all caught up</p>
-                                        <p class="mt-1 text-xs text-muted-foreground">No upcoming bookings for today.</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="relative">
-                                <button
-                                    type="button"
-                                    :class="[
-                                        'inline-flex items-center gap-2 rounded-full p-1 transition-colors sm:py-1 sm:pl-1 sm:pr-2.5',
-                                        headerSolid ? 'bg-card shadow-sm hover:bg-muted/70' : 'bg-white/70 shadow-sm backdrop-blur hover:bg-white/90',
-                                    ]"
-                                    :aria-expanded="profileOpen"
-                                    @click.stop="toggleProfile"
-                                >
-                                    <span class="avatar bg-primary text-primary-foreground">
-                                        {{ user?.initials || user?.name?.charAt(0)?.toUpperCase() }}
-                                    </span>
-                                    <span class="hidden min-w-0 text-left sm:block">
-                                        <span class="block max-w-[8rem] truncate text-sm font-medium leading-tight">{{ user?.name }}</span>
-                                        <span class="block max-w-[8rem] truncate text-[11px] text-muted-foreground">{{ user?.shop_name || user?.email }}</span>
-                                    </span>
-                                </button>
-
-                                <div
-                                    v-if="profileOpen"
-                                    class="absolute right-0 mt-2 w-56 rounded-2xl bg-card py-1 shadow-card"
-                                >
-                                    <div class="border-b border-border/40 px-3 py-3 sm:hidden">
-                                        <p class="truncate text-sm font-medium">{{ user?.name }}</p>
-                                        <p class="truncate text-xs text-muted-foreground">{{ user?.email }}</p>
-                                    </div>
-                                    <Link
-                                        href="/profile"
-                                        class="flex min-h-11 items-center gap-2.5 px-3 py-2.5 text-sm transition-colors hover:bg-muted/50"
-                                        @click="closeMenus"
-                                    >
-                                        Profile
-                                    </Link>
-                                    <button
-                                        type="button"
-                                        class="flex min-h-11 w-full items-center gap-2.5 px-3 py-2.5 text-sm transition-colors hover:bg-muted/50"
-                                        @click="logout"
-                                    >
-                                        Log out
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div v-if="$slots.actions" class="border-t border-border/30 px-3 py-2.5 md:hidden" :class="headerSolid ? '' : 'border-white/20'">
-                        <div class="mobile-actions">
-                            <slot name="actions" />
-                        </div>
-                    </div>
-                </header>
-
-                <div ref="heroRef" class="dash-hero-copy">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-                        {{ greeting }}{{ user?.name ? `, ${user.name.split(' ')[0]}` : '' }}
-                    </p>
-                    <h1 class="mt-2 font-display text-[1.85rem] font-semibold tracking-tight text-foreground sm:text-4xl">
-                        {{ title }}
-                    </h1>
-                    <p v-if="subtitle" class="mt-2 max-w-xl text-sm text-muted-foreground sm:text-[15px]">
-                        {{ subtitle }}
-                    </p>
-                </div>
-            </div>
-
-            <!-- Standard header (non-hero pages) -->
             <header
-                v-else
                 ref="headerRef"
-                class="sticky top-0 z-30 border-b border-border/50 bg-background/92 pt-[env(safe-area-inset-top)] backdrop-blur-xl"
+                :class="[
+                    'app-topbar pt-[env(safe-area-inset-top)] transition-all duration-300',
+                    headerSolid
+                        ? 'border-b border-border/50 bg-background/95 shadow-sm backdrop-blur-xl'
+                        : 'border-b border-transparent bg-transparent',
+                ]"
             >
                 <div class="flex min-h-14 w-full items-center gap-2 px-3 py-2.5 sm:min-h-16 sm:gap-3 sm:px-5 sm:py-3 lg:px-8">
                     <div class="flex min-w-0 flex-1 items-center gap-2">
                         <button
                             type="button"
-                            class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-card text-foreground shadow-sm lg:hidden"
+                            :class="[
+                                'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl lg:hidden',
+                                headerSolid ? 'bg-card text-foreground shadow-sm' : 'bg-white/70 text-foreground shadow-sm backdrop-blur',
+                            ]"
                             aria-label="Open menu"
                             @click="sidebarOpen = true"
                         >
                             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
                         </button>
-                        <div class="min-w-0">
+
+                        <div
+                            class="min-w-0 transition-all duration-300"
+                            :class="showCompactTitle ? 'opacity-100' : 'pointer-events-none absolute opacity-0'"
+                        >
                             <div class="flex min-w-0 items-center gap-2.5">
                                 <Link :href="homeHref" class="hidden shrink-0 lg:inline-flex">
                                     <span class="brand-logo brand-logo-gradient text-[1.05rem]">
@@ -476,6 +332,16 @@ onUnmounted(() => {
                                 </div>
                             </div>
                         </div>
+
+                        <Link
+                            v-if="!showCompactTitle"
+                            :href="homeHref"
+                            class="hidden min-w-0 lg:inline-flex"
+                        >
+                            <span class="brand-logo brand-logo-gradient text-[1.05rem]">
+                                Cut<span class="brand-logo-accent">cost</span>
+                            </span>
+                        </Link>
                     </div>
 
                     <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
@@ -486,7 +352,10 @@ onUnmounted(() => {
                         <div class="relative">
                             <button
                                 type="button"
-                                class="relative inline-flex h-10 w-10 items-center justify-center rounded-xl bg-card text-foreground shadow-sm hover:bg-muted/70"
+                                :class="[
+                                    'relative inline-flex h-10 w-10 items-center justify-center rounded-xl transition-colors',
+                                    headerSolid ? 'bg-card text-foreground shadow-sm hover:bg-muted/70' : 'bg-white/70 text-foreground shadow-sm backdrop-blur hover:bg-white/90',
+                                ]"
                                 aria-label="Notifications"
                                 :aria-expanded="notificationsOpen"
                                 @click.stop="toggleNotifications"
@@ -502,46 +371,99 @@ onUnmounted(() => {
                                     {{ notifications.unread_count > 9 ? '9+' : notifications.unread_count }}
                                 </span>
                             </button>
+
                             <div
                                 v-if="notificationsOpen"
-                                class="absolute right-0 mt-2 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-card py-1 shadow-card"
+                                class="absolute right-0 mt-2 w-80 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-card py-1 shadow-card sm:max-w-none"
                             >
                                 <div class="flex items-center justify-between px-4 py-3">
                                     <p class="text-sm font-semibold">Notifications</p>
-                                    <span class="text-xs text-muted-foreground">Today</span>
+                                    <span v-if="notifications.unread_count" class="text-xs text-muted-foreground">
+                                        {{ notifications.unread_count }} new
+                                    </span>
                                 </div>
-                                <div v-if="notifications.items?.length" class="max-h-72 overflow-y-auto">
+                                <div v-if="notifications.items?.length" class="max-h-72 overflow-y-auto overscroll-contain">
                                     <Link
                                         v-for="item in notifications.items"
                                         :key="item.id"
                                         :href="item.href"
-                                        class="block px-4 py-3 hover:bg-muted/50"
+                                        class="block px-4 py-3 transition-colors hover:bg-muted/50"
+                                        :class="{ 'bg-primary/[0.04]': item.read === false }"
                                         @click="closeMenus"
                                     >
-                                        <p class="truncate text-sm font-medium">{{ item.title }}</p>
-                                        <p class="mt-0.5 text-xs text-muted-foreground">{{ item.body }}</p>
+                                        <div class="flex items-start gap-2">
+                                            <span
+                                                v-if="item.read === false"
+                                                class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+                                                aria-hidden="true"
+                                            />
+                                            <div class="min-w-0 flex-1" :class="{ 'pl-3.5': item.read !== false && notifications.see_all_href }">
+                                                <p class="truncate text-sm font-medium text-foreground">{{ item.title }}</p>
+                                                <p class="mt-0.5 text-xs text-muted-foreground">{{ item.body }}</p>
+                                                <p v-if="item.created_at_label" class="mt-1 text-[11px] text-muted-foreground/80">{{ item.created_at_label }}</p>
+                                            </div>
+                                        </div>
                                     </Link>
                                 </div>
-                                <div v-else class="px-4 py-8 text-center text-sm text-muted-foreground">No upcoming bookings today.</div>
+                                <div v-else class="px-4 py-8 text-center">
+                                    <p class="text-sm font-medium text-foreground">You’re all caught up</p>
+                                    <p class="mt-1 text-xs text-muted-foreground">
+                                        {{ notifications.see_all_href ? 'No notifications yet.' : 'No upcoming bookings for today.' }}
+                                    </p>
+                                </div>
+                                <div v-if="notifications.see_all_href" class="border-t border-border/40 px-2 py-2">
+                                    <Link
+                                        :href="notifications.see_all_href"
+                                        class="block rounded-xl px-3 py-2.5 text-center text-sm font-medium text-primary transition-colors hover:bg-muted/50"
+                                        @click="closeMenus"
+                                    >
+                                        See all notifications
+                                    </Link>
+                                </div>
                             </div>
                         </div>
 
                         <div class="relative">
                             <button
                                 type="button"
-                                class="inline-flex items-center rounded-full bg-card p-1 shadow-sm hover:bg-muted/70 sm:gap-2 sm:py-1 sm:pl-1 sm:pr-2.5"
+                                :class="[
+                                    'inline-flex items-center gap-2 rounded-full p-1 transition-colors sm:py-1 sm:pl-1 sm:pr-2.5',
+                                    headerSolid ? 'bg-card shadow-sm hover:bg-muted/70' : 'bg-white/70 shadow-sm backdrop-blur hover:bg-white/90',
+                                ]"
+                                :aria-expanded="profileOpen"
                                 @click.stop="toggleProfile"
                             >
                                 <span class="avatar bg-primary text-primary-foreground">
                                     {{ user?.initials || user?.name?.charAt(0)?.toUpperCase() }}
                                 </span>
                                 <span class="hidden min-w-0 text-left sm:block">
-                                    <span class="block max-w-[8rem] truncate text-sm font-medium">{{ user?.name }}</span>
+                                    <span class="block max-w-[8rem] truncate text-sm font-medium leading-tight">{{ user?.name }}</span>
+                                    <span class="block max-w-[8rem] truncate text-[11px] text-muted-foreground">{{ user?.shop_name || user?.email }}</span>
                                 </span>
                             </button>
-                            <div v-if="profileOpen" class="absolute right-0 mt-2 w-56 rounded-2xl bg-card py-1 shadow-card">
-                                <Link href="/profile" class="flex min-h-11 items-center px-3 py-2.5 text-sm hover:bg-muted/50" @click="closeMenus">Profile</Link>
-                                <button type="button" class="flex min-h-11 w-full items-center px-3 py-2.5 text-sm hover:bg-muted/50" @click="logout">Log out</button>
+
+                            <div
+                                v-if="profileOpen"
+                                class="absolute right-0 mt-2 w-56 rounded-2xl bg-card py-1 shadow-card"
+                            >
+                                <div class="border-b border-border/40 px-3 py-3 sm:hidden">
+                                    <p class="truncate text-sm font-medium">{{ user?.name }}</p>
+                                    <p class="truncate text-xs text-muted-foreground">{{ user?.email }}</p>
+                                </div>
+                                <Link
+                                    href="/profile"
+                                    class="flex min-h-11 items-center gap-2.5 px-3 py-2.5 text-sm transition-colors hover:bg-muted/50"
+                                    @click="closeMenus"
+                                >
+                                    Profile
+                                </Link>
+                                <button
+                                    type="button"
+                                    class="flex min-h-11 w-full items-center gap-2.5 px-3 py-2.5 text-sm transition-colors hover:bg-muted/50"
+                                    @click="logout"
+                                >
+                                    Log out
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -554,12 +476,34 @@ onUnmounted(() => {
                 </div>
             </header>
 
-            <main class="min-w-0 flex-1 pb-[calc(4.25rem+env(safe-area-inset-bottom))] lg:pb-0">
-                <div v-if="flash" class="page-shell pb-0">
-                    <div class="flash-ok">{{ flash }}</div>
+            <div class="flex min-h-0 min-w-0 flex-1 flex-col">
+                <div
+                    v-if="hero"
+                    ref="heroRef"
+                    class="dash-hero-band"
+                    :style="{ paddingTop: `${headerHeight}px` }"
+                >
+                    <div class="dash-hero-copy">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+                            {{ greeting }}{{ user?.name ? `, ${user.name.split(' ')[0]}` : '' }}
+                        </p>
+                        <h1 class="mt-2 font-display text-[1.85rem] font-semibold tracking-tight text-foreground sm:text-4xl">
+                            {{ title }}
+                        </h1>
+                        <p v-if="subtitle" class="mt-2 max-w-xl text-sm text-muted-foreground sm:text-[15px]">
+                            {{ subtitle }}
+                        </p>
+                    </div>
                 </div>
-                <slot />
-            </main>
+                <div v-else aria-hidden="true" :style="{ height: `${headerHeight}px` }" class="shrink-0" />
+
+                <main class="min-w-0 flex-1 pb-[calc(4.25rem+env(safe-area-inset-bottom))] lg:pb-0">
+                    <div v-if="flash" class="page-shell pb-0">
+                        <div class="flash-ok">{{ flash }}</div>
+                    </div>
+                    <slot />
+                </main>
+            </div>
 
             <nav class="mobile-tabbar lg:hidden" aria-label="Primary">
                 <Link

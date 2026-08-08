@@ -41,14 +41,13 @@
     html {
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
-        overflow-x: clip;
         max-width: 100%;
     }
 
     body {
         @apply bg-background font-sans text-foreground antialiased;
-        overflow-x: clip;
         max-width: 100%;
+        overflow-x: hidden;
     }
 
 
@@ -267,8 +266,11 @@
     .app-frame,
     .app-main {
         max-width: 100%;
-        overflow-x: clip;
         min-width: 0;
+    }
+
+    .app-topbar {
+        @apply fixed inset-x-0 top-0 z-30 lg:left-[264px];
     }
 
     .page-shell {
@@ -286,7 +288,7 @@
     }
 
     .mobile-tabbar {
-        @apply fixed inset-x-0 bottom-0 z-30 flex border-t border-border/50 bg-background/95 px-1 pt-1 backdrop-blur-xl;
+        @apply fixed inset-x-0 bottom-0 z-40 flex border-t border-border/50 bg-background/95 px-1 pt-1 backdrop-blur-xl;
         padding-bottom: max(0.35rem, env(safe-area-inset-bottom));
         max-width: 100%;
     }

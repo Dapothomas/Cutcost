@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Business;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\ShopNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -43,7 +44,7 @@ class StaffController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        User::create([
+        $stylist = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $data['phone'] ?? null,
@@ -52,6 +53,8 @@ class StaffController extends Controller
             'business_id' => $business->id,
             'email_verified_at' => now(),
         ]);
+
+        ShopNotifier::stylistAdded($business, $stylist);
 
         return redirect()->route('business.staff.index')
             ->with('status', 'Barber added to your team.');
