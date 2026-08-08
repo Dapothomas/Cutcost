@@ -27,9 +27,20 @@ class BookingSlots
             return [];
         }
 
-        $dayStart = $date->copy()->setTime(self::OPEN_HOUR, 0);
-        $dayEnd = $date->copy()->setTime(self::CLOSE_HOUR, 0);
+        $horizon = max(1, (int) ($business->booking_horizon_days ?: 60));
+        if ($date->greaterThan(today()->addDays($horizon))) {
+            return [];
+        }
+
+        $ranges = $business->openingRangesFor($date);
+        if ($ranges === []) {
+            return [];
+        }
+
         $duration = $service->duration_minutes;
+        $step = max(5, (int) ($business->slot_interval_minutes ?: self::STEP_MINUTES));
+        $leadMinutes = max(0, (int) ($business->booking_lead_minutes ?: 0));
+        $earliest = now()->addMinutes($leadMinutes);
 
         $existing = $business->bookings()
             ->where('barber_id', $barber->id)
@@ -38,20 +49,28 @@ class BookingSlots
             ->get(['starts_at', 'ends_at']);
 
         $slots = [];
-        $cursor = $dayStart->copy();
 
-        while ($cursor->copy()->addMinutes($duration)->lte($dayEnd)) {
-            $slotStart = $cursor->copy();
-            $slotEnd = $cursor->copy()->addMinutes($duration);
+        foreach ($ranges as $range) {
+            [$openHour, $openMinute] = array_map('intval', explode(':', $range['open']));
+            [$closeHour, $closeMinute] = array_map('intval', explode(':', $range['close']));
 
-            if ($slotStart->greaterThan(now()) && ! $this->overlaps($slotStart, $slotEnd, $existing)) {
-                $slots[] = $slotStart->format('H:i');
+            $dayStart = $date->copy()->setTime($openHour, $openMinute);
+            $dayEnd = $date->copy()->setTime($closeHour, $closeMinute);
+            $cursor = $dayStart->copy();
+
+            while ($cursor->copy()->addMinutes($duration)->lte($dayEnd)) {
+                $slotStart = $cursor->copy();
+                $slotEnd = $cursor->copy()->addMinutes($duration);
+
+                if ($slotStart->greaterThanOrEqualTo($earliest) && ! $this->overlaps($slotStart, $slotEnd, $existing)) {
+                    $slots[] = $slotStart->format('H:i');
+                }
+
+                $cursor->addMinutes($step);
             }
-
-            $cursor->addMinutes(self::STEP_MINUTES);
         }
 
-        return $slots;
+        return array_values(array_unique($slots));
     }
 
     /**

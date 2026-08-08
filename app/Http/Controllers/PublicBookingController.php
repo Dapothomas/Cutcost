@@ -35,12 +35,25 @@ class PublicBookingController extends Controller
             ?? $services->first();
 
         $selectedBarberId = $request->query('barber_id', 'any');
-        $selectedDate = $request->query('date', now()->addDay()->toDateString());
+        $leadDays = (int) ceil(max(0, (int) ($business->booking_lead_minutes ?: 0)) / (60 * 24));
+        $minDate = now()->addDays($leadDays)->toDateString();
+        $maxDate = now()->addDays(max(1, (int) ($business->booking_horizon_days ?: 60)))->toDateString();
+        $selectedDate = $request->query('date', $minDate);
 
         try {
             $date = Carbon::parse($selectedDate)->startOfDay();
         } catch (\Throwable) {
-            $date = now()->addDay()->startOfDay();
+            $date = Carbon::parse($minDate)->startOfDay();
+            $selectedDate = $date->toDateString();
+        }
+
+        if ($date->lt(Carbon::parse($minDate))) {
+            $date = Carbon::parse($minDate)->startOfDay();
+            $selectedDate = $date->toDateString();
+        }
+
+        if ($date->gt(Carbon::parse($maxDate))) {
+            $date = Carbon::parse($maxDate)->startOfDay();
             $selectedDate = $date->toDateString();
         }
 
@@ -74,6 +87,9 @@ class PublicBookingController extends Controller
             'availableSlots' => $availableSlots,
             'requiresPayment' => $requiresPayment,
             'paymentsBlocked' => $paymentsBlocked,
+            'minDate' => $minDate,
+            'maxDate' => $maxDate,
+            'hoursLabel' => $business->openingHoursLabelFor($date),
         ]);
     }
 

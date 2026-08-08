@@ -84,10 +84,12 @@
                 <p>
                     <span class="brand-logo brand-logo-gradient brand-logo-sm">Cut<span class="brand-logo-accent">cost</span></span>
                 </p>
-                <h1 class="mt-4 font-display text-3xl font-bold tracking-tight text-ink-950">{{ $business->name }}</h1>
-                <p class="mt-1 text-sm text-ink-500">
-                    {{ $business->city ? $business->city.' · ' : '' }}Book an appointment in 3 steps
-                </p>
+                <div class="mt-4">
+                    <h1 class="font-display text-3xl font-bold tracking-tight text-ink-950">{{ $business->name }}</h1>
+                    <p class="mt-1 text-sm text-ink-500">
+                        {{ $business->city ? $business->city.' · ' : '' }}Book an appointment in 3 steps
+                    </p>
+                </div>
             </div>
 
             @if ($paymentsBlocked ?? false)
@@ -221,12 +223,13 @@
                                 name="date"
                                 type="date"
                                 class="form-input mt-1"
-                                min="{{ now()->toDateString() }}"
+                                min="{{ $minDate }}"
+                                max="{{ $maxDate }}"
                                 required
                                 x-model="date"
                                 @change="refreshSlots()"
                             >
-                            <p class="mt-1 text-xs text-ink-400">Open hours: 9:00 – 18:00</p>
+                            <p class="mt-1 text-xs text-ink-400">Open hours: {{ $hoursLabel }}</p>
                         </div>
 
                         <div>

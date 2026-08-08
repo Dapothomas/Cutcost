@@ -10,9 +10,11 @@ use App\Models\Booking;
 use App\Models\Business;
 use App\Models\Service;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
+use Stripe\Subscription;
 use Stripe\Webhook;
 
 class StripeCheckoutService
@@ -302,6 +304,38 @@ class StripeCheckoutService
         ]);
     }
 
+    public function cancelSubscription(User $user): User
+    {
+        if (! $user->isOwner() || $user->subscription_status !== SubscriptionStatus::Active) {
+            throw new \RuntimeException('No active subscription to cancel.');
+        }
+
+        if (self::shouldBypass() || blank($user->stripe_subscription_id)) {
+            $user->update([
+                'subscription_status' => SubscriptionStatus::Canceled->value,
+                'subscription_cancel_at' => now(),
+            ]);
+
+            return $user->fresh();
+        }
+
+        Stripe::setApiKey(config('stripe.secret'));
+
+        $subscription = Subscription::update($user->stripe_subscription_id, [
+            'cancel_at_period_end' => true,
+        ]);
+
+        $endsAt = isset($subscription->current_period_end)
+            ? Carbon::createFromTimestamp($subscription->current_period_end)
+            : now()->addMonth();
+
+        $user->update([
+            'subscription_cancel_at' => $endsAt,
+        ]);
+
+        return $user->fresh();
+    }
+
     private function handleSubscriptionChange(object $subscription): void
     {
         $user = User::query()
@@ -319,9 +353,17 @@ class StripeCheckoutService
             default => SubscriptionStatus::Pending,
         };
 
+        $cancelAt = null;
+        if (! empty($subscription->cancel_at_period_end) && ! empty($subscription->current_period_end)) {
+            $cancelAt = Carbon::createFromTimestamp($subscription->current_period_end);
+        } elseif ($status === SubscriptionStatus::Canceled) {
+            $cancelAt = now();
+        }
+
         $user->update([
             'subscription_status' => $status->value,
             'subscription_plan' => $subscription->metadata['plan'] ?? $user->subscription_plan,
+            'subscription_cancel_at' => $cancelAt,
         ]);
     }
 }

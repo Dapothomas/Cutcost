@@ -45,6 +45,7 @@ Route::middleware(['auth', 'verified', 'role:owner', 'subscribed'])->prefix('bus
 
     Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::patch('settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::post('settings/subscription/cancel', [SettingsController::class, 'cancelSubscription'])->name('settings.subscription.cancel');
 
     Route::get('payments', [PaymentsController::class, 'index'])->name('payments.index');
     Route::post('payments/connect', [PaymentsController::class, 'connect'])->name('payments.connect');
