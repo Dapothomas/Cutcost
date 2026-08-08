@@ -33,7 +33,7 @@ class ResumeCheckoutController extends Controller
         try {
             $session = $checkout->createCheckoutSession($user, $plan);
         } catch (\Throwable) {
-            return redirect()->route('register')
+            return redirect()->route(config('app.waitlist_only') ? 'waitlist' : 'register')
                 ->with('status', 'Unable to start checkout. Please contact support.');
         }
 

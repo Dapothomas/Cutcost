@@ -17,14 +17,14 @@ class CheckoutSuccessController extends Controller
         $sessionId = $request->string('session_id');
 
         if ($sessionId->isEmpty()) {
-            return redirect()->route('register')
+            return redirect()->route($this->signupRoute())
                 ->with('status', 'Missing checkout session. Please try again.');
         }
 
         try {
             $user = $checkout->completeCheckout($sessionId->value());
         } catch (\Throwable) {
-            return redirect()->route('register')
+            return redirect()->route($this->signupRoute())
                 ->with('status', 'We could not confirm your payment. Please contact support.');
         }
 
@@ -38,7 +38,12 @@ class CheckoutSuccessController extends Controller
 
     public function cancel(): RedirectResponse
     {
-        return redirect()->route('register')
+        return redirect()->route($this->signupRoute())
             ->with('status', 'Checkout was cancelled. You can sign up again when ready.');
+    }
+
+    private function signupRoute(): string
+    {
+        return config('app.waitlist_only') ? 'waitlist' : 'register';
     }
 }

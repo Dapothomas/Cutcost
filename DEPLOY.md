@@ -144,9 +144,12 @@ MAIL_FROM_ADDRESS=hello@cutcost.app
 MAIL_FROM_NAME=Cutcost
 WAITLIST_NOTIFY_EMAIL=you@example.com
 PLATFORM_ADMIN_EMAILS=you@example.com
+WAITLIST_ONLY=true
 ```
 
 `PLATFORM_ADMIN_EMAILS` (comma-separated) can view `/admin/waitlist`. If omitted, it falls back to `WAITLIST_NOTIFY_EMAIL`.
+
+Set `WAITLIST_ONLY=false` when you’re ready to open public registration again.
 
 
 Leave `APP_KEY` empty — `deploy.sh` will generate it.

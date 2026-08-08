@@ -33,4 +33,12 @@
             <x-primary-button>{{ __('Log in') }}</x-primary-button>
         </div>
     </form>
+
+    @if (config('app.waitlist_only'))
+        <p class="mt-6 text-center text-sm text-muted-foreground">
+            New shop?
+            <a href="{{ route('waitlist') }}" class="font-medium text-primary hover:underline">Join the waitlist</a>
+            — registration isn’t open yet.
+        </p>
+    @endif
 </x-guest-layout>

@@ -434,7 +434,7 @@
 
                     <div class="mx-auto mt-14 grid max-w-4xl gap-8 sm:grid-cols-3">
                         @foreach ([
-                            ['1', 'Create your shop', 'Register as an owner, add your services and team.'],
+                            ['1', 'Join the waitlist', 'Request early access — we’ll invite you when your spot opens.'],
                             ['2', 'Share your link', 'Send clients your private booking page — not a marketplace listing.'],
                             ['3', 'Run the day', 'See today’s book, update statuses, and grow your CRM.'],
                         ] as $i => [$step, $title, $desc])

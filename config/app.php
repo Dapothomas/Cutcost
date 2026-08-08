@@ -138,4 +138,16 @@ return [
         explode(',', (string) env('PLATFORM_ADMIN_EMAILS', env('WAITLIST_NOTIFY_EMAIL', '')))
     ))),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Waitlist-only mode
+    |--------------------------------------------------------------------------
+    |
+    | When true, public registration is closed. New visitors can join the
+    | waitlist; existing accounts can still log in.
+    |
+    */
+
+    'waitlist_only' => (bool) env('WAITLIST_ONLY', true),
+
 ];
