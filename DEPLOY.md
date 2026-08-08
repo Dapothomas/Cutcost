@@ -1,26 +1,44 @@
 # Deploy Cutcost on Hetzner
 
-Everything (Laravel, Vue/Inertia assets, MySQL, Redis, queues, HTTPS) runs on one Hetzner VPS with Docker.
+Everything (Laravel, Vue/Inertia assets, MySQL, Redis, queues) runs on one Hetzner VPS with Docker.
 
 > Vercel is **not** used. Ignore `vercel.json` — this app is deployed only on Hetzner.
+
+## Current production (this VPS)
+
+| App | URL |
+|-----|-----|
+| **Cutcost** | http://88.198.131.114.sslip.io |
+| Jobboard (existing) | http://88.198.131.114 (unchanged) |
+
+Cutcost listens on `127.0.0.1:9080` and is also on the `jobboard_default` Docker network.  
+Jobboard nginx routes only hostname `88.198.131.114.sslip.io` to Cutcost.
+
+## Auto-deploy from GitHub
+
+Pushing to `main` runs `.github/workflows/deploy.yml`, which rsyncs the repo to `/opt/cutcost` and runs `./deploy.sh`.
+
+Required GitHub secrets:
+
+- `SSH_HOST` = `88.198.131.114`
+- `SSH_USER` = `root`
+- `SSH_PRIVATE_KEY` = contents of the deploy private key
 
 ## Free domain (no purchase)
 
 Use **sslip.io** — it maps your server IP to a hostname automatically.
 
-If your server IP is `203.0.113.10`, your free domain is:
+If your server IP is `88.198.131.114`, your free domain is:
 
 ```text
-203.0.113.10.sslip.io
+88.198.131.114.sslip.io
 ```
 
-HTTPS URL:
+URL:
 
 ```text
-https://203.0.113.10.sslip.io
+http://88.198.131.114.sslip.io
 ```
-
-No DNS signup. Caddy will get a Let's Encrypt certificate for that host.
 
 Later you can buy a real domain and point it at the same server.
 

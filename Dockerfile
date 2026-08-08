@@ -21,7 +21,7 @@ RUN composer install \
     --ignore-platform-reqs
 
 # ---------- Runtime (nginx + php-fpm) ----------
-FROM php:8.3-fpm-bookworm
+FROM php:8.4-fpm-bookworm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         nginx \

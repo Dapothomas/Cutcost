@@ -1,24 +1,15 @@
 services:
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      APP_DOMAIN: ${APP_DOMAIN}
-      ACME_EMAIL: ${ACME_EMAIL}
-    volumes:
-      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - app
-
+  # Ports 80/443 are already used by another app on this VPS.
+  # Jobboard nginx proxies http://APP_DOMAIN → cutcost-app-1:8080 on the shared network.
   app:
     build: .
     image: cutcost-app:latest
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:9080:8080"
+    networks:
+      - default
+      - jobboard_default
     env_file: .env
     environment:
       APP_ENV: production
@@ -111,10 +102,12 @@ services:
     volumes:
       - redis_data:/data
 
+networks:
+  jobboard_default:
+    external: true
+
 volumes:
   mysql_data:
   redis_data:
   app_storage:
   app_logs:
-  caddy_data:
-  caddy_config:
