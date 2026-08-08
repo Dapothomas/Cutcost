@@ -221,26 +221,30 @@ function submitCancel() {
                         <div
                             v-for="day in weekdays"
                             :key="day.value"
-                            class="grid items-center gap-3 px-6 py-3 sm:grid-cols-[5rem_auto_1fr_auto_1fr]"
+                            class="grid gap-3 px-4 py-3 sm:grid-cols-[5rem_auto_1fr_auto_1fr] sm:items-center sm:px-6"
                         >
-                            <p class="text-sm font-medium">{{ day.label }}</p>
-                            <label class="flex items-center gap-2 text-xs text-muted-foreground">
-                                <input v-model="form.opening_hours[day.value].closed" type="checkbox" class="h-4 w-4 border-input text-primary focus:ring-primary">
-                                Closed
-                            </label>
-                            <input
-                                v-model="form.opening_hours[day.value].open"
-                                type="time"
-                                class="form-input h-10"
-                                :disabled="form.opening_hours[day.value].closed"
-                            >
-                            <span class="hidden text-xs text-muted-foreground sm:inline">to</span>
-                            <input
-                                v-model="form.opening_hours[day.value].close"
-                                type="time"
-                                class="form-input h-10"
-                                :disabled="form.opening_hours[day.value].closed"
-                            >
+                            <div class="flex items-center justify-between gap-3 sm:contents">
+                                <p class="text-sm font-medium">{{ day.label }}</p>
+                                <label class="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <input v-model="form.opening_hours[day.value].closed" type="checkbox" class="h-4 w-4 border-input text-primary focus:ring-primary">
+                                    Closed
+                                </label>
+                            </div>
+                            <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:contents">
+                                <input
+                                    v-model="form.opening_hours[day.value].open"
+                                    type="time"
+                                    class="form-input h-10"
+                                    :disabled="form.opening_hours[day.value].closed"
+                                >
+                                <span class="text-xs text-muted-foreground">to</span>
+                                <input
+                                    v-model="form.opening_hours[day.value].close"
+                                    type="time"
+                                    class="form-input h-10"
+                                    :disabled="form.opening_hours[day.value].closed"
+                                >
+                            </div>
                         </div>
                     </div>
                 </div>

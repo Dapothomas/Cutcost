@@ -57,13 +57,13 @@ const donut = computed(() => {
                 <h2 class="card-title">Earnings</h2>
                 <p class="card-description">Paid client bookings · {{ summary.label }}</p>
             </div>
-            <div class="flex items-center gap-2">
-                <select v-model="period" class="form-select h-9 w-auto min-w-[9.5rem] py-1 text-xs font-medium">
+            <div class="flex w-full items-center gap-2 sm:w-auto">
+                <select v-model="period" class="form-select h-10 min-w-0 flex-1 py-1 text-xs font-medium sm:h-9 sm:w-auto sm:min-w-[9.5rem] sm:flex-none">
                     <option v-for="option in periods" :key="option.value" :value="option.value">
                         {{ option.label }}
                     </option>
                 </select>
-                <Link href="/business/payments" class="btn-ghost">Details</Link>
+                <Link href="/business/payments" class="btn-ghost shrink-0">Details</Link>
             </div>
         </div>
 

@@ -26,7 +26,7 @@ function removeBooking(id) {
         </template>
 
         <div class="page-shell">
-            <div class="panel overflow-hidden">
+            <div class="panel table-scroll">
                 <table class="data-table">
                     <thead>
                         <tr>

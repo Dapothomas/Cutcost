@@ -10,7 +10,7 @@ const props = defineProps({
 });
 
 const classes = computed(() =>
-    props.active ? 'sidebar-link sidebar-link-active' : 'sidebar-link',
+    props.active ? 'sidebar-link sidebar-link-active min-h-11' : 'sidebar-link min-h-11',
 );
 
 defineEmits(['click']);

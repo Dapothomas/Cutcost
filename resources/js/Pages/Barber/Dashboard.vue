@@ -18,13 +18,13 @@ function completeBooking(id) {
 </script>
 
 <template>
-    <AppLayout title="Today's schedule" :subtitle="`${businessName} · ${todayLabel}`">
-        <template #actions>
-            <Link href="/barber/bookings" class="btn-secondary">All bookings</Link>
-        </template>
-
+    <AppLayout
+        hero
+        title="Today's schedule"
+        :subtitle="`${businessName} · ${todayLabel}`"
+    >
         <div class="page-shell">
-            <div class="grid gap-4 sm:grid-cols-3">
+            <div class="grid grid-cols-3 gap-2 sm:gap-4">
                 <StatCard label="Today" :value="todaysBookings.length" icon="bookings" />
                 <StatCard label="Upcoming" :value="upcomingCount" icon="bookings" />
                 <StatCard label="Clients seen" :value="clientsSeen" icon="clients" />
@@ -42,11 +42,11 @@ function completeBooking(id) {
                     <div
                         v-for="(booking, index) in todaysBookings"
                         :key="booking.id"
-                        class="-mx-3 flex flex-col gap-3 px-3 py-3 transition-colors hover:bg-primary/[0.03] sm:flex-row sm:items-center sm:justify-between"
-                        :class="{ 'border-b border-border/50': index < todaysBookings.length - 1 }"
+                        class="-mx-3 flex flex-col gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-primary/[0.03] sm:flex-row sm:items-center sm:justify-between"
+                        :class="{ 'border-b border-border/40': index < todaysBookings.length - 1 }"
                     >
                         <div class="flex items-center gap-3.5">
-                            <div class="flex h-11 w-14 shrink-0 items-center justify-center bg-primary/[0.07] text-[13px] font-bold text-primary">
+                            <div class="flex h-11 w-14 shrink-0 items-center justify-center rounded-xl bg-primary/[0.07] text-[13px] font-bold text-primary">
                                 {{ booking.time }}
                             </div>
                             <div class="min-w-0">

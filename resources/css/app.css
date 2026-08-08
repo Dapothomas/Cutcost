@@ -26,7 +26,7 @@
         --border: 221 20% 89%;
         --input: 221 20% 86%;
         --ring: 226 78% 55%;
-        --radius: 0;
+        --radius: 0.75rem;
         --sidebar-background: 230 32% 9%;
         --sidebar-foreground: 224 16% 72%;
         --sidebar-border: 229 22% 17%;
@@ -73,11 +73,11 @@
     /* ---------- Surfaces ---------- */
     .panel,
     .card {
-        @apply rounded-2xl border border-border/70 bg-card text-card-foreground shadow-card;
+        @apply rounded-2xl border-0 bg-card text-card-foreground shadow-card;
     }
 
     .card-header {
-        @apply flex flex-col space-y-1 p-6 pb-4;
+        @apply flex flex-col space-y-1 p-4 pb-3 sm:p-6 sm:pb-4;
     }
 
     .card-title {
@@ -89,20 +89,20 @@
     }
 
     .card-content {
-        @apply p-6 pt-0;
+        @apply p-4 pt-0 sm:p-6 sm:pt-0;
     }
 
     .card-footer {
-        @apply flex items-center p-6 pt-0;
+        @apply flex items-center p-4 pt-0 sm:p-6 sm:pt-0;
     }
 
     /* ---------- Typography ---------- */
     .page-title {
-        @apply font-display text-xl font-semibold tracking-tight text-foreground;
+        @apply font-display text-base font-semibold tracking-tight text-foreground sm:text-xl;
     }
 
     .page-sub {
-        @apply mt-0.5 text-[13px] text-muted-foreground;
+        @apply mt-0.5 text-[12px] text-muted-foreground sm:text-[13px];
     }
 
     .stat-label {
@@ -110,7 +110,7 @@
     }
 
     .stat-value {
-        @apply font-display text-[28px] font-semibold leading-none tracking-tight text-foreground;
+        @apply font-display text-[1.5rem] font-semibold leading-none tracking-tight text-foreground sm:text-[28px];
     }
 
     /* ---------- Buttons ---------- */
@@ -202,11 +202,11 @@
     }
 
     .data-table th {
-        @apply h-11 px-5 text-left align-middle text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground;
+        @apply h-10 px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:h-11 sm:px-5;
     }
 
     .data-table td {
-        @apply px-5 py-4 align-middle text-foreground;
+        @apply px-3 py-3.5 align-middle text-sm text-foreground sm:px-5 sm:py-4 sm:text-base;
     }
 
     .data-table tbody tr {
@@ -260,7 +260,37 @@
 
     /* ---------- Shell ---------- */
     .page-shell {
-        @apply mx-auto flex w-full max-w-7xl flex-1 flex-col gap-5 p-4 md:p-6 lg:p-8;
+        @apply mx-auto flex w-full max-w-7xl flex-1 flex-col gap-3 p-3 sm:gap-5 sm:p-4 md:p-6 lg:p-8;
+    }
+
+    .mobile-actions {
+        @apply flex flex-wrap items-stretch gap-2;
+    }
+
+    .mobile-actions > * {
+        @apply min-h-11 flex-1 justify-center;
+    }
+
+    .mobile-tabbar {
+        @apply fixed inset-x-0 bottom-0 z-30 flex border-t border-border/50 bg-background/95 px-1 pt-1 backdrop-blur-xl;
+        padding-bottom: max(0.35rem, env(safe-area-inset-bottom));
+    }
+
+    .mobile-tab {
+        @apply flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 text-[10px] font-medium text-muted-foreground transition-colors;
+    }
+
+    .mobile-tab-active {
+        @apply bg-primary/[0.08] text-primary;
+    }
+
+    .table-scroll {
+        @apply -mx-0 overflow-x-auto overscroll-x-contain rounded-2xl;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-scroll .data-table {
+        @apply min-w-[36rem];
     }
 
     .app-shell-bg {
@@ -301,7 +331,7 @@
 
     /* ---------- Stat cards ---------- */
     .stat-card {
-        @apply card relative overflow-hidden p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover;
+        @apply card relative overflow-hidden p-4 transition-all duration-300 sm:p-5 sm:hover:-translate-y-0.5 sm:hover:shadow-card-hover;
     }
 
     .stat-card::after {
@@ -322,7 +352,22 @@
 
     /* ---------- Empty state ---------- */
     .empty-state {
-        @apply flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/30 px-6 py-10 text-center;
+        @apply flex flex-col items-center justify-center rounded-2xl bg-muted/30 px-6 py-10 text-center;
+    }
+
+    .dash-hero {
+        @apply relative overflow-hidden rounded-2xl px-4 py-6 sm:px-8 sm:py-10;
+        background-image:
+            radial-gradient(900px 280px at 12% 0%, hsl(var(--primary) / 0.18), transparent 55%),
+            radial-gradient(700px 240px at 88% 20%, hsl(var(--primary) / 0.10), transparent 50%),
+            linear-gradient(145deg, hsl(var(--primary) / 0.08) 0%, hsl(var(--card)) 42%, hsl(var(--secondary) / 0.65) 100%);
+        box-shadow: 0 1px 2px rgb(19 23 34 / 0.03), 0 18px 40px -28px hsl(var(--primary) / 0.35);
+    }
+
+    .dash-hero::after {
+        content: '';
+        @apply pointer-events-none absolute inset-0;
+        background-image: linear-gradient(180deg, hsl(0 0% 100% / 0.25), transparent 40%);
     }
 
     .empty-state-icon {
