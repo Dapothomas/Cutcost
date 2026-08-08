@@ -41,11 +41,16 @@
     html {
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
+        overflow-x: clip;
+        max-width: 100%;
     }
 
     body {
         @apply bg-background font-sans text-foreground antialiased;
+        overflow-x: clip;
+        max-width: 100%;
     }
+
 
     h1, h2, h3, h4, h5, h6 {
         @apply font-display;
@@ -259,8 +264,17 @@
     }
 
     /* ---------- Shell ---------- */
+    .app-frame,
+    .app-main {
+        max-width: 100%;
+        overflow-x: clip;
+        min-width: 0;
+    }
+
     .page-shell {
         @apply mx-auto flex w-full max-w-7xl flex-1 flex-col gap-3 p-3 sm:gap-5 sm:p-4 md:p-6 lg:p-8;
+        max-width: min(80rem, 100%);
+        box-sizing: border-box;
     }
 
     .mobile-actions {
@@ -274,10 +288,11 @@
     .mobile-tabbar {
         @apply fixed inset-x-0 bottom-0 z-30 flex border-t border-border/50 bg-background/95 px-1 pt-1 backdrop-blur-xl;
         padding-bottom: max(0.35rem, env(safe-area-inset-bottom));
+        max-width: 100%;
     }
 
     .mobile-tab {
-        @apply flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 text-[10px] font-medium text-muted-foreground transition-colors;
+        @apply flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 text-[10px] font-medium text-muted-foreground transition-colors;
     }
 
     .mobile-tab-active {
@@ -285,19 +300,45 @@
     }
 
     .table-scroll {
-        @apply -mx-0 overflow-x-auto overscroll-x-contain rounded-2xl;
+        @apply max-w-full overflow-x-auto overscroll-x-contain rounded-2xl;
         -webkit-overflow-scrolling: touch;
     }
 
     .table-scroll .data-table {
-        @apply min-w-[36rem];
+        width: max-content;
+        min-width: 100%;
     }
 
     .app-shell-bg {
         background-color: hsl(var(--background));
         background-image:
-            radial-gradient(1200px 400px at 85% -10%, hsl(var(--primary) / 0.05), transparent 60%),
-            radial-gradient(800px 300px at -10% 100%, hsl(var(--primary) / 0.04), transparent 60%);
+            radial-gradient(900px 320px at 85% -10%, hsl(var(--primary) / 0.05), transparent 60%),
+            radial-gradient(700px 260px at -10% 100%, hsl(var(--primary) / 0.04), transparent 60%);
+        background-repeat: no-repeat;
+    }
+
+    /* Full-bleed dashboard banner — header sits inside until scroll */
+    .dash-hero-band {
+        @apply relative w-full;
+        background-image:
+            radial-gradient(120% 80% at 0% 0%, hsl(var(--primary) / 0.22), transparent 55%),
+            radial-gradient(90% 70% at 100% 10%, hsl(var(--primary) / 0.14), transparent 50%),
+            radial-gradient(70% 50% at 50% 100%, hsl(var(--accent) / 0.55), transparent 60%),
+            linear-gradient(165deg, hsl(var(--primary) / 0.12) 0%, hsl(var(--background)) 58%, hsl(var(--background)) 100%);
+    }
+
+    .dash-hero-band::before {
+        content: '';
+        @apply pointer-events-none absolute inset-0;
+        background-image:
+            linear-gradient(180deg, hsl(0 0% 100% / 0.28), transparent 45%),
+            radial-gradient(1px 1px at 20% 30%, hsl(var(--primary) / 0.12), transparent),
+            radial-gradient(1px 1px at 70% 40%, hsl(var(--primary) / 0.10), transparent);
+        opacity: 0.9;
+    }
+
+    .dash-hero-copy {
+        @apply relative z-10 px-4 pb-8 pt-2 sm:px-5 sm:pb-10 sm:pt-3 lg:px-8;
     }
 
     /* Typographic wordmark — the name is the logo */
@@ -353,21 +394,6 @@
     /* ---------- Empty state ---------- */
     .empty-state {
         @apply flex flex-col items-center justify-center rounded-2xl bg-muted/30 px-6 py-10 text-center;
-    }
-
-    .dash-hero {
-        @apply relative overflow-hidden rounded-2xl px-4 py-6 sm:px-8 sm:py-10;
-        background-image:
-            radial-gradient(900px 280px at 12% 0%, hsl(var(--primary) / 0.18), transparent 55%),
-            radial-gradient(700px 240px at 88% 20%, hsl(var(--primary) / 0.10), transparent 50%),
-            linear-gradient(145deg, hsl(var(--primary) / 0.08) 0%, hsl(var(--card)) 42%, hsl(var(--secondary) / 0.65) 100%);
-        box-shadow: 0 1px 2px rgb(19 23 34 / 0.03), 0 18px 40px -28px hsl(var(--primary) / 0.35);
-    }
-
-    .dash-hero::after {
-        content: '';
-        @apply pointer-events-none absolute inset-0;
-        background-image: linear-gradient(180deg, hsl(0 0% 100% / 0.25), transparent 40%);
     }
 
     .empty-state-icon {
