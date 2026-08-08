@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\BookingStatus;
+use App\Enums\PaymentStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +16,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'starts_at',
     'ends_at',
     'status',
+    'payment_status',
+    'amount_cents',
+    'stripe_checkout_session_id',
     'notes',
 ])]
 class Booking extends Model
@@ -25,6 +29,8 @@ class Booking extends Model
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'status' => BookingStatus::class,
+            'payment_status' => PaymentStatus::class,
+            'amount_cents' => 'integer',
         ];
     }
 
@@ -46,5 +52,11 @@ class Booking extends Model
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
+    }
+
+    public function isConfirmed(): bool
+    {
+        return $this->payment_status?->isPaid()
+            && $this->status !== BookingStatus::Cancelled;
     }
 }

@@ -12,6 +12,7 @@ const page = usePage();
 const user = computed(() => page.props.auth.user);
 const flash = computed(() => page.props.flash?.status);
 const sidebarOpen = ref(false);
+const bookingLinkCopied = ref(false);
 
 const ownerNav = [
     { href: '/business', label: 'Dashboard', icon: 'dashboard' },
@@ -19,6 +20,7 @@ const ownerNav = [
     { href: '/business/bookings', label: 'Bookings', icon: 'bookings' },
     { href: '/business/services', label: 'Services', icon: 'services' },
     { href: '/business/staff', label: 'Staff', icon: 'staff' },
+    { href: '/business/payments', label: 'Payments', icon: 'payments' },
 ];
 
 const barberNav = [
@@ -38,6 +40,28 @@ function navActive(item) {
 
 function closeSidebar() {
     sidebarOpen.value = false;
+}
+
+async function copyBookingLink() {
+    if (!user.value?.booking_url) {
+        return;
+    }
+
+    await navigator.clipboard.writeText(user.value.booking_url);
+    bookingLinkCopied.value = true;
+    closeSidebar();
+
+    window.setTimeout(() => {
+        bookingLinkCopied.value = false;
+    }, 2000);
+}
+
+function logout() {
+    closeSidebar();
+    router.post('/logout', {}, {
+        preserveState: false,
+        replace: true,
+    });
 }
 
 let removeListener;
@@ -91,10 +115,14 @@ onUnmounted(() => removeListener?.());
                 <template v-if="isOwner && user?.booking_url">
                     <div class="my-4 border-t border-sidebar-border" />
                     <p class="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Share</p>
-                    <a :href="user.booking_url" target="_blank" class="sidebar-link text-muted-foreground" @click="closeSidebar">
+                    <button
+                        type="button"
+                        class="sidebar-link w-full text-left text-muted-foreground"
+                        @click="copyBookingLink"
+                    >
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                        Booking link
-                    </a>
+                        {{ bookingLinkCopied ? 'Copied!' : 'Booking link' }}
+                    </button>
                 </template>
             </nav>
 
@@ -110,10 +138,10 @@ onUnmounted(() => removeListener?.());
                 </div>
                 <div class="mt-1 space-y-0.5">
                     <SidebarLink href="/profile" :active="page.url.startsWith('/profile')" label="Profile" icon="profile" @click="closeSidebar" />
-                    <Link href="/logout" method="post" as="button" class="sidebar-link w-full text-left text-muted-foreground">
+                    <button type="button" class="sidebar-link w-full text-left text-muted-foreground" @click="logout">
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
                         Log out
-                    </Link>
+                    </button>
                 </div>
             </div>
         </aside>

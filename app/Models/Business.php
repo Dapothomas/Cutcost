@@ -10,13 +10,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-#[Fillable(['owner_id', 'name', 'slug', 'phone', 'city', 'address', 'public_booking_enabled'])]
+#[Fillable(['owner_id', 'name', 'slug', 'phone', 'city', 'address', 'public_booking_enabled', 'stripe_account_id', 'stripe_charges_enabled', 'stripe_payouts_enabled', 'stripe_onboarding_completed_at'])]
 class Business extends Model
 {
     protected function casts(): array
     {
         return [
             'public_booking_enabled' => 'boolean',
+            'stripe_charges_enabled' => 'boolean',
+            'stripe_payouts_enabled' => 'boolean',
+            'stripe_onboarding_completed_at' => 'datetime',
         ];
     }
 
@@ -97,5 +100,10 @@ class Business extends Model
     public function publicBookingUrl(): string
     {
         return route('public.booking.show', $this);
+    }
+
+    public function canAcceptPayments(): bool
+    {
+        return app(\App\Services\StripeConnectService::class)->canAcceptPayments($this);
     }
 }

@@ -6,6 +6,8 @@ return [
 
     'secret' => env('STRIPE_SECRET'),
 
+    'api_version' => env('STRIPE_API_VERSION', '2026-01-28.clover'),
+
     'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
 
     /*
@@ -18,6 +20,11 @@ return [
         'starter' => env('STRIPE_PRICE_STARTER'),
         'shop' => env('STRIPE_PRICE_SHOP'),
         'studio' => env('STRIPE_PRICE_STUDIO'),
+    ],
+
+    'connect' => [
+        'country' => env('STRIPE_CONNECT_COUNTRY', 'GB'),
+        'platform_fee_percent' => (float) env('STRIPE_PLATFORM_FEE_PERCENT', 0),
     ],
 
 ];

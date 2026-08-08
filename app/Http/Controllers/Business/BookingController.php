@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Business;
 
 use App\Enums\BookingStatus;
+use App\Enums\PaymentStatus;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
@@ -99,6 +100,8 @@ class BookingController extends Controller
             'starts_at' => $startsAt,
             'ends_at' => $startsAt->copy()->addMinutes($service->duration_minutes),
             'status' => BookingStatus::Scheduled,
+            'payment_status' => PaymentStatus::Waived,
+            'amount_cents' => $service->price_cents,
             'notes' => $data['notes'] ?? null,
         ]);
 

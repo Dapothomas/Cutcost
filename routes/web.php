@@ -5,6 +5,7 @@ use App\Http\Controllers\Barber\DashboardController as BarberDashboardController
 use App\Http\Controllers\Business\BookingController as BusinessBookingController;
 use App\Http\Controllers\Business\ClientController;
 use App\Http\Controllers\Business\DashboardController as BusinessDashboardController;
+use App\Http\Controllers\Business\PaymentsController;
 use App\Http\Controllers\Business\ServiceController;
 use App\Http\Controllers\Business\StaffController;
 use App\Http\Controllers\DashboardRedirectController;
@@ -18,6 +19,8 @@ Route::view('/', 'home')->name('home');
 
 Route::get('/book/{business:slug}', [PublicBookingController::class, 'show'])->name('public.booking.show');
 Route::post('/book/{business:slug}', [PublicBookingController::class, 'store'])->name('public.booking.store');
+Route::get('/book/{business:slug}/checkout/success', [PublicBookingController::class, 'checkoutSuccess'])->name('public.booking.checkout.success');
+Route::get('/book/{business:slug}/checkout/cancel/{booking}', [PublicBookingController::class, 'checkoutCancel'])->name('public.booking.checkout.cancel');
 Route::get('/book/{business:slug}/confirmed/{booking}', [PublicBookingController::class, 'confirmation'])->name('public.booking.confirmation');
 
 
@@ -38,6 +41,11 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'verified', 'role:owner', 'subscribed'])->prefix('business')->name('business.')->group(function () {
     Route::get('/', BusinessDashboardController::class)->name('dashboard');
+
+    Route::get('payments', [PaymentsController::class, 'index'])->name('payments.index');
+    Route::post('payments/connect', [PaymentsController::class, 'connect'])->name('payments.connect');
+    Route::get('payments/return', [PaymentsController::class, 'return'])->name('payments.return');
+    Route::get('payments/refresh', [PaymentsController::class, 'refresh'])->name('payments.refresh');
 
     Route::resource('clients', ClientController::class)->except(['show']);
     Route::resource('services', ServiceController::class)->except(['show']);

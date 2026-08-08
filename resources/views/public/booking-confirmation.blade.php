@@ -25,6 +25,12 @@
                         <span class="text-muted-foreground">Service</span>
                         <span class="font-medium">{{ $booking->service->name }}</span>
                     </div>
+                    @if ($booking->amount_cents)
+                        <div class="flex justify-between gap-4">
+                            <span class="text-muted-foreground">Paid</span>
+                            <span class="font-medium">£{{ number_format($booking->amount_cents / 100, 2) }}</span>
+                        </div>
+                    @endif
                     <div class="flex justify-between gap-4">
                         <span class="text-muted-foreground">With</span>
                         <span class="font-medium">{{ $booking->barber->name }}</span>

@@ -34,6 +34,9 @@ class HandleInertiaRequests extends Middleware
                     'booking_url' => $user->isOwner()
                         ? $user->ownedBusiness?->publicBookingUrl()
                         : null,
+                    'payments_ready' => $user->isOwner()
+                        ? (bool) $user->ownedBusiness?->canAcceptPayments()
+                        : null,
                 ] : null,
             ],
             'flash' => [

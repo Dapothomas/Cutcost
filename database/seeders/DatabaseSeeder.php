@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\BookingStatus;
+use App\Enums\PaymentStatus;
 use App\Enums\Role;
 use App\Models\Booking;
 use App\Models\Business;
@@ -90,6 +91,8 @@ class DatabaseSeeder extends Seeder
             'starts_at' => $startsAt,
             'ends_at' => $startsAt->copy()->addMinutes(45),
             'status' => BookingStatus::Scheduled,
+            'payment_status' => PaymentStatus::Paid,
+            'amount_cents' => $fade->price_cents,
         ]);
     }
 }

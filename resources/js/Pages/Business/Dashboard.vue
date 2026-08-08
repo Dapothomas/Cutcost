@@ -9,6 +9,7 @@ const props = defineProps({
     business: { type: Object, required: true },
     todaysBookings: { type: Array, default: () => [] },
     todayLabel: { type: String, required: true },
+    earnings: { type: Object, required: true },
 });
 
 const subtitle = computed(() =>
@@ -28,11 +29,26 @@ function copyBookingLink() {
         </template>
 
         <div class="page-shell">
+            <div
+                v-if="!business.payments_ready && !business.payments_bypassed"
+                class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+            >
+                <p class="font-medium">Connect Stripe to accept client payments</p>
+                <p class="mt-1 text-amber-900/80">Clients cannot pay online until your shop is connected. Booking links still work for free services.</p>
+                <Link href="/business/payments" class="btn-primary mt-3 inline-flex">Set up payments</Link>
+            </div>
+
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <StatCard label="Clients" :value="business.clients_count" icon="clients" />
                 <StatCard label="Services" :value="business.services_count" icon="services" />
                 <StatCard label="Barbers" :value="business.barbers_count" icon="staff" />
                 <StatCard label="Bookings" :value="business.bookings_count" icon="bookings" />
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-3">
+                <StatCard label="Earned today" :value="earnings.today.amount_label" icon="revenue" />
+                <StatCard label="Earned this month" :value="earnings.month.amount_label" icon="revenue" />
+                <StatCard label="Earned all time" :value="earnings.all_time.amount_label" icon="revenue" />
             </div>
 
             <div class="grid gap-4 lg:grid-cols-3">
@@ -70,6 +86,30 @@ function copyBookingLink() {
                 </div>
 
                 <div class="space-y-4">
+                    <div class="card">
+                        <div class="card-header flex-row items-center justify-between space-y-0">
+                            <div>
+                                <h2 class="card-title">Earnings</h2>
+                                <p class="card-description">From paid online bookings</p>
+                            </div>
+                            <Link href="/business/payments" class="btn-ghost">Details</Link>
+                        </div>
+                        <div class="card-content space-y-3 text-sm">
+                            <div class="flex justify-between gap-4">
+                                <span class="text-muted-foreground">Today</span>
+                                <span class="font-semibold">{{ earnings.today.amount_label }}</span>
+                            </div>
+                            <div class="flex justify-between gap-4">
+                                <span class="text-muted-foreground">This month</span>
+                                <span class="font-semibold">{{ earnings.month.amount_label }}</span>
+                            </div>
+                            <div class="flex justify-between gap-4 border-t pt-3">
+                                <span class="text-muted-foreground">All time</span>
+                                <span class="font-semibold">{{ earnings.all_time.amount_label }}</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="card">
                         <div class="card-header">
                             <h2 class="card-title">Quick actions</h2>

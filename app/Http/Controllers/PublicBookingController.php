@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\BookingStatus;
+use App\Enums\PaymentStatus;
+use App\Models\Booking;
 use App\Models\Business;
 use App\Models\Client;
 use App\Models\Service;
+use App\Services\StripeCheckoutService;
 use App\Support\BookingSlots;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -58,6 +61,9 @@ class PublicBookingController extends Controller
             }
         }
 
+        $requiresPayment = $this->requiresPayment($business, $selectedService);
+        $paymentsBlocked = $this->paymentsBlocked($business, $selectedService);
+
         return view('public.booking', [
             'business' => $business,
             'services' => $services,
@@ -66,10 +72,12 @@ class PublicBookingController extends Controller
             'selectedBarberId' => $selectedBarberId,
             'selectedDate' => $selectedDate,
             'availableSlots' => $availableSlots,
+            'requiresPayment' => $requiresPayment,
+            'paymentsBlocked' => $paymentsBlocked,
         ]);
     }
 
-    public function store(Request $request, Business $business, BookingSlots $slots): RedirectResponse
+    public function store(Request $request, Business $business, BookingSlots $slots, StripeCheckoutService $checkout): RedirectResponse
     {
         abort_unless($business->public_booking_enabled, 404);
 
@@ -123,7 +131,15 @@ class PublicBookingController extends Controller
             ]);
         }
 
-        $booking = DB::transaction(function () use ($business, $data, $service, $barber, $startsAt) {
+        if ($this->paymentsBlocked($business, $service)) {
+            throw ValidationException::withMessages([
+                'service_id' => 'This shop is not accepting online payments yet. Please contact them directly.',
+            ]);
+        }
+
+        $requiresPayment = $this->requiresPayment($business, $service);
+
+        $booking = DB::transaction(function () use ($business, $data, $service, $barber, $startsAt, $requiresPayment) {
             $client = $this->findOrCreateClient($business, $data);
 
             return $business->bookings()->create([
@@ -132,20 +148,78 @@ class PublicBookingController extends Controller
                 'barber_id' => $barber->id,
                 'starts_at' => $startsAt,
                 'ends_at' => $startsAt->copy()->addMinutes($service->duration_minutes),
-                'status' => BookingStatus::Scheduled,
+                'status' => $requiresPayment ? BookingStatus::PendingPayment : BookingStatus::Scheduled,
+                'payment_status' => $requiresPayment ? PaymentStatus::Pending : PaymentStatus::Waived,
+                'amount_cents' => $service->price_cents,
                 'notes' => $data['notes'] ?? null,
             ]);
         });
 
-        return redirect()
-            ->route('public.booking.confirmation', [$business, $booking])
-            ->with('status', 'Your appointment is booked.');
+        if (! $requiresPayment) {
+            return redirect()
+                ->route('public.booking.confirmation', [$business, $booking])
+                ->with('status', 'Your appointment is booked.');
+        }
+
+        try {
+            $session = $checkout->createBookingCheckoutSession($booking, $business, $service);
+        } catch (\Throwable) {
+            $checkout->cancelPendingBooking($booking);
+
+            throw ValidationException::withMessages([
+                'time' => 'We could not start checkout. Please try again.',
+            ]);
+        }
+
+        $booking->update(['stripe_checkout_session_id' => $session->id]);
+
+        return redirect()->away($session->url);
     }
 
-    public function confirmation(Business $business, \App\Models\Booking $booking): View
+    public function checkoutSuccess(Request $request, Business $business, StripeCheckoutService $checkout): RedirectResponse
+    {
+        abort_unless($business->public_booking_enabled, 404);
+
+        $sessionId = $request->string('session_id');
+
+        if ($sessionId->isEmpty()) {
+            return redirect()
+                ->route('public.booking.show', $business)
+                ->with('status', 'Missing checkout session. Please try again.');
+        }
+
+        try {
+            $booking = $checkout->completeBookingCheckout($sessionId->value());
+        } catch (\Throwable) {
+            return redirect()
+                ->route('public.booking.show', $business)
+                ->with('status', 'We could not confirm your payment. Please contact the shop.');
+        }
+
+        abort_unless($booking->business_id === $business->id, 404);
+
+        return redirect()
+            ->route('public.booking.confirmation', [$business, $booking])
+            ->with('status', 'Payment confirmed — you’re booked.');
+    }
+
+    public function checkoutCancel(Business $business, Booking $booking, StripeCheckoutService $checkout): RedirectResponse
     {
         abort_unless($business->public_booking_enabled, 404);
         abort_unless($booking->business_id === $business->id, 404);
+
+        $checkout->cancelPendingBooking($booking);
+
+        return redirect()
+            ->route('public.booking.show', $business)
+            ->with('status', 'Payment was cancelled. That time slot has been released.');
+    }
+
+    public function confirmation(Business $business, Booking $booking): View
+    {
+        abort_unless($business->public_booking_enabled, 404);
+        abort_unless($booking->business_id === $business->id, 404);
+        abort_unless($booking->isConfirmed(), 404);
 
         $booking->load(['client', 'service', 'barber']);
 
@@ -153,6 +227,32 @@ class PublicBookingController extends Controller
             'business' => $business,
             'booking' => $booking,
         ]);
+    }
+
+    private function requiresPayment(Business $business, ?Service $service): bool
+    {
+        if (! $service || $service->price_cents <= 0) {
+            return false;
+        }
+
+        if (StripeCheckoutService::shouldBypass()) {
+            return false;
+        }
+
+        return $business->canAcceptPayments();
+    }
+
+    private function paymentsBlocked(Business $business, ?Service $service): bool
+    {
+        if (! $service || $service->price_cents <= 0) {
+            return false;
+        }
+
+        if (StripeCheckoutService::shouldBypass()) {
+            return false;
+        }
+
+        return ! $business->canAcceptPayments();
     }
 
     /**
@@ -192,4 +292,3 @@ class PublicBookingController extends Controller
         ]);
     }
 }
-

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\BookingStatus;
+use App\Enums\PaymentStatus;
 use App\Enums\Role;
 use App\Models\Business;
 use App\Models\Service;
@@ -62,6 +63,8 @@ class PublicBookingTest extends TestCase
             'service_id' => $service->id,
             'barber_id' => $barber->id,
             'status' => BookingStatus::Scheduled->value,
+            'payment_status' => PaymentStatus::Waived->value,
+            'amount_cents' => $service->price_cents,
         ]);
     }
 

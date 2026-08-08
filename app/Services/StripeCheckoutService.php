@@ -2,8 +2,13 @@
 
 namespace App\Services;
 
+use App\Enums\BookingStatus;
+use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
+use App\Models\Booking;
+use App\Models\Business;
+use App\Models\Service;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Stripe\Checkout\Session;
@@ -53,6 +58,9 @@ class StripeCheckoutService
             ]],
             'success_url' => route('register.checkout.success').'?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('register.checkout.cancel'),
+            'managed_payments' => [
+                'enabled' => false,
+            ],
             'metadata' => [
                 'user_id' => (string) $user->id,
                 'plan' => $plan->value,
@@ -94,6 +102,128 @@ class StripeCheckoutService
         return $user->fresh();
     }
 
+    public function createBookingCheckoutSession(Booking $booking, Business $business, Service $service): Session
+    {
+        if (! $business->canAcceptPayments()) {
+            throw new \RuntimeException('This shop is not ready to accept payments yet.');
+        }
+
+        if (blank($business->stripe_account_id)) {
+            throw new \RuntimeException('This shop has not connected Stripe yet.');
+        }
+
+        Stripe::setApiKey(config('stripe.secret'));
+
+        $booking->loadMissing(['client', 'barber']);
+
+        $sessionPayload = [
+            'mode' => 'payment',
+            'customer_email' => $booking->client->email ?: null,
+            'client_reference_id' => (string) $booking->id,
+            'line_items' => [[
+                'price_data' => [
+                    'currency' => 'gbp',
+                    'unit_amount' => $booking->amount_cents,
+                    'product_data' => [
+                        'name' => $service->name,
+                        'description' => sprintf(
+                            '%s · %s with %s',
+                            $business->name,
+                            $booking->starts_at->format('D j M · H:i'),
+                            $booking->barber->name,
+                        ),
+                    ],
+                ],
+                'quantity' => 1,
+            ]],
+            'success_url' => route('public.booking.checkout.success', $business).'?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => route('public.booking.checkout.cancel', [$business, $booking]),
+            'managed_payments' => [
+                'enabled' => false,
+            ],
+            'metadata' => [
+                'type' => 'booking',
+                'booking_id' => (string) $booking->id,
+                'business_id' => (string) $business->id,
+            ],
+        ];
+
+        $applicationFee = $this->bookingApplicationFeeCents($booking->amount_cents);
+
+        if ($applicationFee > 0) {
+            $sessionPayload['payment_intent_data'] = [
+                'application_fee_amount' => $applicationFee,
+                'transfer_data' => [
+                    'destination' => $business->stripe_account_id,
+                ],
+            ];
+        } else {
+            $sessionPayload['payment_intent_data'] = [
+                'transfer_data' => [
+                    'destination' => $business->stripe_account_id,
+                ],
+            ];
+        }
+
+        return Session::create($sessionPayload);
+    }
+
+    private function bookingApplicationFeeCents(int $amountCents): int
+    {
+        $percent = config('stripe.connect.platform_fee_percent', 0);
+
+        if ($percent <= 0) {
+            return 0;
+        }
+
+        return (int) round($amountCents * ($percent / 100));
+    }
+
+    public function confirmBookingWithoutCheckout(Booking $booking): Booking
+    {
+        $booking->update([
+            'status' => BookingStatus::Scheduled,
+            'payment_status' => PaymentStatus::Waived,
+        ]);
+
+        return $booking->fresh();
+    }
+
+    public function completeBookingCheckout(string $sessionId): Booking
+    {
+        Stripe::setApiKey(config('stripe.secret'));
+
+        $session = Session::retrieve($sessionId);
+
+        if ($session->payment_status !== 'paid' && $session->status !== 'complete') {
+            throw new \RuntimeException('Checkout session is not complete.');
+        }
+
+        $booking = Booking::query()->findOrFail(
+            $session->client_reference_id ?? $session->metadata['booking_id'] ?? null
+        );
+
+        $booking->update([
+            'status' => BookingStatus::Scheduled,
+            'payment_status' => PaymentStatus::Paid,
+            'stripe_checkout_session_id' => $session->id,
+        ]);
+
+        return $booking->fresh();
+    }
+
+    public function cancelPendingBooking(Booking $booking): void
+    {
+        if ($booking->status !== BookingStatus::PendingPayment) {
+            return;
+        }
+
+        $booking->update([
+            'status' => BookingStatus::Cancelled,
+            'payment_status' => PaymentStatus::Failed,
+        ]);
+    }
+
     public function handleWebhook(string $payload, ?string $signature): void
     {
         $secret = config('stripe.webhook_secret');
@@ -110,6 +240,8 @@ class StripeCheckoutService
 
         match ($event->type) {
             'checkout.session.completed' => $this->handleCheckoutCompleted($event->data->object),
+            'checkout.session.expired' => $this->handleCheckoutExpired($event->data->object),
+            'account.updated' => app(StripeConnectService::class)->handleAccountUpdated($event->data->object),
             'customer.subscription.updated',
             'customer.subscription.deleted' => $this->handleSubscriptionChange($event->data->object),
             default => null,
@@ -118,6 +250,12 @@ class StripeCheckoutService
 
     private function handleCheckoutCompleted(object $session): void
     {
+        if (($session->metadata['type'] ?? null) === 'booking') {
+            $this->confirmBookingFromSession($session);
+
+            return;
+        }
+
         if ($session->mode !== 'subscription') {
             return;
         }
@@ -133,6 +271,34 @@ class StripeCheckoutService
             'subscription_status' => SubscriptionStatus::Active->value,
             'stripe_customer_id' => $session->customer,
             'stripe_subscription_id' => $session->subscription,
+        ]);
+    }
+
+    private function handleCheckoutExpired(object $session): void
+    {
+        if (($session->metadata['type'] ?? null) !== 'booking') {
+            return;
+        }
+
+        $booking = Booking::query()->find($session->metadata['booking_id'] ?? $session->client_reference_id);
+
+        if ($booking) {
+            $this->cancelPendingBooking($booking);
+        }
+    }
+
+    private function confirmBookingFromSession(object $session): void
+    {
+        $booking = Booking::query()->find($session->metadata['booking_id'] ?? $session->client_reference_id);
+
+        if (! $booking) {
+            return;
+        }
+
+        $booking->update([
+            'status' => BookingStatus::Scheduled,
+            'payment_status' => PaymentStatus::Paid,
+            'stripe_checkout_session_id' => $session->id,
         ]);
     }
 

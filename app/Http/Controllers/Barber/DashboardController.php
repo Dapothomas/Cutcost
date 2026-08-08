@@ -17,7 +17,7 @@ class DashboardController extends Controller
         $todaysBookings = $user->bookings()
             ->with(['client', 'service'])
             ->whereDate('starts_at', today())
-            ->where('status', '!=', BookingStatus::Cancelled)
+            ->whereNotIn('status', [BookingStatus::Cancelled, BookingStatus::PendingPayment])
             ->orderBy('starts_at')
             ->get()
             ->map(fn ($booking) => [

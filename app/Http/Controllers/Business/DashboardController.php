@@ -4,13 +4,15 @@ namespace App\Http\Controllers\Business;
 
 use App\Enums\BookingStatus;
 use App\Http\Controllers\Controller;
+use App\Services\BookingRevenueService;
+use App\Services\StripeConnectService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request, BookingRevenueService $revenue): Response
     {
         $business = $request->user()->ownedBusiness()->withCount([
             'services',
@@ -19,10 +21,14 @@ class DashboardController extends Controller
             'bookings',
         ])->firstOrFail();
 
+        if (filled($business->stripe_account_id) && ! $business->stripe_charges_enabled) {
+            $business = app(StripeConnectService::class)->syncAccount($business);
+        }
+
         $todaysBookings = $business->bookings()
             ->with(['client', 'service', 'barber'])
             ->whereDate('starts_at', today())
-            ->where('status', '!=', BookingStatus::Cancelled)
+            ->whereNotIn('status', [BookingStatus::Cancelled, BookingStatus::PendingPayment])
             ->orderBy('starts_at')
             ->get()
             ->map(fn ($booking) => [
@@ -42,9 +48,12 @@ class DashboardController extends Controller
                 'barbers_count' => $business->barbers_count,
                 'bookings_count' => $business->bookings_count,
                 'public_booking_url' => $business->publicBookingUrl(),
+                'payments_ready' => $business->canAcceptPayments(),
+                'payments_bypassed' => StripeConnectService::shouldBypass(),
             ],
             'todaysBookings' => $todaysBookings,
             'todayLabel' => now()->format('l, j F'),
+            'earnings' => $revenue->summary($business),
         ]);
     }
 }

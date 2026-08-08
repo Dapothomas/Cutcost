@@ -70,6 +70,19 @@
                 </p>
             </div>
 
+            @if ($paymentsBlocked ?? false)
+                <div class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+                    <p class="font-semibold">Online payment is not available yet</p>
+                    <p class="mt-1">This shop has not finished Stripe setup, so paid bookings cannot be completed online. Please contact {{ $business->name }} directly.</p>
+                </div>
+            @endif
+
+            @if (session('status'))
+                <div class="mb-4 rounded-xl border border-brand-200 bg-brand-50/60 px-4 py-3 text-sm text-ink-800">
+                    {{ session('status') }}
+                </div>
+            @endif
+
             @if ($services->isEmpty())
                 <div class="panel p-6">
                     <p class="text-sm text-ink-600">This shop hasn’t published any services yet. Please check back soon.</p>
@@ -293,18 +306,37 @@
                     </section>
 
                     <div class="card p-5">
+                        @if ($requiresPayment && $selectedService)
+                            <div class="mb-4 rounded-xl border border-brand-200 bg-brand-50/60 px-4 py-3 text-sm text-ink-800">
+                                <div class="flex items-center justify-between gap-4">
+                                    <span>Total due today</span>
+                                    <span class="text-lg font-semibold">{{ $selectedService->priceLabel() }}</span>
+                                </div>
+                                <p class="mt-1 text-xs text-ink-500">You’ll pay securely with Stripe before your slot is confirmed.</p>
+                            </div>
+                        @endif
+
                         <button
                             type="submit"
                             class="btn-primary w-full justify-center"
                             :class="!canSubmit ? 'opacity-60' : ''"
+                            @if ($paymentsBlocked ?? false) disabled @endif
                         >
-                            Confirm booking
+                            @if ($requiresPayment)
+                                Continue to payment
+                            @else
+                                Confirm booking
+                            @endif
                         </button>
                         <p class="mt-3 text-center text-xs text-ink-500" x-show="!canSubmit" x-cloak>
                             Complete the required steps above to book.
                         </p>
                         <p class="mt-3 text-center text-xs text-ink-500" x-show="canSubmit" x-cloak>
-                            Ready to book — tap confirm.
+                            @if ($requiresPayment)
+                                Ready — continue to secure checkout.
+                            @else
+                                Ready to book — tap confirm.
+                            @endif
                         </p>
                     </div>
                 </form>
