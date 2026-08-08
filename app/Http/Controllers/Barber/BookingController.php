@@ -8,18 +8,28 @@ use App\Models\Booking;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class BookingController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $bookings = $request->user()->bookings()
             ->with(['client', 'service'])
             ->latest('starts_at')
-            ->paginate(20);
+            ->paginate(20)
+            ->through(fn (Booking $booking) => [
+                'id' => $booking->id,
+                'starts_at_label' => $booking->starts_at->format('D j M · H:i'),
+                'client_name' => $booking->client->name,
+                'service_name' => $booking->service->name,
+                'status' => $booking->status->value,
+            ]);
 
-        return view('barber.bookings.index', compact('bookings'));
+        return Inertia::render('Barber/Bookings/Index', [
+            'bookings' => $bookings,
+        ]);
     }
 
     public function updateStatus(Request $request, Booking $booking): RedirectResponse

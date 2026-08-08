@@ -5,15 +5,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="Cutcost is the private CRM for salons and barbershops — manage clients, staff, and bookings in one place, with a booking link that's yours, not a marketplace listing.">
         <title>Cutcost — Salon &amp; barber CRM</title>
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700;800&display=swap" rel="stylesheet" />
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        @vite(['resources/css/app.css', 'resources/js/blade.js'])
         <style>
             /* ---- Cutcost landing page enhancements (scoped, additive) ---- */
-            .font-display { font-family: 'Bricolage Grotesque', 'Inter', ui-sans-serif, system-ui, sans-serif; }
+            .font-display { font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif; }
 
             html { scroll-behavior: smooth; }
 
@@ -115,9 +113,9 @@
         <div class="relative min-h-screen overflow-x-hidden bg-background">
             {{-- Background --}}
             <div class="pointer-events-none absolute inset-0 landing-grid-bg opacity-60"></div>
-            <div class="landing-orb pointer-events-none absolute -left-32 top-20 h-96 w-96 rounded-full bg-muted blur-3xl"></div>
-            <div class="landing-orb landing-orb-delay pointer-events-none absolute -right-24 top-1/3 h-80 w-80 rounded-full bg-secondary blur-3xl"></div>
-            <div class="cc-stripe pointer-events-none absolute right-0 top-0 h-[420px] w-[420px] text-primary/[0.04]" aria-hidden="true"></div>
+            <div class="landing-orb pointer-events-none absolute -left-32 top-20 h-96 w-96 rounded-full bg-primary/10 blur-3xl"></div>
+            <div class="landing-orb landing-orb-delay pointer-events-none absolute -right-24 top-1/3 h-80 w-80 rounded-full bg-brand-200/40 blur-3xl"></div>
+            <div class="cc-stripe pointer-events-none absolute right-0 top-0 h-[420px] w-[420px] text-primary/[0.06]" aria-hidden="true"></div>
 
             {{-- Header --}}
             <header
@@ -125,9 +123,9 @@
                 class="sticky top-0 z-50 border-b border-transparent bg-background/80 backdrop-blur-md transition-all duration-300"
             >
                 <div class="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
-                    <a href="{{ route('home') }}" class="landing-hero-in landing-hero-in-1 flex items-center gap-2 font-semibold transition-opacity hover:opacity-80">
-                        <span class="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-md bg-primary text-sm font-bold text-primary-foreground">
-                            <span class="cc-stripe absolute inset-0 text-primary-foreground/25" aria-hidden="true"></span>
+                    <a href="{{ route('home') }}" class="landing-hero-in landing-hero-in-1 flex items-center gap-2.5 font-semibold transition-opacity hover:opacity-80">
+                        <span class="brand-mark relative overflow-hidden">
+                            <span class="cc-stripe absolute inset-0 text-primary-foreground/20" aria-hidden="true"></span>
                             <span class="relative">C</span>
                         </span>
                         <span class="font-display text-[1.05rem] tracking-tight">Cutcost</span>
@@ -135,6 +133,7 @@
 
                     <nav class="landing-hero-in landing-hero-in-2 flex items-center gap-1 sm:gap-2">
                         <a href="#features" class="btn-ghost hidden sm:inline-flex">Features</a>
+                        <a href="#pricing" class="btn-ghost hidden sm:inline-flex">Pricing</a>
                         <a href="#how-it-works" class="btn-ghost hidden sm:inline-flex">How it works</a>
                         @auth
                             <a href="{{ route('dashboard') }}" class="btn-primary landing-btn-shine">Dashboard</a>
@@ -161,6 +160,7 @@
                 <div id="cc-mobile-panel" class="cc-mobile-panel border-b bg-background/95 backdrop-blur-md sm:hidden">
                     <div class="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
                         <a href="#features" class="btn-ghost justify-start">Features</a>
+                        <a href="#pricing" class="btn-ghost justify-start">Pricing</a>
                         <a href="#how-it-works" class="btn-ghost justify-start">How it works</a>
                         @guest
                             <a href="{{ route('login') }}" class="btn-ghost justify-start">Log in</a>
@@ -174,7 +174,7 @@
                 <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
                     <div>
                         <div class="landing-hero-in landing-hero-in-2 landing-shimmer-badge inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium">
-                            Salon &amp; barber CRM · No marketplace
+                        Beauty & Grooming CRM  
                         </div>
 
                         <h1 class="landing-hero-in landing-hero-in-3 font-display mt-6 text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
@@ -205,7 +205,7 @@
                                 <span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary">
                                     <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
                                 </span>
-                                Free to start
+                                From £10/month
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -403,6 +403,119 @@
                 </div>
             </section>
 
+            {{-- Pricing --}}
+            <section id="pricing" class="border-t bg-muted/30 py-20 sm:py-24">
+                <div class="mx-auto max-w-6xl px-4 sm:px-6">
+                    <div class="landing-reveal mx-auto max-w-2xl text-center" data-reveal>
+                        <span class="badge-default">Pricing</span>
+                        <h2 class="font-display mt-4 text-3xl font-bold tracking-tight sm:text-4xl">Simple plans for every shop</h2>
+                        <p class="mt-3 text-muted-foreground">From £10/month for solo barbers. No marketplace fees — ever.</p>
+                    </div>
+
+                    @php
+                        $plans = [
+                            [
+                                'name' => 'Starter',
+                                'slug' => 'starter',
+                                'price' => '£10',
+                                'period' => 'per month',
+                                'description' => 'For solo barbers getting organised.',
+                                'featured' => false,
+                                'features' => [
+                                    '1 barber seat',
+                                    'Client CRM & notes',
+                                    'Services & pricing',
+                                    'Manual bookings',
+                                    'Private booking link',
+                                ],
+                                'cta' => 'Get started',
+                            ],
+                            [
+                                'name' => 'Shop',
+                                'slug' => 'shop',
+                                'price' => '£25',
+                                'period' => 'per month',
+                                'description' => 'Everything a busy shop floor needs.',
+                                'featured' => true,
+                                'features' => [
+                                    'Up to 5 barbers',
+                                    'Full team scheduling',
+                                    'Client self-booking',
+                                    'Today’s dashboard',
+                                    'Email support',
+                                ],
+                                'cta' => 'Start 14-day trial',
+                            ],
+                            [
+                                'name' => 'Studio',
+                                'slug' => 'studio',
+                                'price' => '£59',
+                                'period' => 'per month',
+                                'description' => 'For multi-chair salons and growing teams.',
+                                'featured' => false,
+                                'features' => [
+                                    'Unlimited barbers',
+                                    'Multiple services & tiers',
+                                    'Priority support',
+                                    'Advanced booking rules',
+                                    'Dedicated onboarding',
+                                ],
+                                'cta' => 'Talk to us',
+                            ],
+                        ];
+                    @endphp
+
+                    <div class="mx-auto mt-14 grid max-w-5xl gap-6 lg:grid-cols-3 lg:items-center">
+                        @foreach ($plans as $i => $plan)
+                            <div
+                                class="landing-reveal landing-reveal-delay-{{ $i + 1 }} landing-card-hover relative flex flex-col rounded-xl border bg-card p-6 shadow-sm {{ $plan['featured'] ? 'border-primary/40 bg-gradient-to-b from-primary/[0.06] to-card shadow-lg shadow-primary/10 lg:scale-[1.03] lg:p-7' : 'border-border/80' }}"
+                                data-reveal
+                            >
+                                @if ($plan['featured'])
+                                    <span class="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-md shadow-primary/25">
+                                        Most popular
+                                    </span>
+                                @endif
+
+                                <div class="mb-6">
+                                    <h3 class="font-display text-lg font-semibold">{{ $plan['name'] }}</h3>
+                                    <p class="mt-1 text-sm text-muted-foreground">{{ $plan['description'] }}</p>
+                                    <div class="mt-5 flex items-end gap-1">
+                                        <span class="font-display text-4xl font-bold tracking-tight">{{ $plan['price'] }}</span>
+                                        <span class="mb-1 text-sm text-muted-foreground">/ {{ $plan['period'] }}</span>
+                                    </div>
+                                </div>
+
+                                <ul class="mb-8 flex-1 space-y-3">
+                                    @foreach ($plan['features'] as $feature)
+                                        <li class="flex items-start gap-2.5 text-sm">
+                                            <span class="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                                <svg class="h-2.5 w-2.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+                                            </span>
+                                            <span>{{ $feature }}</span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+
+                                @auth
+                                    <a href="{{ route('dashboard') }}" class="{{ $plan['featured'] ? 'btn-primary landing-btn-shine' : 'btn-secondary' }} w-full justify-center">
+                                        Go to dashboard
+                                    </a>
+                                @else
+                                    <a href="{{ route('register', ['plan' => $plan['slug']]) }}" class="{{ $plan['featured'] ? 'btn-primary landing-btn-shine' : 'btn-secondary' }} w-full justify-center">
+                                        {{ $plan['cta'] }}
+                                    </a>
+                                @endauth
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <p class="landing-reveal landing-reveal-delay-3 mx-auto mt-10 max-w-xl text-center text-sm text-muted-foreground" data-reveal>
+                        All plans include your private booking link — not a public marketplace listing. Cancel anytime.
+                    </p>
+                </div>
+            </section>
+
             {{-- CTA --}}
             <section class="relative overflow-hidden border-t bg-muted/30 py-20">
                 <div class="landing-orb pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-primary/10 via-secondary/30 to-transparent blur-3xl"></div>
@@ -432,6 +545,7 @@
                     </div>
                     <nav class="flex items-center gap-5 text-sm text-muted-foreground">
                         <a href="#features" class="transition-colors hover:text-foreground">Features</a>
+                        <a href="#pricing" class="transition-colors hover:text-foreground">Pricing</a>
                         <a href="#how-it-works" class="transition-colors hover:text-foreground">How it works</a>
                     </nav>
                     <p class="text-sm text-muted-foreground">Salon &amp; barber CRM · No marketplace</p>

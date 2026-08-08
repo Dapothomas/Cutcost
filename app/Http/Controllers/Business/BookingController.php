@@ -11,23 +11,34 @@ use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class BookingController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $business = $request->user()->ownedBusiness;
 
         $bookings = $business->bookings()
             ->with(['client', 'service', 'barber'])
             ->latest('starts_at')
-            ->paginate(20);
+            ->paginate(20)
+            ->through(fn (Booking $booking) => [
+                'id' => $booking->id,
+                'starts_at_label' => $booking->starts_at->format('D j M · H:i'),
+                'client_name' => $booking->client->name,
+                'service_name' => $booking->service->name,
+                'barber_name' => $booking->barber->name,
+                'status' => $booking->status->value,
+            ]);
 
-        return view('business.bookings.index', compact('bookings', 'business'));
+        return Inertia::render('Business/Bookings/Index', [
+            'bookings' => $bookings,
+        ]);
     }
 
-    public function create(Request $request): View
+    public function create(Request $request): Response
     {
         $business = $request->user()->ownedBusiness()->with([
             'clients' => fn ($q) => $q->orderBy('name'),
@@ -40,11 +51,21 @@ class BookingController extends Controller
             $assignableBarbers = collect([$request->user()]);
         }
 
-        return view('business.bookings.create', [
-            'business' => $business,
-            'clients' => $business->clients,
-            'services' => $business->services,
-            'barbers' => $assignableBarbers,
+        return Inertia::render('Business/Bookings/Create', [
+            'clients' => $business->clients->map(fn ($client) => [
+                'id' => $client->id,
+                'name' => $client->name,
+            ]),
+            'services' => $business->services->map(fn ($service) => [
+                'id' => $service->id,
+                'name' => $service->name,
+                'duration_minutes' => $service->duration_minutes,
+                'price_label' => '£'.number_format($service->price_cents / 100, 2),
+            ]),
+            'barbers' => $assignableBarbers->map(fn ($barber) => [
+                'id' => $barber->id,
+                'name' => $barber->name,
+            ]),
         ]);
     }
 
@@ -77,7 +98,6 @@ class BookingController extends Controller
             'barber_id' => $data['barber_id'],
             'starts_at' => $startsAt,
             'ends_at' => $startsAt->copy()->addMinutes($service->duration_minutes),
-
             'status' => BookingStatus::Scheduled,
             'notes' => $data['notes'] ?? null,
         ]);

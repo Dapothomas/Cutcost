@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ClientController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $business = $request->user()->ownedBusiness;
 
@@ -19,14 +20,14 @@ class ClientController extends Controller
             ->latest()
             ->paginate(15);
 
-        return view('business.clients.index', compact('clients', 'business'));
+        return Inertia::render('Business/Clients/Index', [
+            'clients' => $clients,
+        ]);
     }
 
-    public function create(Request $request): View
+    public function create(Request $request): Response
     {
-        return view('business.clients.create', [
-            'business' => $request->user()->ownedBusiness,
-        ]);
+        return Inertia::render('Business/Clients/Create');
     }
 
     public function store(Request $request): RedirectResponse
@@ -46,13 +47,18 @@ class ClientController extends Controller
             ->with('status', 'Client added.');
     }
 
-    public function edit(Request $request, Client $client): View
+    public function edit(Request $request, Client $client): Response
     {
         $this->authorizeClient($request, $client);
 
-        return view('business.clients.edit', [
-            'client' => $client,
-            'business' => $request->user()->ownedBusiness,
+        return Inertia::render('Business/Clients/Edit', [
+            'client' => [
+                'id' => $client->id,
+                'name' => $client->name,
+                'email' => $client->email,
+                'phone' => $client->phone,
+                'notes' => $client->notes,
+            ],
         ]);
     }
 

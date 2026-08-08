@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Business;
 use App\Enums\BookingStatus;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function __invoke(Request $request): View
+    public function __invoke(Request $request): Response
     {
         $business = $request->user()->ownedBusiness()->withCount([
             'services',
@@ -23,11 +24,27 @@ class DashboardController extends Controller
             ->whereDate('starts_at', today())
             ->where('status', '!=', BookingStatus::Cancelled)
             ->orderBy('starts_at')
-            ->get();
+            ->get()
+            ->map(fn ($booking) => [
+                'time' => $booking->starts_at->format('H:i'),
+                'client_name' => $booking->client->name,
+                'service_name' => $booking->service->name,
+                'barber_name' => $booking->barber->name,
+                'status' => $booking->status->label(),
+            ]);
 
-        return view('business.dashboard', [
-            'business' => $business,
+        return Inertia::render('Business/Dashboard', [
+            'business' => [
+                'name' => $business->name,
+                'city' => $business->city,
+                'clients_count' => $business->clients_count,
+                'services_count' => $business->services_count,
+                'barbers_count' => $business->barbers_count,
+                'bookings_count' => $business->bookings_count,
+                'public_booking_url' => $business->publicBookingUrl(),
+            ],
             'todaysBookings' => $todaysBookings,
+            'todayLabel' => now()->format('l, j F'),
         ]);
     }
 }

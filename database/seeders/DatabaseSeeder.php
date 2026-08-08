@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
             'role' => Role::Owner,
             'phone' => '07700900123',
             'email_verified_at' => now(),
+            'subscription_plan' => \App\Enums\SubscriptionPlan::Shop,
+            'subscription_status' => \App\Enums\SubscriptionStatus::Active,
         ]);
 
         $business = Business::create([

@@ -9,24 +9,27 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class StaffController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $business = $request->user()->ownedBusiness;
 
-        $barbers = $business->barbers()->latest()->paginate(15);
+        $barbers = $business->barbers()
+            ->latest()
+            ->paginate(15);
 
-        return view('business.staff.index', compact('barbers', 'business'));
+        return Inertia::render('Business/Staff/Index', [
+            'barbers' => $barbers,
+        ]);
     }
 
-    public function create(Request $request): View
+    public function create(Request $request): Response
     {
-        return view('business.staff.create', [
-            'business' => $request->user()->ownedBusiness,
-        ]);
+        return Inertia::render('Business/Staff/Create');
     }
 
     public function store(Request $request): RedirectResponse

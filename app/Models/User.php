@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\Role;
+use App\Enums\SubscriptionPlan;
+use App\Enums\SubscriptionStatus;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -13,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role', 'phone', 'business_id'])]
+#[Fillable(['name', 'email', 'password', 'role', 'phone', 'business_id', 'subscription_plan', 'subscription_status', 'stripe_customer_id', 'stripe_subscription_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -26,6 +28,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => Role::class,
+            'subscription_plan' => SubscriptionPlan::class,
+            'subscription_status' => SubscriptionStatus::class,
         ];
     }
 
@@ -61,5 +65,14 @@ class User extends Authenticatable
         }
 
         return $this->business;
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        if (! $this->isOwner()) {
+            return true;
+        }
+
+        return $this->subscription_status === SubscriptionStatus::Active;
     }
 }

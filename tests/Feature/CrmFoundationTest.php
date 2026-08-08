@@ -25,7 +25,10 @@ class CrmFoundationTest extends TestCase
         $this->actingAs($owner)
             ->get(route('business.dashboard'))
             ->assertOk()
-            ->assertSee('Corner Cuts');
+            ->assertInertia(fn ($page) => $page
+                ->component('Business/Dashboard')
+                ->where('business.name', 'Corner Cuts')
+            );
     }
 
     public function test_barber_can_open_schedule(): void
@@ -43,7 +46,10 @@ class CrmFoundationTest extends TestCase
         $this->actingAs($barber)
             ->get(route('barber.dashboard'))
             ->assertOk()
-            ->assertSee('Today’s schedule');
+            ->assertInertia(fn ($page) => $page
+                ->component('Barber/Dashboard')
+                ->has('todaysBookings')
+            );
     }
 
     public function test_barber_cannot_access_business_area(): void

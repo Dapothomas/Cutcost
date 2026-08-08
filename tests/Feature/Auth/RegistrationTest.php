@@ -26,6 +26,7 @@ class RegistrationTest extends TestCase
             'phone' => '07700900111',
             'business_name' => 'Test Cuts',
             'city' => 'Manchester',
+            'plan' => 'starter',
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);

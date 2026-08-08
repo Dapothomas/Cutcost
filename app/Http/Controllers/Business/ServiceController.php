@@ -6,24 +6,34 @@ use App\Http\Controllers\Controller;
 use App\Models\Service;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ServiceController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): Response
     {
         $business = $request->user()->ownedBusiness;
 
-        $services = $business->services()->latest()->paginate(15);
+        $services = $business->services()
+            ->latest()
+            ->paginate(15)
+            ->through(fn (Service $service) => [
+                'id' => $service->id,
+                'name' => $service->name,
+                'duration_minutes' => $service->duration_minutes,
+                'price_label' => '£'.number_format($service->price_cents / 100, 2),
+                'is_active' => $service->is_active,
+            ]);
 
-        return view('business.services.index', compact('services', 'business'));
+        return Inertia::render('Business/Services/Index', [
+            'services' => $services,
+        ]);
     }
 
-    public function create(Request $request): View
+    public function create(Request $request): Response
     {
-        return view('business.services.create', [
-            'business' => $request->user()->ownedBusiness,
-        ]);
+        return Inertia::render('Business/Services/Create');
     }
 
     public function store(Request $request): RedirectResponse
@@ -48,13 +58,18 @@ class ServiceController extends Controller
             ->with('status', 'Service added.');
     }
 
-    public function edit(Request $request, Service $service): View
+    public function edit(Request $request, Service $service): Response
     {
         $this->authorizeService($request, $service);
 
-        return view('business.services.edit', [
-            'service' => $service,
-            'business' => $request->user()->ownedBusiness,
+        return Inertia::render('Business/Services/Edit', [
+            'service' => [
+                'id' => $service->id,
+                'name' => $service->name,
+                'duration_minutes' => $service->duration_minutes,
+                'price' => number_format($service->price_cents / 100, 2, '.', ''),
+                'is_active' => $service->is_active,
+            ],
         ]);
     }
 

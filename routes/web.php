@@ -8,8 +8,10 @@ use App\Http\Controllers\Business\DashboardController as BusinessDashboardContro
 use App\Http\Controllers\Business\ServiceController;
 use App\Http\Controllers\Business\StaffController;
 use App\Http\Controllers\DashboardRedirectController;
+use App\Http\Controllers\Auth\ResumeCheckoutController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicBookingController;
+use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
@@ -19,17 +21,22 @@ Route::post('/book/{business:slug}', [PublicBookingController::class, 'store'])-
 Route::get('/book/{business:slug}/confirmed/{booking}', [PublicBookingController::class, 'confirmation'])->name('public.booking.confirmation');
 
 
+Route::post('/stripe/webhook', StripeWebhookController::class)->name('stripe.webhook');
+
 Route::get('/dashboard', DashboardRedirectController::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::get('register/checkout/resume', ResumeCheckoutController::class)
+        ->name('register.checkout.resume');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth', 'verified', 'role:owner'])->prefix('business')->name('business.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:owner', 'subscribed'])->prefix('business')->name('business.')->group(function () {
     Route::get('/', BusinessDashboardController::class)->name('dashboard');
 
     Route::resource('clients', ClientController::class)->except(['show']);

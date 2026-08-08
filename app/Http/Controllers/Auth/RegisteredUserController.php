@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Enums\Role;
+use App\Enums\SubscriptionPlan;
+use App\Enums\SubscriptionStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Business;
 use App\Models\User;
+use App\Services\StripeCheckoutService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -20,13 +24,16 @@ class RegisteredUserController extends Controller
 {
     public function create(): View
     {
-        return view('auth.register');
+        return view('auth.register', [
+            'plans' => SubscriptionPlan::options(),
+            'selectedPlan' => old('plan', request('plan', SubscriptionPlan::Shop->value)),
+        ]);
     }
 
     /**
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, StripeCheckoutService $checkout): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -34,16 +41,21 @@ class RegisteredUserController extends Controller
             'phone' => ['nullable', 'string', 'max:50'],
             'business_name' => ['required', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
+            'plan' => ['required', new Enum(SubscriptionPlan::class)],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = DB::transaction(function () use ($request) {
+        $plan = SubscriptionPlan::from($request->string('plan')->value());
+
+        $user = DB::transaction(function () use ($request, $plan) {
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'password' => Hash::make($request->password),
                 'role' => Role::Owner,
+                'subscription_plan' => $plan,
+                'subscription_status' => SubscriptionStatus::Pending,
             ]);
 
             $business = Business::create([
@@ -58,10 +70,24 @@ class RegisteredUserController extends Controller
             return $user;
         });
 
-        event(new Registered($user));
+        if (StripeCheckoutService::shouldBypass()) {
+            $checkout->activateWithoutCheckout($user, $plan);
 
-        Auth::login($user);
+            event(new Registered($user));
 
-        return redirect(route('business.dashboard', absolute: false));
+            Auth::login($user);
+
+            return redirect(route('business.dashboard', absolute: false));
+        }
+
+        try {
+            $session = $checkout->createCheckoutSession($user, $plan);
+        } catch (\Throwable $exception) {
+            throw ValidationException::withMessages([
+                'plan' => 'Unable to start checkout. Please try again or contact support.',
+            ]);
+        }
+
+        return redirect()->away($session->url);
     }
 }
