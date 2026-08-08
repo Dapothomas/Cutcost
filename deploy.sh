@@ -5,7 +5,7 @@ set -euo pipefail
 #   ./deploy.sh
 
 if [ ! -f .env ]; then
-  echo "Missing .env — copy .env.production.example to .env and fill it in."
+  echo "Missing .env — create /opt/cutcost/.env on the server (see DEPLOY.md)."
   exit 1
 fi
 

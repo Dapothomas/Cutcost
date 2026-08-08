@@ -6,7 +6,6 @@
 .DS_Store
 .env
 .env.*
-!.env.example
 node_modules
 vendor
 storage/logs/*
@@ -19,8 +18,5 @@ public/storage
 .phpunit.result.cache
 tests
 *.md
-vercel.json
-.vercelignore
-api
 Homestead.json
 Homestead.yaml

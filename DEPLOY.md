@@ -2,7 +2,7 @@
 
 Everything (Laravel, Vue/Inertia assets, MySQL, Redis, queues) runs on one Hetzner VPS with Docker.
 
-> Vercel is **not** used. Ignore `vercel.json` — this app is deployed only on Hetzner.
+> Deployed on Hetzner only (not Vercel).
 
 ## Current production (this VPS)
 
@@ -102,22 +102,39 @@ Then on the server: `cd /opt/cutcost`
 
 ## 4. Create production `.env`
 
-```bash
-cd /opt/cutcost
-cp .env.production.example .env
-nano .env
+Create `/opt/cutcost/.env` on the server (it is not in git). Minimum:
+
+```env
+APP_NAME=Cutcost
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+APP_URL=http://88.198.131.114.sslip.io
+APP_DOMAIN=88.198.131.114.sslip.io
+ACME_EMAIL=you@example.com
+
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=cutcost
+DB_USERNAME=cutcost
+DB_PASSWORD=strong-password
+DB_ROOT_PASSWORD=strong-root-password
+
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+CACHE_STORE=redis
+REDIS_CLIENT=phpredis
+REDIS_HOST=redis
+
+STRIPE_KEY=
+STRIPE_SECRET=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PRICE_STARTER=
+STRIPE_PRICE_SHOP=
+STRIPE_PRICE_STUDIO=
+STRIPE_BYPASS_CHECKOUT=false
 ```
-
-Replace at least:
-
-| Variable | Example |
-|----------|---------|
-| `APP_URL` | `https://203.0.113.10.sslip.io` |
-| `APP_DOMAIN` | `203.0.113.10.sslip.io` |
-| `ACME_EMAIL` | your real email (for HTTPS) |
-| `DB_PASSWORD` | long random password |
-| `DB_ROOT_PASSWORD` | long random password |
-| Stripe keys | your Stripe test/live keys + price IDs |
 
 Leave `APP_KEY` empty — `deploy.sh` will generate it.
 
