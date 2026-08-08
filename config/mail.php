@@ -115,4 +115,15 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Waitlist notifications
+    |--------------------------------------------------------------------------
+    |
+    | Address that receives an email for each new waitlist signup.
+    |
+    */
+
+    'waitlist_notify' => env('WAITLIST_NOTIFY_EMAIL'),
+
 ];

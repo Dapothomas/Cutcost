@@ -40,6 +40,7 @@ class HandleInertiaRequests extends Middleware
                     'payments_ready' => $user->isOwner()
                         ? (bool) $user->ownedBusiness?->canAcceptPayments()
                         : null,
+                    'is_platform_admin' => $user->isPlatformAdmin(),
                 ] : null,
             ],
             'notifications' => fn () => $this->notificationsFor($user, $shop?->id),

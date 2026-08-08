@@ -457,6 +457,14 @@ onUnmounted(() => {
                                 >
                                     Profile
                                 </Link>
+                                <Link
+                                    v-if="user?.is_platform_admin"
+                                    href="/admin/waitlist"
+                                    class="flex min-h-11 items-center gap-2.5 px-3 py-2.5 text-sm transition-colors hover:bg-muted/50"
+                                    @click="closeMenus"
+                                >
+                                    Waitlist
+                                </Link>
                                 <button
                                     type="button"
                                     class="flex min-h-11 w-full items-center gap-2.5 px-3 py-2.5 text-sm transition-colors hover:bg-muted/50"

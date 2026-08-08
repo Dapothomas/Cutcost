@@ -76,4 +76,15 @@ class User extends Authenticatable
 
         return $this->subscription_status === SubscriptionStatus::Active;
     }
+
+    public function isPlatformAdmin(): bool
+    {
+        $admins = config('app.platform_admins', []);
+
+        if ($admins === []) {
+            return false;
+        }
+
+        return in_array(strtolower((string) $this->email), $admins, true);
+    }
 }

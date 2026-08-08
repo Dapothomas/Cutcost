@@ -136,7 +136,7 @@
                             <a href="{{ route('dashboard') }}" class="btn-primary landing-btn-shine">Dashboard</a>
                         @else
                             <a href="{{ route('login') }}" class="btn-ghost hidden sm:inline-flex">Log in</a>
-                            <a href="{{ route('register') }}" class="btn-primary landing-btn-shine">Start free</a>
+                            <a href="{{ route('waitlist') }}" class="btn-primary landing-btn-shine">Join waitlist</a>
                         @endauth
 
                         <button
@@ -160,6 +160,7 @@
                         <a href="#pricing" class="btn-ghost justify-start">Pricing</a>
                         <a href="#how-it-works" class="btn-ghost justify-start">How it works</a>
                         @guest
+                            <a href="{{ route('waitlist') }}" class="btn-ghost justify-start">Join waitlist</a>
                             <a href="{{ route('login') }}" class="btn-ghost justify-start">Log in</a>
                         @endguest
                     </div>
@@ -171,7 +172,7 @@
                 <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
                     <div>
                         <div class="landing-hero-in landing-hero-in-2 landing-shimmer-badge inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium">
-                            Beauty &amp; grooming CRM
+                            Early access · Beauty &amp; grooming CRM
                         </div>
 
                         <h1 class="landing-hero-in landing-hero-in-3 font-display mt-6 text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
@@ -188,12 +189,64 @@
                             Clients, staff, services, and appointments in one place — plus a private booking link so regulars can book themselves.
                         </p>
 
-                        <div class="landing-hero-in landing-hero-in-5 mt-8 flex flex-wrap items-center gap-3">
+                        <div class="landing-hero-in landing-hero-in-5 mt-8">
                             @auth
-                                <a href="{{ route('dashboard') }}" class="btn-primary landing-btn-shine h-11 px-6">Open dashboard</a>
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <a href="{{ route('dashboard') }}" class="btn-primary landing-btn-shine h-11 px-6">Open dashboard</a>
+                                    <a href="{{ route('waitlist') }}" class="btn-secondary h-11 px-6">View waitlist page</a>
+                                </div>
                             @else
-                                <a href="{{ route('register') }}" class="btn-primary landing-btn-shine h-11 px-6">Create your shop</a>
-                                <a href="{{ route('login') }}" class="btn-secondary h-11 px-6 transition-all duration-300 hover:-translate-y-0.5">Log in</a>
+                                @if (session('status'))
+                                    <div class="flash-ok mb-4 max-w-lg">{{ session('status') }}</div>
+                                @endif
+
+                                <form method="POST" action="{{ route('waitlist.store') }}" class="max-w-lg space-y-3">
+                                    @csrf
+                                    <input type="hidden" name="source" value="home">
+
+                                    <div class="flex flex-col gap-2 sm:flex-row">
+                                        <label for="hero-waitlist-email" class="sr-only">Email</label>
+                                        <input
+                                            id="hero-waitlist-email"
+                                            type="email"
+                                            name="email"
+                                            value="{{ old('email') }}"
+                                            required
+                                            autocomplete="email"
+                                            placeholder="you@salon.com"
+                                            class="form-input h-12 flex-1 bg-card shadow-sm"
+                                        >
+                                        <button type="submit" class="btn-primary landing-btn-shine h-12 shrink-0 px-6">
+                                            Join waitlist
+                                        </button>
+                                    </div>
+
+                                    <div class="grid gap-2 sm:grid-cols-2">
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            value="{{ old('name') }}"
+                                            autocomplete="name"
+                                            placeholder="Your name (optional)"
+                                            class="form-input bg-card/80"
+                                        >
+                                        <input
+                                            type="text"
+                                            name="shop_name"
+                                            value="{{ old('shop_name') }}"
+                                            placeholder="Shop name (optional)"
+                                            class="form-input bg-card/80"
+                                        >
+                                    </div>
+
+                                    @error('email')
+                                        <p class="text-xs text-destructive">{{ $message }}</p>
+                                    @enderror
+
+                                    <p class="text-xs text-muted-foreground">
+                                        Early access only — or <a href="{{ route('login') }}" class="font-medium text-primary hover:underline">log in</a> if you already have an account.
+                                    </p>
+                                </form>
                             @endauth
                         </div>
 
@@ -499,8 +552,8 @@
                                         Go to dashboard
                                     </a>
                                 @else
-                                    <a href="{{ route('register', ['plan' => $plan['slug']]) }}" class="{{ $plan['featured'] ? 'btn-primary landing-btn-shine' : 'btn-secondary' }} w-full justify-center">
-                                        {{ $plan['cta'] }}
+                                    <a href="{{ route('waitlist') }}" class="{{ $plan['featured'] ? 'btn-primary landing-btn-shine' : 'btn-secondary' }} w-full justify-center">
+                                        Join waitlist
                                     </a>
                                 @endauth
                             </div>
@@ -513,20 +566,71 @@
                 </div>
             </section>
 
-            {{-- CTA --}}
-            <section class="relative overflow-hidden border-t bg-muted/30 py-20">
+            {{-- Waitlist CTA --}}
+            <section id="waitlist" class="relative overflow-hidden border-t bg-muted/30 py-20">
                 <div class="landing-orb pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-primary/10 via-secondary/30 to-transparent blur-3xl"></div>
-                <div class="landing-reveal relative mx-auto max-w-3xl px-4 text-center sm:px-6" data-reveal>
-                    <h2 class="font-display text-3xl font-bold tracking-tight sm:text-4xl">Ready to run a tighter shop?</h2>
-                    <p class="mt-4 text-lg text-muted-foreground">Join Cutcost and give your team one place to work — with clients booking on your link.</p>
-                    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-                        @auth
-                            <a href="{{ route('dashboard') }}" class="btn-primary landing-btn-shine h-11 px-8">Go to dashboard</a>
-                        @else
-                            <a href="{{ route('register') }}" class="btn-primary landing-btn-shine h-11 px-8">Create your shop — free</a>
-                            <a href="{{ route('login') }}" class="btn-secondary h-11 px-8 transition-all duration-300 hover:-translate-y-0.5">Log in</a>
-                        @endauth
+                <div class="landing-reveal relative mx-auto max-w-xl px-4 sm:px-6" data-reveal>
+                    <div class="text-center">
+                        <h2 class="font-display text-3xl font-bold tracking-tight sm:text-4xl">Get early access</h2>
+                        <p class="mt-4 text-lg text-muted-foreground">Join the waitlist — we’ll email you when Cutcost opens for your shop.</p>
                     </div>
+
+                    @if (session('status'))
+                        <div class="flash-ok mt-8">{{ session('status') }}</div>
+                    @endif
+
+                    <form method="POST" action="{{ route('waitlist.store') }}" class="mt-8 space-y-3 rounded-2xl bg-card p-5 shadow-card sm:p-6">
+                        @csrf
+                        <input type="hidden" name="source" value="home">
+
+                        <div>
+                            <label for="home-waitlist-email" class="sr-only">Email</label>
+                            <input
+                                id="home-waitlist-email"
+                                type="email"
+                                name="email"
+                                value="{{ old('email') }}"
+                                required
+                                autocomplete="email"
+                                placeholder="you@salon.com"
+                                class="form-input"
+                            >
+                            @error('email')
+                                <p class="mt-1.5 text-xs text-destructive">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <div>
+                                <label for="home-waitlist-name" class="sr-only">Your name</label>
+                                <input
+                                    id="home-waitlist-name"
+                                    type="text"
+                                    name="name"
+                                    value="{{ old('name') }}"
+                                    autocomplete="name"
+                                    placeholder="Your name"
+                                    class="form-input"
+                                >
+                            </div>
+                            <div>
+                                <label for="home-waitlist-shop" class="sr-only">Shop name</label>
+                                <input
+                                    id="home-waitlist-shop"
+                                    type="text"
+                                    name="shop_name"
+                                    value="{{ old('shop_name') }}"
+                                    placeholder="Shop name"
+                                    class="form-input"
+                                >
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary landing-btn-shine h-11 w-full justify-center">
+                            Join the waitlist
+                        </button>
+                        <p class="text-center text-xs text-muted-foreground">No spam — access updates only.</p>
+                    </form>
                 </div>
             </section>
 
@@ -539,7 +643,7 @@
                     <nav class="flex items-center gap-5 text-sm text-muted-foreground">
                         <a href="#features" class="transition-colors hover:text-foreground">Features</a>
                         <a href="#pricing" class="transition-colors hover:text-foreground">Pricing</a>
-                        <a href="#how-it-works" class="transition-colors hover:text-foreground">How it works</a>
+                        <a href="#waitlist" class="transition-colors hover:text-foreground">Waitlist</a>
                     </nav>
                     <p class="text-sm text-muted-foreground">Salon &amp; stylist CRM · No marketplace</p>
                 </div>

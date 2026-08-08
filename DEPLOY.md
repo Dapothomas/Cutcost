@@ -134,7 +134,20 @@ STRIPE_PRICE_STARTER=
 STRIPE_PRICE_SHOP=
 STRIPE_PRICE_STUDIO=
 STRIPE_BYPASS_CHECKOUT=false
+
+MAIL_MAILER=smtp
+MAIL_HOST=
+MAIL_PORT=587
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM_ADDRESS=hello@cutcost.app
+MAIL_FROM_NAME=Cutcost
+WAITLIST_NOTIFY_EMAIL=you@example.com
+PLATFORM_ADMIN_EMAILS=you@example.com
 ```
+
+`PLATFORM_ADMIN_EMAILS` (comma-separated) can view `/admin/waitlist`. If omitted, it falls back to `WAITLIST_NOTIFY_EMAIL`.
+
 
 Leave `APP_KEY` empty — `deploy.sh` will generate it.
 

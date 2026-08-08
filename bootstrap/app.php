@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureRole::class,
             'subscribed' => \App\Http\Middleware\EnsureOwnerSubscribed::class,
+            'platform-admin' => \App\Http\Middleware\EnsurePlatformAdmin::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [

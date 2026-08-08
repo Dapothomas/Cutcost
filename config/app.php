@@ -123,4 +123,19 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Platform admins
+    |--------------------------------------------------------------------------
+    |
+    | Comma-separated emails that can access /admin routes (e.g. waitlist).
+    | Falls back to WAITLIST_NOTIFY_EMAIL when PLATFORM_ADMIN_EMAILS is empty.
+    |
+    */
+
+    'platform_admins' => array_values(array_filter(array_map(
+        static fn (string $email) => strtolower(trim($email)),
+        explode(',', (string) env('PLATFORM_ADMIN_EMAILS', env('WAITLIST_NOTIFY_EMAIL', '')))
+    ))),
+
 ];
