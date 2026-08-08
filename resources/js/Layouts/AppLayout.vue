@@ -87,10 +87,11 @@ onUnmounted(() => removeListener?.());
             ]"
         >
             <!-- Brand -->
-            <div class="flex h-16 items-center gap-2.5 px-5">
-                <Link href="/dashboard" class="flex items-center gap-2.5" @click="closeSidebar">
-                    <span class="brand-mark">C</span>
-                    <span class="font-display text-[15px] font-semibold tracking-tight text-white">Cutcost</span>
+            <div class="flex h-16 items-center px-5">
+                <Link href="/dashboard" class="group" @click="closeSidebar">
+                    <span class="brand-logo brand-logo-light brand-logo-sm transition-opacity group-hover:opacity-90">
+                        Cut<span class="brand-logo-accent">cost</span>
+                    </span>
                 </Link>
             </div>
 

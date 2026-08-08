@@ -63,10 +63,9 @@
             }"
         >
             <div class="mb-8">
-                <div class="flex items-center gap-2.5">
-                    <span class="brand-mark !h-8 !w-8 !text-xs">C</span>
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-400">Cutcost</p>
-                </div>
+                <p>
+                    <span class="brand-logo brand-logo-gradient brand-logo-sm">Cut<span class="brand-logo-accent">cost</span></span>
+                </p>
                 <h1 class="mt-4 font-display text-3xl font-bold tracking-tight text-ink-950">{{ $business->name }}</h1>
                 <p class="mt-1 text-sm text-ink-500">
                     {{ $business->city ? $business->city.' · ' : '' }}Book an appointment in 3 steps

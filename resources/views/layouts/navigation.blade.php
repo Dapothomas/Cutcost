@@ -2,8 +2,8 @@
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 justify-between">
             <div class="flex items-center gap-8">
-                <a href="{{ route('dashboard') }}" class="font-display text-xl font-bold tracking-tight text-ink-950">
-                    Cutcost
+                <a href="{{ route('dashboard') }}" class="transition-opacity hover:opacity-85">
+                    <span class="brand-logo brand-logo-gradient">Cut<span class="brand-logo-accent">cost</span></span>
                 </a>
 
                 <div class="hidden items-center gap-1 sm:flex">

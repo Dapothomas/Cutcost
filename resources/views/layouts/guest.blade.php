@@ -18,9 +18,8 @@
             <div class="landing-grid-bg pointer-events-none absolute inset-0" aria-hidden="true"></div>
             <div class="pointer-events-none absolute -top-32 left-1/2 h-72 w-[560px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" aria-hidden="true"></div>
 
-            <a href="{{ route('home') }}" class="relative mb-8 flex items-center gap-2.5 font-semibold tracking-tight">
-                <span class="brand-mark">C</span>
-                <span class="font-display text-lg text-foreground">Cutcost</span>
+            <a href="{{ route('home') }}" class="relative mb-8 transition-opacity hover:opacity-85">
+                <span class="brand-logo brand-logo-gradient">Cut<span class="brand-logo-accent">cost</span></span>
             </a>
 
             <div class="card relative w-full max-w-lg border-primary/10 p-6 sm:p-8">

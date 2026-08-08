@@ -123,12 +123,8 @@
                 class="sticky top-0 z-50 border-b border-transparent bg-background/80 backdrop-blur-md transition-all duration-300"
             >
                 <div class="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
-                    <a href="{{ route('home') }}" class="landing-hero-in landing-hero-in-1 flex items-center gap-2.5 font-semibold transition-opacity hover:opacity-80">
-                        <span class="brand-mark relative overflow-hidden">
-                            <span class="cc-stripe absolute inset-0 text-primary-foreground/20" aria-hidden="true"></span>
-                            <span class="relative">C</span>
-                        </span>
-                        <span class="font-display text-[1.05rem] tracking-tight">Cutcost</span>
+                    <a href="{{ route('home') }}" class="landing-hero-in landing-hero-in-1 transition-opacity hover:opacity-85">
+                        <span class="brand-logo brand-logo-gradient">Cut<span class="brand-logo-accent">cost</span></span>
                     </a>
 
                     <nav class="landing-hero-in landing-hero-in-2 flex items-center gap-1 sm:gap-2">
@@ -536,13 +532,9 @@
             {{-- Footer --}}
             <footer class="border-t py-8">
                 <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 sm:flex-row sm:px-6">
-                    <div class="flex items-center gap-2 text-sm font-medium">
-                        <span class="relative flex h-7 w-7 items-center justify-center overflow-hidden rounded-md bg-primary text-xs font-bold text-primary-foreground">
-                            <span class="cc-stripe absolute inset-0 text-primary-foreground/20" aria-hidden="true"></span>
-                            <span class="relative">C</span>
-                        </span>
-                        <span class="font-display">Cutcost</span>
-                    </div>
+                    <a href="{{ route('home') }}" class="transition-opacity hover:opacity-85">
+                        <span class="brand-logo brand-logo-gradient brand-logo-sm">Cut<span class="brand-logo-accent">cost</span></span>
+                    </a>
                     <nav class="flex items-center gap-5 text-sm text-muted-foreground">
                         <a href="#features" class="transition-colors hover:text-foreground">Features</a>
                         <a href="#pricing" class="transition-colors hover:text-foreground">Pricing</a>

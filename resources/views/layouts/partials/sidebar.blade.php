@@ -9,9 +9,8 @@
 >
     {{-- Brand --}}
     <div class="flex h-14 items-center border-b border-sidebar-border px-4">
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-2 font-semibold tracking-tight text-foreground">
-            <span class="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">C</span>
-            <span>Cutcost</span>
+        <a href="{{ route('dashboard') }}" class="transition-opacity hover:opacity-85">
+            <span class="brand-logo brand-logo-gradient brand-logo-sm">Cut<span class="brand-logo-accent">cost</span></span>
         </a>
     </div>
 
