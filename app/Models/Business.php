@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Role;
+use App\Support\BrandColor;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-#[Fillable(['owner_id', 'name', 'slug', 'phone', 'city', 'address', 'public_booking_enabled', 'stripe_account_id', 'stripe_charges_enabled', 'stripe_payouts_enabled', 'stripe_onboarding_completed_at'])]
+#[Fillable(['owner_id', 'name', 'slug', 'phone', 'city', 'address', 'public_booking_enabled', 'primary_color', 'stripe_account_id', 'stripe_charges_enabled', 'stripe_payouts_enabled', 'stripe_onboarding_completed_at'])]
 class Business extends Model
 {
     protected function casts(): array
@@ -105,5 +106,13 @@ class Business extends Model
     public function canAcceptPayments(): bool
     {
         return app(\App\Services\StripeConnectService::class)->canAcceptPayments($this);
+    }
+
+    /**
+     * @return array{primary: string, primary_deep: string, ring: string, accent: string, accent_foreground: string}|null
+     */
+    public function brandTheme(): ?array
+    {
+        return BrandColor::tokens($this->primary_color);
     }
 }

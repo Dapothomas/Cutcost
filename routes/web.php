@@ -7,6 +7,7 @@ use App\Http\Controllers\Business\ClientController;
 use App\Http\Controllers\Business\DashboardController as BusinessDashboardController;
 use App\Http\Controllers\Business\PaymentsController;
 use App\Http\Controllers\Business\ServiceController;
+use App\Http\Controllers\Business\SettingsController;
 use App\Http\Controllers\Business\StaffController;
 use App\Http\Controllers\DashboardRedirectController;
 use App\Http\Controllers\Auth\ResumeCheckoutController;
@@ -41,6 +42,9 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'verified', 'role:owner', 'subscribed'])->prefix('business')->name('business.')->group(function () {
     Route::get('/', BusinessDashboardController::class)->name('dashboard');
+
+    Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit');
+    Route::patch('settings', [SettingsController::class, 'update'])->name('settings.update');
 
     Route::get('payments', [PaymentsController::class, 'index'])->name('payments.index');
     Route::post('payments/connect', [PaymentsController::class, 'connect'])->name('payments.connect');

@@ -1,7 +1,7 @@
 <script setup>
 import SidebarLink from '@/Components/SidebarLink.vue';
 import { Link, usePage, router } from '@inertiajs/vue3';
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted, watchEffect } from 'vue';
 
 defineProps({
     title: { type: String, default: '' },
@@ -11,6 +11,7 @@ defineProps({
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 const flash = computed(() => page.props.flash?.status);
+const themeTokens = computed(() => page.props.theme?.tokens ?? null);
 const sidebarOpen = ref(false);
 const bookingLinkCopied = ref(false);
 
@@ -21,7 +22,41 @@ const ownerNav = [
     { href: '/business/services', label: 'Services', icon: 'services' },
     { href: '/business/staff', label: 'Stylists', icon: 'staff' },
     { href: '/business/payments', label: 'Payments', icon: 'payments' },
+    { href: '/business/settings', label: 'Settings', icon: 'settings' },
 ];
+
+const themeVarMap = {
+    primary: '--primary',
+    primary_deep: '--primary-deep',
+    ring: '--ring',
+    accent: '--accent',
+    accent_foreground: '--accent-foreground',
+    background: '--background',
+    secondary: '--secondary',
+    secondary_foreground: '--secondary-foreground',
+    muted: '--muted',
+    muted_foreground: '--muted-foreground',
+    border: '--border',
+    input: '--input',
+    sidebar_background: '--sidebar-background',
+    sidebar_foreground: '--sidebar-foreground',
+    sidebar_border: '--sidebar-border',
+    sidebar_accent: '--sidebar-accent',
+    sidebar_accent_foreground: '--sidebar-accent-foreground',
+};
+
+watchEffect(() => {
+    const root = document.documentElement;
+    const tokens = themeTokens.value;
+
+    Object.entries(themeVarMap).forEach(([key, cssVar]) => {
+        if (tokens?.[key]) {
+            root.style.setProperty(cssVar, tokens[key]);
+        } else {
+            root.style.removeProperty(cssVar);
+        }
+    });
+});
 
 const barberNav = [
     { href: '/barber', label: 'Today', icon: 'dashboard' },

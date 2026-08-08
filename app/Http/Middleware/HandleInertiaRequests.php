@@ -21,6 +21,7 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
+        $shop = $user?->shop();
 
         return [
             ...parent::share($request),
@@ -30,7 +31,7 @@ class HandleInertiaRequests extends Middleware
                     'name' => $user->name,
                     'email' => $user->email,
                     'role' => $user->role->value,
-                    'shop_name' => $user->shop()?->name,
+                    'shop_name' => $shop?->name,
                     'booking_url' => $user->isOwner()
                         ? $user->ownedBusiness?->publicBookingUrl()
                         : null,
@@ -38,6 +39,10 @@ class HandleInertiaRequests extends Middleware
                         ? (bool) $user->ownedBusiness?->canAcceptPayments()
                         : null,
                 ] : null,
+            ],
+            'theme' => [
+                'primary_color' => $shop?->primary_color,
+                'tokens' => $shop?->brandTheme(),
             ],
             'flash' => [
                 'status' => fn () => $request->session()->get('status'),

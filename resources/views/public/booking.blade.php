@@ -8,6 +8,24 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/blade.js'])
+        @if ($tokens = $business->brandTheme())
+            <style>
+                :root {
+                    --primary: {{ $tokens['primary'] }};
+                    --primary-deep: {{ $tokens['primary_deep'] }};
+                    --ring: {{ $tokens['ring'] }};
+                    --accent: {{ $tokens['accent'] }};
+                    --accent-foreground: {{ $tokens['accent_foreground'] }};
+                    --background: {{ $tokens['background'] }};
+                    --secondary: {{ $tokens['secondary'] }};
+                    --secondary-foreground: {{ $tokens['secondary_foreground'] }};
+                    --muted: {{ $tokens['muted'] }};
+                    --muted-foreground: {{ $tokens['muted_foreground'] }};
+                    --border: {{ $tokens['border'] }};
+                    --input: {{ $tokens['input'] }};
+                }
+            </style>
+        @endif
     </head>
     <body class="font-sans app-shell-bg">
         @php

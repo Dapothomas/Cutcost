@@ -317,7 +317,7 @@
     }
 
     .stat-card-icon {
-        @apply flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/[0.09] text-blue-600;
+        @apply flex h-10 w-10 items-center justify-center rounded-xl bg-primary/[0.09] text-primary;
     }
 
     /* ---------- Empty state ---------- */
