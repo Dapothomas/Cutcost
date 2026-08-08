@@ -96,8 +96,8 @@ export default {
                 },
             },
             fontFamily: {
-                sans: ['Inter', ...defaultTheme.fontFamily.sans],
-                display: ['Poppins', 'Inter', ...defaultTheme.fontFamily.sans],
+                sans: ['Poppins', ...defaultTheme.fontFamily.sans],
+                display: ['Poppins', ...defaultTheme.fontFamily.sans],
             },
             boxShadow: {
                 sm: '0 1px 2px 0 rgb(19 23 34 / 0.04)',

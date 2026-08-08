@@ -26,7 +26,7 @@ defineEmits(['update:modelValue']);
             :value="modelValue"
             :required="required"
             class="form-input"
-            :class="error ? 'border-destructive focus-visible:border-destructive focus-visible:ring-destructive/15' : ''"
+            :class="error ? 'bg-destructive/[0.08] focus-visible:ring-destructive/20' : ''"
             @input="$emit('update:modelValue', $event.target.value)"
         />
         <p v-if="error" class="text-sm text-destructive">{{ error }}</p>

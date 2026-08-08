@@ -204,7 +204,7 @@ function submitCancel() {
                         </label>
                         <FormInput v-model="form.slug" label="Link slug" name="slug" required :error="form.errors.slug" />
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-                            <code class="block flex-1 break-all border border-border/70 bg-muted/60 px-3.5 py-2.5 text-xs text-muted-foreground">{{ bookingUrlPreview }}</code>
+                            <code class="block flex-1 break-all rounded-xl bg-secondary/80 px-3.5 py-2.5 text-xs text-muted-foreground">{{ bookingUrlPreview }}</code>
                             <button type="button" class="btn-secondary shrink-0" @click="copyBookingLink">
                                 {{ bookingCopied ? 'Copied' : 'Copy' }}
                             </button>

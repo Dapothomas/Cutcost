@@ -226,7 +226,7 @@
     .form-select,
     .form-textarea,
     .form-input {
-        @apply flex h-11 w-full rounded-xl border border-input bg-card px-3.5 py-1 text-sm shadow-sm transition-all duration-150 placeholder:text-muted-foreground/70 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/15 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50;
+        @apply flex h-11 w-full rounded-xl border-0 bg-secondary/80 px-3.5 py-1 text-sm shadow-none transition-all duration-150 placeholder:text-muted-foreground/70 focus-visible:bg-secondary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/15 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50;
     }
 
     .form-textarea {

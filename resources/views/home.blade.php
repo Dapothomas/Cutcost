@@ -7,11 +7,12 @@
         <title>Cutcost — Salon &amp; stylist CRM</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/blade.js'])
         <style>
             /* ---- Cutcost landing page enhancements (scoped, additive) ---- */
-            .font-display { font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif; }
+            .font-display,
+            body { font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif; }
 
             html { scroll-behavior: smooth; }
 
