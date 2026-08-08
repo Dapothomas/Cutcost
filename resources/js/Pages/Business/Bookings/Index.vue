@@ -33,7 +33,7 @@ function removeBooking(id) {
                             <th>When</th>
                             <th>Client</th>
                             <th>Service</th>
-                            <th>Barber</th>
+                            <th>Stylist</th>
                             <th>Status</th>
                             <th class="text-right">Actions</th>
                         </tr>

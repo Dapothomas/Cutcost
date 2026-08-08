@@ -114,7 +114,7 @@ class PublicBookingController extends Controller
         } else {
             if (! in_array((int) $data['barber_id'], $barberIds, true)) {
                 throw ValidationException::withMessages([
-                    'barber_id' => 'That barber is not available.',
+                    'barber_id' => 'That stylist is not available.',
                 ]);
             }
 

@@ -73,7 +73,9 @@ class BookingRevenueTest extends TestCase
             ->assertOk()
             ->assertInertia(fn ($page) => $page
                 ->component('Business/Dashboard')
-                ->where('earnings.today.amount_label', '£12.00')
+                ->where('earningsByPeriod.today.summary.amount_label', '£12.00')
+                ->has('earningsByPeriod.month.series')
+                ->has('earningsPeriods')
             );
     }
 

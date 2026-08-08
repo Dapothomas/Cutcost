@@ -53,7 +53,8 @@ class DashboardController extends Controller
             ],
             'todaysBookings' => $todaysBookings,
             'todayLabel' => now()->format('l, j F'),
-            'earnings' => $revenue->summary($business),
+            'earningsPeriods' => $revenue->periodOptions(),
+            'earningsByPeriod' => $revenue->panelByPeriod($business),
         ]);
     }
 }

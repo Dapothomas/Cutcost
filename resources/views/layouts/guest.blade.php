@@ -26,7 +26,7 @@
                 {{ $slot }}
             </div>
 
-            <p class="relative mt-6 text-center text-xs text-muted-foreground">Salon &amp; barber CRM</p>
+            <p class="relative mt-6 text-center text-xs text-muted-foreground">Salon &amp; stylist CRM</p>
         </div>
     </body>
 </html>

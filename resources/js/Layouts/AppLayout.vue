@@ -19,7 +19,7 @@ const ownerNav = [
     { href: '/business/clients', label: 'Clients', icon: 'clients' },
     { href: '/business/bookings', label: 'Bookings', icon: 'bookings' },
     { href: '/business/services', label: 'Services', icon: 'services' },
-    { href: '/business/staff', label: 'Staff', icon: 'staff' },
+    { href: '/business/staff', label: 'Stylists', icon: 'staff' },
     { href: '/business/payments', label: 'Payments', icon: 'payments' },
 ];
 

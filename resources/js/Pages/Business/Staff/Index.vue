@@ -9,16 +9,16 @@ defineProps({
 });
 
 function removeBarber(id) {
-    if (confirm('Remove this barber from your team?')) {
+    if (confirm('Remove this stylist from your team?')) {
         router.delete(`/business/staff/${id}`);
     }
 }
 </script>
 
 <template>
-    <AppLayout title="Staff" subtitle="Barbers on your team">
+    <AppLayout title="Stylists" subtitle="Hairdressers and barbers who take bookings">
         <template #actions>
-            <Link href="/business/staff/create" class="btn-primary">Add barber</Link>
+            <Link href="/business/staff/create" class="btn-primary">Add stylist</Link>
         </template>
 
         <div class="page-shell">
@@ -48,8 +48,8 @@ function removeBarber(id) {
                         </tr>
                         <tr v-if="!barbers.data.length">
                             <td colspan="4">
-                                <EmptyState title="No barbers yet" description="Invite your team so they can see their schedule.">
-                                    <Link href="/business/staff/create" class="btn-primary">Add barber</Link>
+                                <EmptyState title="No stylists yet" description="Invite your team so they can see their schedule.">
+                                    <Link href="/business/staff/create" class="btn-primary">Add stylist</Link>
                                 </EmptyState>
                             </td>
                         </tr>

@@ -26,7 +26,7 @@
         --border: 221 20% 89%;
         --input: 221 20% 86%;
         --ring: 226 78% 55%;
-        --radius: 1rem;
+        --radius: 0;
         --sidebar-background: 230 32% 9%;
         --sidebar-foreground: 224 16% 72%;
         --sidebar-border: 229 22% 17%;
@@ -61,7 +61,7 @@
     }
 
     ::-webkit-scrollbar-thumb {
-        @apply rounded-full border-2 border-solid border-transparent bg-ink-300/70 bg-clip-padding;
+        @apply border-2 border-solid border-transparent bg-ink-300/70 bg-clip-padding;
     }
 
     ::-webkit-scrollbar-track {
@@ -317,7 +317,7 @@
     }
 
     .stat-card-icon {
-        @apply flex h-10 w-10 items-center justify-center rounded-xl bg-primary/[0.08] text-primary;
+        @apply flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/[0.09] text-blue-600;
     }
 
     /* ---------- Empty state ---------- */

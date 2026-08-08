@@ -42,11 +42,11 @@ function completeBooking(id) {
                     <div
                         v-for="(booking, index) in todaysBookings"
                         :key="booking.id"
-                        class="-mx-3 flex flex-col gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-primary/[0.03] sm:flex-row sm:items-center sm:justify-between"
+                        class="-mx-3 flex flex-col gap-3 px-3 py-3 transition-colors hover:bg-primary/[0.03] sm:flex-row sm:items-center sm:justify-between"
                         :class="{ 'border-b border-border/50': index < todaysBookings.length - 1 }"
                     >
                         <div class="flex items-center gap-3.5">
-                            <div class="flex h-11 w-14 shrink-0 items-center justify-center rounded-xl bg-primary/[0.07] text-[13px] font-bold text-primary">
+                            <div class="flex h-11 w-14 shrink-0 items-center justify-center bg-primary/[0.07] text-[13px] font-bold text-primary">
                                 {{ booking.time }}
                             </div>
                             <div class="min-w-0">
@@ -59,7 +59,7 @@ function completeBooking(id) {
                             <button
                                 v-if="booking.status === 'scheduled'"
                                 type="button"
-                                class="btn-primary h-8 rounded-lg px-3 text-xs"
+                                class="btn-primary h-8 px-3 text-xs"
                                 @click="completeBooking(booking.id)"
                             >
                                 Complete

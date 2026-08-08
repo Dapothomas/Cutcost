@@ -172,7 +172,7 @@
                         </div>
 
                         <div>
-                            <label for="barber_id" class="block text-sm font-medium text-ink-700">Barber</label>
+                            <label for="barber_id" class="block text-sm font-medium text-ink-700">Stylist</label>
                             <select
                                 id="barber_id"
                                 name="barber_id"
@@ -219,7 +219,7 @@
 
                             @if (! $hasSlots)
                                 <div class="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                                    No open times on this date. Choose another day or barber above.
+                                    No open times on this date. Choose another day or stylist above.
                                 </div>
                             @else
                                 <p class="mt-1 text-xs text-ink-500" x-show="!time" x-cloak>Tap a time below to select it.</p>

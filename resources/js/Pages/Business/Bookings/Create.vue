@@ -58,9 +58,9 @@ function submit() {
                     </div>
 
                     <div class="space-y-2">
-                        <label for="barber_id" class="text-sm font-medium">Barber <span class="text-destructive">*</span></label>
+                        <label for="barber_id" class="text-sm font-medium">Stylist <span class="text-destructive">*</span></label>
                         <select id="barber_id" v-model="form.barber_id" name="barber_id" required class="form-select">
-                            <option value="" disabled>Select barber</option>
+                            <option value="" disabled>Select stylist</option>
                             <option v-for="barber in barbers" :key="barber.id" :value="barber.id">{{ barber.name }}</option>
                         </select>
                         <p v-if="form.errors.barber_id" class="text-sm text-destructive">{{ form.errors.barber_id }}</p>

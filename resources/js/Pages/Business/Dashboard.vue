@@ -1,6 +1,7 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import StatCard from '@/Components/StatCard.vue';
+import EarningsPanel from '@/Components/EarningsPanel.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
@@ -9,7 +10,8 @@ const props = defineProps({
     business: { type: Object, required: true },
     todaysBookings: { type: Array, default: () => [] },
     todayLabel: { type: String, required: true },
-    earnings: { type: Object, required: true },
+    earningsPeriods: { type: Array, default: () => [] },
+    earningsByPeriod: { type: Object, required: true },
 });
 
 const subtitle = computed(() =>
@@ -31,10 +33,10 @@ function copyBookingLink() {
         <div class="page-shell">
             <div
                 v-if="!business.payments_ready && !business.payments_bypassed"
-                class="flex flex-col gap-4 rounded-2xl border border-warning/25 bg-warning/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between"
+                class="flex flex-col gap-4 border border-warning/25 bg-warning/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between"
             >
                 <div class="flex items-start gap-3.5">
-                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning/15 text-warning">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center bg-warning/15 text-warning">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
                     </div>
                     <div>
@@ -48,15 +50,11 @@ function copyBookingLink() {
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <StatCard label="Clients" :value="business.clients_count" icon="clients" />
                 <StatCard label="Services" :value="business.services_count" icon="services" />
-                <StatCard label="Barbers" :value="business.barbers_count" icon="staff" />
+                <StatCard label="Stylists" :value="business.barbers_count" icon="staff" />
                 <StatCard label="Bookings" :value="business.bookings_count" icon="bookings" />
             </div>
 
-            <div class="grid gap-4 sm:grid-cols-3">
-                <StatCard label="Earned today" :value="earnings.today.amount_label" icon="revenue" />
-                <StatCard label="Earned this month" :value="earnings.month.amount_label" icon="revenue" />
-                <StatCard label="Earned all time" :value="earnings.all_time.amount_label" icon="revenue" />
-            </div>
+            <EarningsPanel :periods="earningsPeriods" :by-period="earningsByPeriod" />
 
             <div class="grid gap-4 lg:grid-cols-3">
                 <div class="card lg:col-span-2">
@@ -71,11 +69,11 @@ function copyBookingLink() {
                         <div
                             v-for="(booking, index) in todaysBookings"
                             :key="index"
-                            class="-mx-3 flex items-center justify-between gap-4 rounded-xl px-3 py-3 transition-colors hover:bg-primary/[0.03]"
+                            class="-mx-3 flex items-center justify-between gap-4 px-3 py-3 transition-colors hover:bg-primary/[0.03]"
                             :class="{ 'border-b border-border/50': index < todaysBookings.length - 1 }"
                         >
                             <div class="flex items-center gap-3.5">
-                                <div class="flex h-11 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-primary/[0.07] text-primary">
+                                <div class="flex h-11 w-14 shrink-0 flex-col items-center justify-center bg-primary/[0.07] text-primary">
                                     <span class="text-[13px] font-bold leading-tight">{{ booking.time }}</span>
                                 </div>
                                 <div class="min-w-0">
@@ -94,30 +92,6 @@ function copyBookingLink() {
 
                 <div class="space-y-4">
                     <div class="card">
-                        <div class="card-header flex-row items-center justify-between space-y-0">
-                            <div>
-                                <h2 class="card-title">Earnings</h2>
-                                <p class="card-description">From paid online bookings</p>
-                            </div>
-                            <Link href="/business/payments" class="btn-ghost">Details</Link>
-                        </div>
-                        <div class="card-content space-y-3 text-sm">
-                            <div class="flex justify-between gap-4">
-                                <span class="text-muted-foreground">Today</span>
-                                <span class="font-semibold">{{ earnings.today.amount_label }}</span>
-                            </div>
-                            <div class="flex justify-between gap-4">
-                                <span class="text-muted-foreground">This month</span>
-                                <span class="font-semibold">{{ earnings.month.amount_label }}</span>
-                            </div>
-                            <div class="flex justify-between gap-4 border-t pt-3">
-                                <span class="text-muted-foreground">All time</span>
-                                <span class="font-semibold">{{ earnings.all_time.amount_label }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
                         <div class="card-header">
                             <h2 class="card-title">Quick actions</h2>
                             <p class="card-description">Common tasks for your shop</p>
@@ -125,7 +99,7 @@ function copyBookingLink() {
                         <div class="card-content grid gap-2">
                             <Link href="/business/clients/create" class="btn-secondary justify-start">Add client</Link>
                             <Link href="/business/services/create" class="btn-secondary justify-start">Add service</Link>
-                            <Link href="/business/staff/create" class="btn-secondary justify-start">Add barber</Link>
+                            <Link href="/business/staff/create" class="btn-secondary justify-start">Add stylist</Link>
                         </div>
                     </div>
 
@@ -135,7 +109,7 @@ function copyBookingLink() {
                             <p class="card-description">Share so clients can book themselves</p>
                         </div>
                         <div class="card-content space-y-3">
-                            <code class="block break-all rounded-xl border border-border/70 bg-muted/60 px-3.5 py-2.5 text-xs leading-relaxed text-muted-foreground">{{ business.public_booking_url }}</code>
+                            <code class="block break-all border border-border/70 bg-muted/60 px-3.5 py-2.5 text-xs leading-relaxed text-muted-foreground">{{ business.public_booking_url }}</code>
                             <div class="flex gap-2">
                                 <a :href="business.public_booking_url" target="_blank" class="btn-secondary flex-1 justify-center">Open</a>
                                 <button type="button" class="btn-primary flex-1" @click="copyBookingLink">Copy</button>

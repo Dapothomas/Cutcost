@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="Cutcost is the private CRM for salons and barbershops — manage clients, staff, and bookings in one place, with a booking link that's yours, not a marketplace listing.">
-        <title>Cutcost — Salon &amp; barber CRM</title>
+        <title>Cutcost — Salon &amp; stylist CRM</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -42,7 +42,7 @@
                 content: '';
                 position: absolute;
                 inset: -5px;
-                border-radius: 9999px;
+                border-radius: 0;
                 border: 1.5px solid currentColor;
                 opacity: 0.55;
                 animation: cc-pulse-ring 1.8s cubic-bezier(0,0,0.2,1) infinite;
@@ -96,7 +96,7 @@
             a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
                 outline: 2px solid currentColor;
                 outline-offset: 3px;
-                border-radius: 8px;
+                border-radius: 0;
             }
 
             @media (prefers-reduced-motion: reduce) {
@@ -213,7 +213,7 @@
                                 <span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary">
                                     <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
                                 </span>
-                                Owner + barber roles
+                                Owner + stylist roles
                             </div>
                         </div>
                     </div>
@@ -243,7 +243,7 @@
                                     <p class="font-display text-lg font-bold">9</p>
                                 </div>
                                 <div class="rounded-md border bg-background p-2.5">
-                                    <p class="text-[10px] text-muted-foreground">Staff</p>
+                                    <p class="text-[10px] text-muted-foreground">Stylists</p>
                                     <p class="font-display text-lg font-bold">5</p>
                                 </div>
                             </div>
@@ -357,7 +357,7 @@
                                 <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/></svg>
                             </div>
                             <h3 class="font-display font-semibold">Team</h3>
-                            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">Add barbers, assign chairs, and keep the floor running smoothly.</p>
+                            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">Add stylists, assign chairs, and keep the floor running smoothly.</p>
                         </div>
                         <div class="landing-reveal landing-reveal-delay-3 landing-card-hover card p-6 transition-colors duration-300 hover:border-primary/30" data-reveal>
                             <div class="stat-card-icon mb-4">
@@ -405,7 +405,7 @@
                     <div class="landing-reveal mx-auto max-w-2xl text-center" data-reveal>
                         <span class="badge-default">Pricing</span>
                         <h2 class="font-display mt-4 text-3xl font-bold tracking-tight sm:text-4xl">Simple plans for every shop</h2>
-                        <p class="mt-3 text-muted-foreground">From £10/month for solo barbers. No marketplace fees — ever.</p>
+                        <p class="mt-3 text-muted-foreground">From £10/month for solo stylists. No marketplace fees — ever.</p>
                     </div>
 
                     @php
@@ -415,10 +415,10 @@
                                 'slug' => 'starter',
                                 'price' => '£10',
                                 'period' => 'per month',
-                                'description' => 'For solo barbers getting organised.',
+                                'description' => 'For solo stylists getting organised.',
                                 'featured' => false,
                                 'features' => [
-                                    '1 barber seat',
+                                    '1 stylist seat',
                                     'Client CRM & notes',
                                     'Services & pricing',
                                     'Manual bookings',
@@ -434,7 +434,7 @@
                                 'description' => 'Everything a busy shop floor needs.',
                                 'featured' => true,
                                 'features' => [
-                                    'Up to 5 barbers',
+                                    'Up to 5 stylists',
                                     'Full team scheduling',
                                     'Client self-booking',
                                     'Today’s dashboard',
@@ -450,7 +450,7 @@
                                 'description' => 'For multi-chair salons and growing teams.',
                                 'featured' => false,
                                 'features' => [
-                                    'Unlimited barbers',
+                                    'Unlimited stylists',
                                     'Multiple services & tiers',
                                     'Priority support',
                                     'Advanced booking rules',
@@ -540,7 +540,7 @@
                         <a href="#pricing" class="transition-colors hover:text-foreground">Pricing</a>
                         <a href="#how-it-works" class="transition-colors hover:text-foreground">How it works</a>
                     </nav>
-                    <p class="text-sm text-muted-foreground">Salon &amp; barber CRM · No marketplace</p>
+                    <p class="text-sm text-muted-foreground">Salon &amp; stylist CRM · No marketplace</p>
                 </div>
             </footer>
         </div>
