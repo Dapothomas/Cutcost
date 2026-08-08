@@ -42,24 +42,24 @@ function completeBooking(id) {
                     <div
                         v-for="(booking, index) in todaysBookings"
                         :key="booking.id"
-                        class="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"
-                        :class="{ 'border-b': index < todaysBookings.length - 1 }"
+                        class="-mx-3 flex flex-col gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-primary/[0.03] sm:flex-row sm:items-center sm:justify-between"
+                        :class="{ 'border-b border-border/50': index < todaysBookings.length - 1 }"
                     >
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-sm font-semibold">
+                        <div class="flex items-center gap-3.5">
+                            <div class="flex h-11 w-14 shrink-0 items-center justify-center rounded-xl bg-primary/[0.07] text-[13px] font-bold text-primary">
                                 {{ booking.time }}
                             </div>
-                            <div>
-                                <p class="text-sm font-medium">{{ booking.client_name }}</p>
-                                <p class="text-xs text-muted-foreground">{{ booking.service_name }}</p>
+                            <div class="min-w-0">
+                                <p class="truncate text-sm font-semibold text-foreground">{{ booking.client_name }}</p>
+                                <p class="truncate text-xs text-muted-foreground">{{ booking.service_name }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="badge-outline">{{ booking.status_label }}</span>
+                            <span class="badge-outline badge-dot">{{ booking.status_label }}</span>
                             <button
                                 v-if="booking.status === 'scheduled'"
                                 type="button"
-                                class="btn-primary h-8 px-3 text-xs"
+                                class="btn-primary h-8 rounded-lg px-3 text-xs"
                                 @click="completeBooking(booking.id)"
                             >
                                 Complete

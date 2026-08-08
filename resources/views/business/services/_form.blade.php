@@ -19,7 +19,7 @@
 </div>
 
 <label class="inline-flex items-center gap-2">
-    <input type="checkbox" name="is_active" value="1" class="rounded border-ink-300 text-ink-900 shadow-sm focus:ring-citrus"
+    <input type="checkbox" name="is_active" value="1" class="rounded border-ink-300 text-primary shadow-sm focus:ring-primary"
         @checked(old('is_active', $service?->is_active ?? true))>
     <span class="text-sm text-ink-700">Active</span>
 </label>

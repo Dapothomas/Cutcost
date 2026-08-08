@@ -36,16 +36,16 @@ function removeService(id) {
                     <tbody>
                         <tr v-for="service in services.data" :key="service.id">
                             <td class="font-medium">{{ service.name }}</td>
-                            <td>{{ service.duration_minutes }} min</td>
-                            <td>{{ service.price_label }}</td>
+                            <td class="text-muted-foreground">{{ service.duration_minutes }} min</td>
+                            <td class="font-semibold">{{ service.price_label }}</td>
                             <td>
-                                <span :class="service.is_active ? 'badge-outline' : 'badge-muted'">
+                                <span :class="service.is_active ? 'badge-success badge-dot' : 'badge-muted badge-dot'">
                                     {{ service.is_active ? 'Active' : 'Hidden' }}
                                 </span>
                             </td>
-                            <td class="space-x-3 text-right">
+                            <td class="space-x-1 text-right">
                                 <Link :href="`/business/services/${service.id}/edit`" class="btn-ghost">Edit</Link>
-                                <button type="button" class="text-sm font-medium text-destructive hover:underline" @click="removeService(service.id)">Remove</button>
+                                <button type="button" class="btn-ghost text-destructive hover:bg-destructive/[0.06] hover:text-destructive" @click="removeService(service.id)">Remove</button>
                             </td>
                         </tr>
                         <tr v-if="!services.data.length">

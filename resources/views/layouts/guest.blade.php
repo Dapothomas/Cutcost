@@ -9,22 +9,25 @@
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
 
         @vite(['resources/css/app.css', 'resources/js/blade.js'])
     </head>
     <body class="font-sans">
-        <div class="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-background via-brand-50/50 to-brand-100/40 px-4 py-10">
-            <a href="{{ route('home') }}" class="mb-8 flex items-center gap-2.5 font-semibold tracking-tight">
+        <div class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-background via-brand-50/50 to-brand-100/40 px-4 py-10">
+            <div class="landing-grid-bg pointer-events-none absolute inset-0" aria-hidden="true"></div>
+            <div class="pointer-events-none absolute -top-32 left-1/2 h-72 w-[560px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" aria-hidden="true"></div>
+
+            <a href="{{ route('home') }}" class="relative mb-8 flex items-center gap-2.5 font-semibold tracking-tight">
                 <span class="brand-mark">C</span>
-                <span class="text-lg text-foreground">Cutcost</span>
+                <span class="font-display text-lg text-foreground">Cutcost</span>
             </a>
 
-            <div class="card w-full max-w-lg border-primary/10 p-6 shadow-card sm:p-8">
+            <div class="card relative w-full max-w-lg border-primary/10 p-6 sm:p-8">
                 {{ $slot }}
             </div>
 
-            <p class="mt-6 text-center text-xs text-muted-foreground">Salon &amp; barber CRM</p>
+            <p class="relative mt-6 text-center text-xs text-muted-foreground">Salon &amp; barber CRM</p>
         </div>
     </body>
 </html>

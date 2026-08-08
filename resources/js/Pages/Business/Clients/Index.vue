@@ -33,16 +33,23 @@ function removeClient(id) {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="client in clients.data" :key="client.id">
-                            <td class="font-medium">{{ client.name }}</td>
+                        <tr v-for="(client, index) in clients.data" :key="client.id">
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    <span class="avatar" :class="`avatar-tint-${index % 6}`">{{ client.name?.charAt(0) }}</span>
+                                    <span class="font-medium">{{ client.name }}</span>
+                                </div>
+                            </td>
                             <td>
                                 {{ client.phone || '—' }}
                                 <div v-if="client.email" class="text-xs text-muted-foreground">{{ client.email }}</div>
                             </td>
-                            <td>{{ client.bookings_count }}</td>
-                            <td class="space-x-3 text-right">
+                            <td>
+                                <span class="badge-muted">{{ client.bookings_count }}</span>
+                            </td>
+                            <td class="space-x-1 text-right">
                                 <Link :href="`/business/clients/${client.id}/edit`" class="btn-ghost">Edit</Link>
-                                <button type="button" class="text-sm font-medium text-destructive hover:underline" @click="removeClient(client.id)">Remove</button>
+                                <button type="button" class="btn-ghost text-destructive hover:bg-destructive/[0.06] hover:text-destructive" @click="removeClient(client.id)">Remove</button>
                             </td>
                         </tr>
                         <tr v-if="!clients.data.length">

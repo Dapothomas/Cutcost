@@ -34,7 +34,7 @@ function updateStatus(bookingId, status) {
                             <td>{{ booking.service_name }}</td>
                             <td>
                                 <select
-                                    class="form-input h-9 py-1"
+                                    class="form-select h-9 w-auto rounded-lg py-1 pr-8 text-xs"
                                     :value="booking.status"
                                     @change="updateStatus(booking.id, $event.target.value)"
                                 >
@@ -47,7 +47,7 @@ function updateStatus(bookingId, status) {
                                 <button
                                     v-if="booking.status === 'scheduled'"
                                     type="button"
-                                    class="btn-primary h-8 px-3 text-xs"
+                                    class="btn-primary h-8 rounded-lg px-3 text-xs"
                                     @click="updateStatus(booking.id, 'completed')"
                                 >
                                     Complete

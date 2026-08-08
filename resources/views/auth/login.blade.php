@@ -2,7 +2,7 @@
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <div class="mb-6 space-y-1">
-        <h2 class="text-xl font-semibold tracking-tight">Welcome back</h2>
+        <h2 class="font-display text-xl font-semibold tracking-tight">Welcome back</h2>
         <p class="text-sm text-muted-foreground">Log in to your Cutcost shop.</p>
     </div>
 

@@ -24,7 +24,7 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center gap-2 rounded-xl border border-ink-900/10 bg-white px-3 py-2 text-sm font-medium text-ink-700 transition hover:border-ink-900/20 hover:text-ink-950">
-                            <span class="flex h-7 w-7 items-center justify-center rounded-full bg-ink-950 text-xs font-semibold text-citrus">
+                            <span class="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                             </span>
                             <span>{{ Auth::user()->name }}</span>

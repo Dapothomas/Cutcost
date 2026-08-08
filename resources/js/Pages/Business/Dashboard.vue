@@ -31,11 +31,18 @@ function copyBookingLink() {
         <div class="page-shell">
             <div
                 v-if="!business.payments_ready && !business.payments_bypassed"
-                class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+                class="flex flex-col gap-4 rounded-2xl border border-warning/25 bg-warning/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between"
             >
-                <p class="font-medium">Connect Stripe to accept client payments</p>
-                <p class="mt-1 text-amber-900/80">Clients cannot pay online until your shop is connected. Booking links still work for free services.</p>
-                <Link href="/business/payments" class="btn-primary mt-3 inline-flex">Set up payments</Link>
+                <div class="flex items-start gap-3.5">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning/15 text-warning">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-foreground">Connect Stripe to accept client payments</p>
+                        <p class="mt-0.5 text-[13px] text-muted-foreground">Clients can't pay online until your shop is connected. Booking links still work for free services.</p>
+                    </div>
+                </div>
+                <Link href="/business/payments" class="btn-primary shrink-0 self-start sm:self-center">Set up payments</Link>
             </div>
 
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -64,19 +71,19 @@ function copyBookingLink() {
                         <div
                             v-for="(booking, index) in todaysBookings"
                             :key="index"
-                            class="flex items-center justify-between gap-4 py-3"
-                            :class="{ 'border-b': index < todaysBookings.length - 1 }"
+                            class="-mx-3 flex items-center justify-between gap-4 rounded-xl px-3 py-3 transition-colors hover:bg-primary/[0.03]"
+                            :class="{ 'border-b border-border/50': index < todaysBookings.length - 1 }"
                         >
-                            <div class="flex items-center gap-3">
-                                <div class="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-sm font-semibold">
-                                    {{ booking.time }}
+                            <div class="flex items-center gap-3.5">
+                                <div class="flex h-11 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-primary/[0.07] text-primary">
+                                    <span class="text-[13px] font-bold leading-tight">{{ booking.time }}</span>
                                 </div>
-                                <div>
-                                    <p class="text-sm font-medium">{{ booking.client_name }}</p>
-                                    <p class="text-xs text-muted-foreground">{{ booking.service_name }} · {{ booking.barber_name }}</p>
+                                <div class="min-w-0">
+                                    <p class="truncate text-sm font-semibold text-foreground">{{ booking.client_name }}</p>
+                                    <p class="truncate text-xs text-muted-foreground">{{ booking.service_name }} · {{ booking.barber_name }}</p>
                                 </div>
                             </div>
-                            <span class="badge-outline">{{ booking.status }}</span>
+                            <span class="badge-outline badge-dot shrink-0">{{ booking.status }}</span>
                         </div>
 
                         <EmptyState v-if="!todaysBookings.length" title="No appointments today" description="Book one or share your client link.">
@@ -128,7 +135,7 @@ function copyBookingLink() {
                             <p class="card-description">Share so clients can book themselves</p>
                         </div>
                         <div class="card-content space-y-3">
-                            <code class="block break-all rounded-md border bg-muted px-3 py-2 text-xs">{{ business.public_booking_url }}</code>
+                            <code class="block break-all rounded-xl border border-border/70 bg-muted/60 px-3.5 py-2.5 text-xs leading-relaxed text-muted-foreground">{{ business.public_booking_url }}</code>
                             <div class="flex gap-2">
                                 <a :href="business.public_booking_url" target="_blank" class="btn-secondary flex-1 justify-center">Open</a>
                                 <button type="button" class="btn-primary flex-1" @click="copyBookingLink">Copy</button>

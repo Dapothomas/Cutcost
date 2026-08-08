@@ -2,7 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import { computed } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
     payments: { type: Object, required: true },
@@ -14,9 +14,9 @@ const props = defineProps({
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
 
 const badgeClass = computed(() => {
-    if (props.payments.tone === 'success') return 'badge-outline border-emerald-200 bg-emerald-50 text-emerald-800';
-    if (props.payments.tone === 'warning') return 'badge-outline border-amber-200 bg-amber-50 text-amber-900';
-    return 'badge-muted';
+    if (props.payments.tone === 'success') return 'badge-success badge-dot';
+    if (props.payments.tone === 'warning') return 'badge-warning badge-dot';
+    return 'badge-muted badge-dot';
 });
 
 function setPeriod(period) {
@@ -33,15 +33,15 @@ function setPeriod(period) {
                         <h2 class="card-title">Earnings</h2>
                         <p class="card-description">Paid client bookings in {{ earnings.label.toLowerCase() }}</p>
                     </div>
-                    <div class="flex flex-wrap gap-2">
+                    <div class="flex flex-wrap gap-1 rounded-xl bg-muted p-1">
                         <button
                             v-for="option in earningsPeriods"
                             :key="option.value"
                             type="button"
-                            class="rounded-full px-3 py-1 text-xs font-medium transition"
+                            class="rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-150"
                             :class="earnings.period === option.value
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted text-muted-foreground hover:text-foreground'"
+                                ? 'bg-card text-foreground shadow-sm'
+                                : 'text-muted-foreground hover:text-foreground'"
                             @click="setPeriod(option.value)"
                         >
                             {{ option.label }}
@@ -49,26 +49,28 @@ function setPeriod(period) {
                     </div>
                 </div>
                 <div class="card-content space-y-4">
-                    <div class="rounded-xl border bg-muted/40 px-5 py-4">
-                        <p class="text-sm text-muted-foreground">Total earned</p>
-                        <p class="mt-1 text-3xl font-bold tracking-tight">{{ earnings.amount_label }}</p>
-                        <p class="mt-1 text-xs text-muted-foreground">
+                    <div class="relative overflow-hidden rounded-2xl px-5 py-5 text-white" style="background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-deep)) 100%);">
+                        <div class="pointer-events-none absolute -right-8 -top-10 h-36 w-36 rounded-full bg-white/10 blur-2xl" />
+                        <p class="text-[13px] font-medium text-white/80">Total earned · {{ earnings.label }}</p>
+                        <p class="mt-1.5 font-display text-4xl font-semibold tracking-tight">{{ earnings.amount_label }}</p>
+                        <p class="mt-1.5 text-xs text-white/70">
                             {{ earnings.paid_bookings_count }} paid booking{{ earnings.paid_bookings_count === 1 ? '' : 's' }}
                         </p>
                     </div>
 
-                    <div v-if="recentPaidBookings.length" class="space-y-3">
-                        <p class="text-sm font-medium">Recent payments</p>
+                    <div v-if="recentPaidBookings.length" class="space-y-1">
+                        <p class="px-1 pb-1 text-sm font-semibold text-foreground">Recent payments</p>
                         <div
                             v-for="(booking, index) in recentPaidBookings"
                             :key="index"
-                            class="flex items-center justify-between gap-4 border-b pb-3 text-sm last:border-b-0 last:pb-0"
+                            class="flex items-center justify-between gap-4 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-primary/[0.03]"
+                            :class="{ 'border-b border-border/50': index < recentPaidBookings.length - 1 }"
                         >
-                            <div>
-                                <p class="font-medium">{{ booking.client_name }}</p>
-                                <p class="text-xs text-muted-foreground">{{ booking.service_name }} · {{ booking.paid_at_label }}</p>
+                            <div class="min-w-0">
+                                <p class="truncate font-medium text-foreground">{{ booking.client_name }}</p>
+                                <p class="truncate text-xs text-muted-foreground">{{ booking.service_name }} · {{ booking.paid_at_label }}</p>
                             </div>
-                            <span class="font-semibold">{{ booking.amount_label }}</span>
+                            <span class="shrink-0 font-semibold text-success">{{ booking.amount_label }}</span>
                         </div>
                     </div>
 
@@ -88,30 +90,30 @@ function setPeriod(period) {
                     </p>
                 </div>
                 <div class="card-content space-y-4">
-                    <div class="flex items-center justify-between gap-4 rounded-xl border bg-muted/40 px-4 py-3">
+                    <div class="flex items-center justify-between gap-4 rounded-xl border border-border/70 bg-muted/40 px-4 py-3.5">
                         <div>
-                            <p class="text-sm font-medium">Status</p>
+                            <p class="text-sm font-semibold text-foreground">Status</p>
                             <p class="text-xs text-muted-foreground">Required before clients can pay online</p>
                         </div>
                         <span :class="badgeClass">{{ payments.label }}</span>
                     </div>
 
-                    <dl v-if="payments.account_id" class="grid gap-3 text-sm">
-                        <div class="flex justify-between gap-4">
+                    <dl v-if="payments.account_id" class="divide-y divide-border/60 rounded-xl border border-border/70 text-sm">
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
                             <dt class="text-muted-foreground">Stripe account</dt>
-                            <dd class="font-mono text-xs">{{ payments.account_id }}</dd>
+                            <dd class="rounded-md bg-muted px-2 py-1 font-mono text-xs text-muted-foreground">{{ payments.account_id }}</dd>
                         </div>
-                        <div class="flex justify-between gap-4">
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
                             <dt class="text-muted-foreground">Card payments</dt>
-                            <dd>{{ payments.charges_enabled ? 'Enabled' : 'Not enabled' }}</dd>
+                            <dd :class="payments.charges_enabled ? 'badge-success' : 'badge-muted'">{{ payments.charges_enabled ? 'Enabled' : 'Not enabled' }}</dd>
                         </div>
-                        <div class="flex justify-between gap-4">
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
                             <dt class="text-muted-foreground">Payouts</dt>
-                            <dd>{{ payments.payouts_enabled ? 'Enabled' : 'Not enabled' }}</dd>
+                            <dd :class="payments.payouts_enabled ? 'badge-success' : 'badge-muted'">{{ payments.payouts_enabled ? 'Enabled' : 'Not enabled' }}</dd>
                         </div>
-                        <div v-if="payments.platform_fee_percent > 0" class="flex justify-between gap-4">
+                        <div v-if="payments.platform_fee_percent > 0" class="flex items-center justify-between gap-4 px-4 py-3">
                             <dt class="text-muted-foreground">Cutcost fee</dt>
-                            <dd>{{ payments.platform_fee_percent }}% per booking</dd>
+                            <dd class="font-medium text-foreground">{{ payments.platform_fee_percent }}% per booking</dd>
                         </div>
                     </dl>
 

@@ -7,7 +7,7 @@
         <title>Cutcost — Salon &amp; barber CRM</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/blade.js'])
         <style>
             /* ---- Cutcost landing page enhancements (scoped, additive) ---- */
@@ -174,7 +174,7 @@
                 <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
                     <div>
                         <div class="landing-hero-in landing-hero-in-2 landing-shimmer-badge inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium">
-                        Beauty & Grooming CRM  
+                            Beauty &amp; grooming CRM
                         </div>
 
                         <h1 class="landing-hero-in landing-hero-in-3 font-display mt-6 text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">

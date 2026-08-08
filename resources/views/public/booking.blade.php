@@ -6,17 +6,17 @@
         <title>Book at {{ $business->name }} · Cutcost</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/blade.js'])
     </head>
-    <body class="font-sans bg-gradient-to-br from-background via-brand-50/30 to-brand-100/20">
+    <body class="font-sans app-shell-bg">
         @php
             $hasSlots = ! empty($availableSlots);
             $oldTime = old('time');
         @endphp
 
         <div
-            class="mx-auto max-w-2xl px-4 py-8 sm:px-6"
+            class="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12"
             x-data="{
                 serviceId: @js((string) ($selectedService?->id ?? '')),
                 barberId: @js((string) $selectedBarberId),
@@ -63,22 +63,30 @@
             }"
         >
             <div class="mb-8">
-                <p class="text-sm font-medium uppercase tracking-[0.16em] text-ink-400">Cutcost</p>
-                <h1 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink-950">{{ $business->name }}</h1>
+                <div class="flex items-center gap-2.5">
+                    <span class="brand-mark !h-8 !w-8 !text-xs">C</span>
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-400">Cutcost</p>
+                </div>
+                <h1 class="mt-4 font-display text-3xl font-bold tracking-tight text-ink-950">{{ $business->name }}</h1>
                 <p class="mt-1 text-sm text-ink-500">
                     {{ $business->city ? $business->city.' · ' : '' }}Book an appointment in 3 steps
                 </p>
             </div>
 
             @if ($paymentsBlocked ?? false)
-                <div class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-                    <p class="font-semibold">Online payment is not available yet</p>
-                    <p class="mt-1">This shop has not finished Stripe setup, so paid bookings cannot be completed online. Please contact {{ $business->name }} directly.</p>
+                <div class="mb-4 flex gap-3 rounded-2xl border border-warning/25 bg-warning/[0.06] px-4 py-3.5 text-sm text-ink-900">
+                    <div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-warning/15 text-warning">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                    </div>
+                    <div>
+                        <p class="font-semibold">Online payment is not available yet</p>
+                        <p class="mt-0.5 text-[13px] text-ink-600">This shop hasn’t finished Stripe setup, so paid bookings can’t be completed online. Please contact {{ $business->name }} directly.</p>
+                    </div>
                 </div>
             @endif
 
             @if (session('status'))
-                <div class="mb-4 rounded-xl border border-brand-200 bg-brand-50/60 px-4 py-3 text-sm text-ink-800">
+                <div class="flash-ok mb-4">
                     {{ session('status') }}
                 </div>
             @endif
@@ -92,15 +100,15 @@
                     <p class="stat-label">Your progress</p>
                     <ol class="mt-3 space-y-2 text-sm">
                         <li class="flex items-center gap-2" :class="hasService ? 'text-ink-950' : 'text-ink-400'">
-                            <span class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold" :class="hasService ? 'bg-ink-950 text-citrus' : 'bg-ink-100 text-ink-400'">1</span>
+                            <span class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold" :class="hasService ? 'bg-primary text-white' : 'bg-ink-100 text-ink-400'">1</span>
                             <span><span class="font-medium">Service</span> <span x-text="hasService ? '· done' : '· required'"></span></span>
                         </li>
                         <li class="flex items-center gap-2" :class="hasWhen ? 'text-ink-950' : 'text-ink-400'">
-                            <span class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold" :class="hasWhen ? 'bg-ink-950 text-citrus' : 'bg-ink-100 text-ink-400'">2</span>
+                            <span class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold" :class="hasWhen ? 'bg-primary text-white' : 'bg-ink-100 text-ink-400'">2</span>
                             <span><span class="font-medium">Date &amp; time</span> <span x-text="hasWhen ? '· done' : '· required'"></span></span>
                         </li>
                         <li class="flex items-center gap-2" :class="hasDetails ? 'text-ink-950' : 'text-ink-400'">
-                            <span class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold" :class="hasDetails ? 'bg-ink-950 text-citrus' : 'bg-ink-100 text-ink-400'">3</span>
+                            <span class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold" :class="hasDetails ? 'bg-primary text-white' : 'bg-ink-100 text-ink-400'">3</span>
                             <span><span class="font-medium">Your details</span> <span x-text="hasDetails ? '· done' : '· required'"></span></span>
                         </li>
                     </ol>
@@ -140,7 +148,7 @@
 
                     <section class="card space-y-4 p-6">
                         <div class="flex items-center gap-2">
-                            <span class="flex h-7 w-7 items-center justify-center rounded-full bg-ink-950 text-xs font-bold text-citrus">1</span>
+                            <span class="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">1</span>
                             <h2 class="font-display text-lg font-semibold text-ink-950">Choose a service</h2>
                         </div>
 
@@ -183,7 +191,7 @@
 
                     <section class="card space-y-4 p-6">
                         <div class="flex items-center gap-2">
-                            <span class="flex h-7 w-7 items-center justify-center rounded-full bg-ink-950 text-xs font-bold text-citrus">2</span>
+                            <span class="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">2</span>
                             <h2 class="font-display text-lg font-semibold text-ink-950">Pick a date &amp; time</h2>
                         </div>
 
@@ -195,7 +203,7 @@
                                 id="date"
                                 name="date"
                                 type="date"
-                                class="mt-1 block w-full rounded-xl border-ink-200 bg-white shadow-sm focus:border-ink-500 focus:ring-ink-500"
+                                class="form-input mt-1"
                                 min="{{ now()->toDateString() }}"
                                 required
                                 x-model="date"
@@ -222,8 +230,8 @@
                                             type="button"
                                             class="rounded-xl border px-3 py-2.5 text-sm font-semibold transition"
                                             :class="time === @js($slot)
-                                                ? 'border-ink-950 bg-ink-950 text-white'
-                                                : 'border-ink-200 bg-white text-ink-800 hover:border-ink-400'"
+                                                ? 'border-primary bg-primary text-white shadow-sm shadow-primary/30'
+                                                : 'border-ink-200 bg-white text-ink-800 hover:border-primary/50 hover:text-primary'"
                                             @click="selectTime(@js($slot))"
                                         >
                                             {{ $slot }}
@@ -243,7 +251,7 @@
 
                     <section class="card space-y-4 p-6">
                         <div class="flex items-center gap-2">
-                            <span class="flex h-7 w-7 items-center justify-center rounded-full bg-ink-950 text-xs font-bold text-citrus">3</span>
+                            <span class="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">3</span>
                             <h2 class="font-display text-lg font-semibold text-ink-950">Your details</h2>
                         </div>
 
@@ -255,7 +263,7 @@
                                 id="name"
                                 name="name"
                                 type="text"
-                                class="mt-1 block w-full rounded-xl border-ink-200 bg-white shadow-sm focus:border-ink-500 focus:ring-ink-500"
+                                class="form-input mt-1"
                                 required
                                 autocomplete="name"
                                 x-model="name"
@@ -272,7 +280,7 @@
                                 id="phone"
                                 name="phone"
                                 type="tel"
-                                class="mt-1 block w-full rounded-xl border-ink-200 bg-white shadow-sm focus:border-ink-500 focus:ring-ink-500"
+                                class="form-input mt-1"
                                 required
                                 autocomplete="tel"
                                 x-model="phone"
@@ -287,7 +295,7 @@
                                 id="email"
                                 name="email"
                                 type="email"
-                                class="mt-1 block w-full rounded-xl border-ink-200 bg-white shadow-sm focus:border-ink-500 focus:ring-ink-500"
+                                class="form-input mt-1"
                                 autocomplete="email"
                                 x-model="email"
                             >
@@ -307,12 +315,15 @@
 
                     <div class="card p-5">
                         @if ($requiresPayment && $selectedService)
-                            <div class="mb-4 rounded-xl border border-brand-200 bg-brand-50/60 px-4 py-3 text-sm text-ink-800">
+                            <div class="mb-4 rounded-xl border border-primary/20 bg-primary/[0.05] px-4 py-3.5 text-sm text-ink-800">
                                 <div class="flex items-center justify-between gap-4">
-                                    <span>Total due today</span>
-                                    <span class="text-lg font-semibold">{{ $selectedService->priceLabel() }}</span>
+                                    <span class="font-medium">Total due today</span>
+                                    <span class="font-display text-xl font-semibold text-primary">{{ $selectedService->priceLabel() }}</span>
                                 </div>
-                                <p class="mt-1 text-xs text-ink-500">You’ll pay securely with Stripe before your slot is confirmed.</p>
+                                <p class="mt-1 flex items-center gap-1.5 text-xs text-ink-500">
+                                    <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    You’ll pay securely with Stripe before your slot is confirmed.
+                                </p>
                             </div>
                         @endif
 

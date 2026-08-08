@@ -46,7 +46,7 @@ function removeBooking(id) {
                             <td>{{ booking.barber_name }}</td>
                             <td>
                                 <select
-                                    class="form-input h-9 py-1"
+                                    class="form-select h-9 w-auto rounded-lg py-1 pr-8 text-xs"
                                     :value="booking.status"
                                     @change="updateStatus(booking.id, $event.target.value)"
                                 >
@@ -56,7 +56,7 @@ function removeBooking(id) {
                                 </select>
                             </td>
                             <td class="text-right">
-                                <button type="button" class="text-sm font-medium text-destructive hover:underline" @click="removeBooking(booking.id)">Delete</button>
+                                <button type="button" class="btn-ghost text-destructive hover:bg-destructive/[0.06] hover:text-destructive" @click="removeBooking(booking.id)">Delete</button>
                             </td>
                         </tr>
                         <tr v-if="!bookings.data.length">

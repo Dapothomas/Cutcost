@@ -7,7 +7,7 @@
         @csrf
 
         <div class="mb-2 space-y-1">
-            <h2 class="text-xl font-semibold tracking-tight">Create your shop</h2>
+            <h2 class="font-display text-xl font-semibold tracking-tight">Create your shop</h2>
             <p class="text-sm text-muted-foreground">Choose a plan, then complete secure checkout with Stripe.</p>
         </div>
 

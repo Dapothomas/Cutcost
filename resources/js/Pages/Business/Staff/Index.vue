@@ -33,12 +33,17 @@ function removeBarber(id) {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="barber in barbers.data" :key="barber.id">
-                            <td class="font-medium">{{ barber.name }}</td>
-                            <td>{{ barber.email }}</td>
-                            <td>{{ barber.phone || '—' }}</td>
+                        <tr v-for="(barber, index) in barbers.data" :key="barber.id">
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    <span class="avatar" :class="`avatar-tint-${index % 6}`">{{ barber.name?.charAt(0) }}</span>
+                                    <span class="font-medium">{{ barber.name }}</span>
+                                </div>
+                            </td>
+                            <td class="text-muted-foreground">{{ barber.email }}</td>
+                            <td class="text-muted-foreground">{{ barber.phone || '—' }}</td>
                             <td class="text-right">
-                                <button type="button" class="text-sm font-medium text-destructive hover:underline" @click="removeBarber(barber.id)">Remove</button>
+                                <button type="button" class="btn-ghost text-destructive hover:bg-destructive/[0.06] hover:text-destructive" @click="removeBarber(barber.id)">Remove</button>
                             </td>
                         </tr>
                         <tr v-if="!barbers.data.length">
