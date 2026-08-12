@@ -64,6 +64,7 @@
                 <div class="flex items-center gap-2">
                     <a href="{{ route('home') }}#features" class="btn-ghost hidden sm:inline-flex">Features</a>
                     <a href="{{ route('login') }}" class="btn-ghost">Log in</a>
+                    <a href="{{ route('register') }}" class="btn-primary landing-btn-shine">Create shop</a>
                 </div>
             </header>
 
@@ -112,7 +113,8 @@
                         <div class="mb-6">
                             <h2 class="font-display text-xl font-semibold tracking-tight">Join the waitlist</h2>
                             <p class="mt-1.5 text-sm text-muted-foreground">
-                                Leave your details and we’ll email you when it’s your turn to set up your shop.
+                                Prefer updates first? Leave your details — or
+                                <a href="{{ route('register') }}" class="font-medium text-primary hover:underline">create your shop now</a>.
                             </p>
                         </div>
 

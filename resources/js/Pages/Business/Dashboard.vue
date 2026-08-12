@@ -95,10 +95,10 @@ function copyBookingLink() {
                             <p class="card-description">Common tasks for your shop</p>
                         </div>
                         <div class="card-content grid gap-2">
-                            <Link href="/business/bookings/create" class="btn-primary justify-start">New booking</Link>
-                            <Link href="/business/clients/create" class="btn-secondary justify-start">Add client</Link>
-                            <Link href="/business/services/create" class="btn-secondary justify-start">Add service</Link>
-                            <Link href="/business/staff/create" class="btn-secondary justify-start">Add stylist</Link>
+                            <Link href="/business/bookings/create" class="quick-action">New booking</Link>
+                            <Link href="/business/clients/create" class="quick-action">Add client</Link>
+                            <Link href="/business/services/create" class="quick-action">Add service</Link>
+                            <Link href="/business/staff/create" class="quick-action">Add stylist</Link>
                         </div>
                     </div>
 

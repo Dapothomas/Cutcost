@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
 
 const props = defineProps({
@@ -10,6 +10,7 @@ const props = defineProps({
 
 const period = ref(props.byPeriod[props.defaultPeriod] ? props.defaultPeriod : 'month');
 const selectedIndex = ref(null);
+const chartIn = ref(false);
 
 const palette = [
     'hsl(226 78% 55%)',
@@ -31,7 +32,6 @@ const dense = computed(() => series.value.length > 10);
 
 const chartMinWidth = computed(() => {
     if (!dense.value) return null;
-    // Keep bars readable on phones: ~28px each + gap
     return `${Math.max(series.value.length * 1.75, 18)}rem`;
 });
 
@@ -57,9 +57,20 @@ function selectBar(index) {
     selectedIndex.value = selectedIndex.value === index ? null : index;
 }
 
+async function replayChart() {
+    chartIn.value = false;
+    await nextTick();
+    requestAnimationFrame(() => {
+        chartIn.value = true;
+    });
+}
+
 watch(period, () => {
     selectedIndex.value = null;
+    replayChart();
 });
+
+onMounted(replayChart);
 
 const donut = computed(() => {
     const size = 132;
@@ -75,6 +86,7 @@ const donut = computed(() => {
             color: palette[index % palette.length],
             dasharray: `${length} ${circumference - length}`,
             dashoffset: -offset,
+            delay: `${120 + index * 90}ms`,
         };
         offset += length;
         return segment;
@@ -82,6 +94,15 @@ const donut = computed(() => {
 
     return { size, stroke, radius, circumference, segments };
 });
+
+function barHeight(point) {
+    if (maxCents.value <= 0) return '2%';
+    return `${Math.max((point.amount_cents / maxCents.value) * 100, point.amount_cents > 0 ? 8 : 2)}%`;
+}
+
+function barDelay(index) {
+    return `${Math.min(index, 28) * 28}ms`;
+}
 </script>
 
 <template>
@@ -133,7 +154,7 @@ const donut = computed(() => {
                         >
                             <button
                                 v-for="(point, index) in series"
-                                :key="`${point.label}-${index}`"
+                                :key="`${period}-${point.label}-${index}`"
                                 type="button"
                                 class="group relative flex h-full min-w-0 flex-1 flex-col items-center justify-end rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 max-sm:min-w-[1.5rem]"
                                 :aria-label="`${point.label}: ${point.amount_label}`"
@@ -146,16 +167,16 @@ const donut = computed(() => {
                                     {{ point.amount_label }}
                                 </div>
                                 <div
-                                    class="w-full max-w-[2.25rem] rounded-t-sm bg-primary/15 transition-[height,colors,opacity]"
+                                    class="earnings-bar w-full max-w-[2.25rem] rounded-t-sm bg-primary/15"
                                     :class="[
+                                        chartIn ? 'is-in' : '',
                                         point.amount_cents > 0 ? 'bg-primary/55 group-hover:bg-primary/70' : '',
                                         selectedIndex === index ? '!bg-primary opacity-100' : '',
                                         selectedIndex !== null && selectedIndex !== index ? 'opacity-45' : '',
                                     ]"
                                     :style="{
-                                        height: maxCents > 0
-                                            ? `${Math.max((point.amount_cents / maxCents) * 100, point.amount_cents > 0 ? 8 : 2)}%`
-                                            : '2%',
+                                        height: barHeight(point),
+                                        '--bar-delay': barDelay(index),
                                     }"
                                 />
                             </button>
@@ -194,16 +215,19 @@ const donut = computed(() => {
                             />
                             <circle
                                 v-for="(segment, index) in donut.segments"
-                                :key="index"
+                                :key="`${period}-${index}`"
+                                class="earnings-donut-segment"
+                                :class="{ 'is-in': chartIn }"
                                 :cx="donut.size / 2"
                                 :cy="donut.size / 2"
                                 :r="donut.radius"
                                 fill="none"
                                 :stroke="segment.color"
                                 :stroke-width="donut.stroke"
-                                :stroke-dasharray="segment.dasharray"
+                                :stroke-dasharray="chartIn ? segment.dasharray : `0 ${donut.circumference}`"
                                 :stroke-dashoffset="segment.dashoffset"
                                 stroke-linecap="butt"
+                                :style="{ '--donut-delay': segment.delay }"
                             />
                         </svg>
                         <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
@@ -219,7 +243,9 @@ const donut = computed(() => {
                             <div
                                 v-for="(item, index) in breakdown"
                                 :key="item.label"
-                                class="flex items-center justify-between gap-3"
+                                class="earnings-legend-row flex items-center justify-between gap-3"
+                                :class="{ 'is-in': chartIn }"
+                                :style="{ '--legend-delay': `${180 + index * 70}ms` }"
                             >
                                 <div class="flex min-w-0 items-center gap-2">
                                     <span

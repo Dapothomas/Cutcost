@@ -148,6 +148,6 @@ return [
     |
     */
 
-    'waitlist_only' => (bool) env('WAITLIST_ONLY', true),
+    'waitlist_only' => (bool) env('WAITLIST_ONLY', false),
 
 ];
