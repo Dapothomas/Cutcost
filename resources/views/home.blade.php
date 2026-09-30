@@ -2764,37 +2764,85 @@
                     })();
                 }
 
-                // Chaos: scrubbed by scroll on large screens, played once elsewhere.
+                // Chaos: scroll-scrub on desktop. A phone cannot pin the copy and the
+                // scene together, so the same collapse loops while the section is on screen.
                 const chaos = $('[data-chaos]');
                 if (chaos && !reduce) {
-                    const setP = (p) => chaos.style.setProperty('--p', p.toFixed(3));
-                    if (window.matchMedia('(min-width: 1024px) and (min-height: 640px)').matches) {
+                    const setP = (p) => chaos.style.setProperty('--p', Math.min(1, Math.max(0, p)).toFixed(3));
+                    const ease = (k) => (k < 0.5 ? 2 * k * k : 1 - ((-2 * k + 2) ** 2) / 2);
+                    const scrubQuery = window.matchMedia('(min-width: 1024px) and (min-height: 640px)');
+                    let scrubbing = false;
+                    let looping = false;
+                    let raf = 0;
+
+                    const updateScrub = () => {
+                        const r = chaos.getBoundingClientRect();
+                        const total = r.height - window.innerHeight;
+                        setP(total <= 0 ? 1 : (-r.top - total * 0.06) / (total * 0.74));
+                    };
+
+                    const startScrub = () => {
+                        if (scrubbing) return;
+                        scrubbing = true;
+                        looping = false;
+                        cancelAnimationFrame(raf);
                         chaos.classList.add('is-scrub');
                         let ticking = false;
-                        const update = () => {
-                            ticking = false;
-                            const r = chaos.getBoundingClientRect();
-                            const total = r.height - window.innerHeight;
-                            setP(Math.min(1, Math.max(0, (-r.top - total * 0.06) / (total * 0.74))));
-                        };
-                        window.addEventListener('scroll', () => {
+                        const onScroll = () => {
                             if (ticking) return;
                             ticking = true;
-                            requestAnimationFrame(update);
-                        }, { passive: true });
-                        window.addEventListener('resize', update);
-                        update();
+                            requestAnimationFrame(() => {
+                                ticking = false;
+                                if (scrubbing) updateScrub();
+                            });
+                        };
+                        window.addEventListener('scroll', onScroll, { passive: true });
+                        window.addEventListener('resize', onScroll);
+                        updateScrub();
+                    };
+
+                    const startLoop = () => {
+                        if (looping) return;
+                        looping = true;
+                        scrubbing = false;
+                        chaos.classList.remove('is-scrub');
+                        const cycle = 6200;
+                        const origin = performance.now();
+                        const frame = (now) => {
+                            if (!looping) return;
+                            const t = ((now - origin) % cycle) / cycle;
+                            let p = 0;
+                            if (t < 0.46) p = ease(t / 0.46);
+                            else if (t < 0.7) p = 1;
+                            else if (t < 0.88) p = 1 - ease((t - 0.7) / 0.18);
+                            setP(p);
+                            raf = requestAnimationFrame(frame);
+                        };
+                        raf = requestAnimationFrame(frame);
+                    };
+
+                    const sync = () => (scrubQuery.matches ? startScrub() : startLoop());
+                    scrubQuery.addEventListener('change', () => {
+                        scrubbing = false;
+                        looping = false;
+                        cancelAnimationFrame(raf);
+                        sync();
+                    });
+
+                    if (scrubQuery.matches) {
+                        startScrub();
                     } else {
                         setP(0);
-                        onVisible($('.lp-cstage', chaos), () => {
-                            const start = performance.now() + 400;
-                            const tick = (now) => {
-                                const k = Math.min(1, Math.max(0, (now - start) / 2600));
-                                setP(k < 0.5 ? 2 * k * k : 1 - ((-2 * k + 2) ** 2) / 2);
-                                if (k < 1) requestAnimationFrame(tick);
-                            };
-                            requestAnimationFrame(tick);
-                        }, 0.5);
+                        const watch = new IntersectionObserver((entries) => {
+                            if (scrubQuery.matches) return;
+                            if (entries.some((entry) => entry.isIntersecting)) startLoop();
+                            else {
+                                looping = false;
+                                cancelAnimationFrame(raf);
+                                setP(0);
+                            }
+                        }, { threshold: 0.2 });
+                        watch.observe(chaos);
                     }
                 }
 
