@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-market="{{ $currency }}">
     <head>
+        @include('partials.market-detect')
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>Create your shop · Cutcost</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/blade.js'])
         <style>
             [x-cloak] { display: none !important; }
             .register-shell {
                 background-color: hsl(var(--background));
-                background-image:
-                    radial-gradient(1000px 480px at 0% 0%, hsl(var(--primary) / 0.16), transparent 55%),
-                    radial-gradient(800px 420px at 100% 0%, hsl(var(--primary) / 0.10), transparent 50%),
-                    linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--secondary) / 0.45) 100%);
+                background-image: radial-gradient(
+                    1100px 520px at 0% 0%,
+                    hsl(var(--primary) / 0.07),
+                    transparent 58%
+                );
             }
         </style>
     </head>
@@ -35,14 +37,14 @@
                         <a href="{{ route('home') }}" class="inline-block transition-opacity hover:opacity-85">
                             <span class="brand-logo brand-logo-gradient brand-logo-sm">Cut<span class="brand-logo-accent">cost</span></span>
                         </a>
-                        <h1 class="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:mt-8 lg:text-[2.5rem] lg:leading-[1.1]">
+                        <h1 class="mt-5 font-display text-[1.75rem] font-semibold tracking-[-0.03em] sm:text-4xl lg:mt-8 lg:text-[2.5rem] lg:leading-[1.05]">
                             Create your shop
                         </h1>
                         <p class="mt-2 text-sm text-muted-foreground">
                             Pick a plan, set up your account, then finish with secure Stripe checkout.
                         </p>
 
-                        <div class="mt-6 hidden rounded-2xl bg-card/70 p-5 shadow-card backdrop-blur-sm lg:block">
+                        <div class="mt-6 hidden rounded-xl border border-border bg-card/80 p-4 shadow-card backdrop-blur-sm lg:block">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Selected plan</p>
                             <template x-if="selected">
                                 <div class="mt-4">
@@ -80,20 +82,20 @@
                     <form
                         method="POST"
                         action="{{ route('register') }}"
-                        class="flex min-h-0 flex-1 flex-col rounded-2xl bg-card shadow-card lg:overflow-hidden"
+                        class="flex min-h-0 flex-1 flex-col rounded-2xl border border-border bg-card shadow-card lg:overflow-hidden"
                     >
                         @csrf
 
                         <div class="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5">
                             <section>
                                 <div class="mb-3 flex items-baseline justify-between gap-3">
-                                    <h2 class="font-display text-base font-semibold">Choose your plan</h2>
-                                    <span class="text-xs text-muted-foreground">Step 1</span>
+                                    <h2 class="font-display text-[15px] font-semibold tracking-[-0.01em]">Choose your plan</h2>
+                                    <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Step 1</span>
                                 </div>
                                 <div class="grid gap-2 sm:grid-cols-3">
                                     @foreach ($plans as $plan)
                                         <label
-                                            class="relative cursor-pointer rounded-2xl bg-secondary/70 p-3.5 transition has-[:checked]:bg-primary/[0.1] has-[:checked]:ring-2 has-[:checked]:ring-primary/25"
+                                            class="relative cursor-pointer rounded-lg border border-border bg-card p-3 transition-colors hover:bg-secondary/60 has-[:checked]:border-primary has-[:checked]:bg-primary/[0.05] has-[:checked]:ring-1 has-[:checked]:ring-primary"
                                         >
                                             <input
                                                 type="radio"
@@ -119,8 +121,8 @@
 
                             <section>
                                 <div class="mb-3 flex items-baseline justify-between gap-3">
-                                    <h2 class="font-display text-base font-semibold">Shop details</h2>
-                                    <span class="text-xs text-muted-foreground">Step 2</span>
+                                    <h2 class="font-display text-[15px] font-semibold tracking-[-0.01em]">Shop details</h2>
+                                    <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Step 2</span>
                                 </div>
                                 <div class="grid gap-3 sm:grid-cols-2">
                                     <div class="space-y-1.5 sm:col-span-2">
@@ -148,8 +150,8 @@
 
                             <section>
                                 <div class="mb-3 flex items-baseline justify-between gap-3">
-                                    <h2 class="font-display text-base font-semibold">Account</h2>
-                                    <span class="text-xs text-muted-foreground">Step 3</span>
+                                    <h2 class="font-display text-[15px] font-semibold tracking-[-0.01em]">Account</h2>
+                                    <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Step 3</span>
                                 </div>
                                 <div class="grid gap-3 sm:grid-cols-2">
                                     <div class="space-y-1.5 sm:col-span-2">
@@ -170,7 +172,7 @@
                                 </div>
                             </section>
 
-                            <div class="rounded-2xl bg-secondary/70 p-4 lg:hidden" x-show="selected" x-cloak>
+                            <div class="rounded-xl border border-border bg-secondary/60 p-3.5 lg:hidden" x-show="selected" x-cloak>
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="min-w-0">
                                         <p class="text-sm font-semibold" x-text="selected?.label"></p>
@@ -183,7 +185,7 @@
                             </div>
                         </div>
 
-                        <div class="shrink-0 border-0 bg-card px-4 py-3.5 sm:px-6">
+                        <div class="shrink-0 border-t border-border bg-card px-4 py-3.5 sm:px-6">
                             <button type="submit" class="btn-primary w-full justify-center">
                                 Continue to checkout
                             </button>

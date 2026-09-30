@@ -11,6 +11,7 @@ use App\Http\Controllers\Business\ServiceController;
 use App\Http\Controllers\Business\SettingsController;
 use App\Http\Controllers\Business\StaffController;
 use App\Http\Controllers\DashboardRedirectController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\ResumeCheckoutController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicBookingController;
@@ -19,7 +20,7 @@ use App\Http\Controllers\Admin\WaitlistController as AdminWaitlistController;
 use App\Http\Controllers\WaitlistController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'home')->name('home');
+Route::get('/', HomeController::class)->name('home');
 
 Route::get('/waitlist', [WaitlistController::class, 'show'])->name('waitlist');
 Route::post('/waitlist', [WaitlistController::class, 'store'])->name('waitlist.store');

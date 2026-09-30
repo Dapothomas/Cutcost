@@ -4,33 +4,33 @@
 
 @layer base {
     :root {
-        --background: 220 27% 97%;
-        --foreground: 228 30% 10%;
+        --background: 210 20% 98%;
+        --foreground: 222 26% 11%;
         --card: 0 0% 100%;
-        --card-foreground: 228 30% 10%;
-        --primary: 226 78% 55%;
-        --primary-deep: 228 70% 42%;
+        --card-foreground: 222 26% 11%;
+        --primary: 226 70% 55%;
+        --primary-deep: 228 64% 45%;
         --primary-foreground: 0 0% 100%;
-        --secondary: 220 22% 94%;
-        --secondary-foreground: 228 30% 12%;
-        --muted: 220 22% 94%;
-        --muted-foreground: 227 12% 45%;
-        --accent: 224 90% 95%;
-        --accent-foreground: 226 72% 44%;
-        --destructive: 355 72% 52%;
+        --secondary: 220 16% 96%;
+        --secondary-foreground: 222 26% 13%;
+        --muted: 220 16% 96%;
+        --muted-foreground: 220 9% 46%;
+        --accent: 226 70% 97%;
+        --accent-foreground: 228 64% 45%;
+        --destructive: 0 65% 51%;
         --destructive-foreground: 0 0% 100%;
-        --success: 152 60% 36%;
+        --success: 152 52% 34%;
         --success-foreground: 0 0% 100%;
-        --warning: 36 92% 46%;
+        --warning: 33 88% 45%;
         --warning-foreground: 0 0% 100%;
-        --border: 221 20% 89%;
-        --input: 221 20% 86%;
-        --ring: 226 78% 55%;
+        --border: 220 15% 91%;
+        --input: 220 14% 88%;
+        --ring: 226 70% 55%;
         --radius: 0.5rem;
-        --sidebar-background: 230 32% 9%;
-        --sidebar-foreground: 224 16% 72%;
-        --sidebar-border: 229 22% 17%;
-        --sidebar-accent: 229 25% 15%;
+        --sidebar-background: 224 30% 10%;
+        --sidebar-foreground: 218 14% 68%;
+        --sidebar-border: 222 20% 18%;
+        --sidebar-accent: 222 22% 15%;
         --sidebar-accent-foreground: 0 0% 100%;
     }
 
@@ -48,11 +48,24 @@
         @apply bg-background font-sans text-foreground antialiased;
         max-width: 100%;
         overflow-x: hidden;
+        /* cv11 = single-storey g/l disambiguation, ss01 = open digits */
+        font-feature-settings: 'cv11', 'ss01';
     }
-
 
     h1, h2, h3, h4, h5, h6 {
         @apply font-display;
+        letter-spacing: -0.011em;
+    }
+
+    /* Every figure in the app aligns in a column by default. */
+    table,
+    time,
+    code,
+    input[type='number'],
+    input[type='date'],
+    input[type='time'],
+    input[type='datetime-local'] {
+        font-variant-numeric: tabular-nums;
     }
 
     ::selection {
@@ -65,7 +78,12 @@
     }
 
     ::-webkit-scrollbar-thumb {
-        @apply border-2 border-solid border-transparent bg-ink-300/70 bg-clip-padding;
+        @apply border-[3px] border-solid border-transparent bg-ink-300/60 bg-clip-padding;
+        border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-ink-400/70;
     }
 
     ::-webkit-scrollbar-track {
@@ -74,105 +92,205 @@
 }
 
 @layer components {
-    /* ---------- Surfaces ---------- */
+    /* ---------- Surfaces ----------
+       Hairline border carries the edge; the shadow only lifts it off the
+       background by a hair. No floating cards. */
     .panel,
     .card {
-        @apply rounded-2xl border-0 bg-card text-card-foreground shadow-card;
+        @apply rounded-2xl border border-border bg-card text-card-foreground shadow-card;
     }
 
     .card-header {
-        @apply flex flex-col space-y-1 p-4 pb-3 sm:p-6 sm:pb-4;
+        @apply flex flex-col space-y-1 px-4 pb-3 pt-4 sm:px-5 sm:pb-3.5 sm:pt-5;
+    }
+
+    .card-header-bordered {
+        @apply card-header border-b border-border pb-3.5 sm:pb-4;
     }
 
     .card-title {
-        @apply font-display text-base font-semibold tracking-tight text-foreground;
+        @apply font-display text-[15px] font-semibold text-foreground;
     }
 
     .card-description {
-        @apply text-sm text-muted-foreground;
+        @apply text-[13px] text-muted-foreground;
     }
 
     .card-content {
-        @apply p-4 pt-0 sm:p-6 sm:pt-0;
+        @apply px-4 pb-4 pt-0 sm:px-5 sm:pb-5;
+    }
+
+    .card-content-flush {
+        @apply px-4 pb-4 pt-4 sm:px-5 sm:pb-5 sm:pt-5;
     }
 
     .card-footer {
-        @apply flex items-center p-4 pt-0 sm:p-6 sm:pt-0;
+        @apply flex items-center gap-2 border-t border-border px-4 py-3.5 sm:px-5 sm:py-4;
     }
 
     /* ---------- Typography ---------- */
     .page-title {
-        @apply font-display text-base font-semibold tracking-tight text-foreground sm:text-xl;
+        @apply font-display text-[15px] font-semibold text-foreground sm:text-base;
     }
 
     .page-sub {
         @apply mt-0.5 text-[12px] text-muted-foreground sm:text-[13px];
     }
 
+    /* Large in-band page title — the anchor you land on. Collapses into the
+       topbar on scroll. */
+    .page-band-title {
+        @apply font-display text-xl font-semibold tracking-[-0.022em] text-foreground sm:text-[26px];
+    }
+
+    .page-band-sub {
+        @apply mt-1 max-w-2xl text-[13px] leading-relaxed text-muted-foreground sm:text-sm;
+    }
+
+    .page-band-eyebrow {
+        @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-primary;
+    }
+
+    .section-title {
+        @apply font-display text-[13px] font-semibold uppercase tracking-[0.07em] text-muted-foreground;
+    }
+
     .stat-label {
-        @apply text-[13px] font-medium text-muted-foreground;
+        @apply text-[12px] font-medium uppercase tracking-[0.05em] text-muted-foreground;
     }
 
     .stat-value {
-        @apply font-display text-[1.5rem] font-semibold leading-none tracking-tight text-foreground sm:text-[28px];
+        @apply font-display text-[1.625rem] font-semibold leading-none tracking-[-0.025em] text-foreground sm:text-[1.75rem];
+        font-variant-numeric: tabular-nums;
     }
 
-    /* ---------- Buttons ---------- */
+    /* Opt-in figure alignment for spans/divs the base layer doesn't cover. */
+    .num {
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* ---------- Buttons ----------
+       All controls share a 40px box (36px for .btn-sm/.btn-ghost) so form
+       rows and toolbars line up on a single baseline. */
+    .btn-base {
+        @apply inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3.5 text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50;
+    }
+
     .btn-primary {
-        @apply relative inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 text-sm font-semibold text-primary-foreground transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
-        background-image: linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary-deep)) 130%);
-        box-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / 0.18),
-            0 1px 2px hsl(var(--primary-deep) / 0.4),
-            0 6px 16px -6px hsl(var(--primary) / 0.5);
-    }
-
-    .btn-primary:hover {
-        filter: brightness(1.06);
-        box-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / 0.18),
-            0 2px 4px hsl(var(--primary-deep) / 0.4),
-            0 10px 24px -8px hsl(var(--primary) / 0.6);
-    }
-
-    .btn-primary:active {
-        transform: translateY(1px);
-        filter: brightness(0.98);
+        @apply btn-base bg-primary text-primary-foreground shadow-xs hover:bg-primary-deep active:bg-primary-deep;
     }
 
     .btn-secondary {
-        @apply inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-input bg-card px-4 text-sm font-medium text-foreground shadow-sm transition-all duration-200 hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+        @apply btn-base border border-input bg-card text-foreground shadow-xs hover:bg-secondary active:bg-muted;
     }
 
     .btn-ghost {
-        @apply inline-flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+        @apply inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
     }
 
-    .quick-action {
-        @apply inline-flex h-10 w-full items-center justify-start gap-2 rounded-sm bg-secondary px-4 text-sm font-medium text-foreground shadow-none transition-colors duration-150 hover:bg-primary/[0.1] hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+    .btn-sm {
+        @apply h-9 px-3 text-[13px];
     }
 
     .btn-destructive {
-        @apply inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-destructive px-4 text-sm font-semibold text-destructive-foreground shadow-sm transition-all hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2;
+        @apply btn-base bg-destructive text-destructive-foreground shadow-xs hover:brightness-95 focus-visible:ring-destructive;
+    }
+
+    /* Icon-only square control, sized to match .btn-base. */
+    .icon-btn {
+        @apply inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+    }
+
+    .icon-btn-sm {
+        @apply h-8 w-8 rounded-md;
+    }
+
+    .quick-action {
+        @apply inline-flex min-h-11 w-full items-center gap-3 rounded-lg border border-transparent px-3 text-[13px] font-medium text-foreground transition-colors duration-150 hover:border-border hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+    }
+
+    .quick-action-icon {
+        @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-secondary text-muted-foreground transition-colors;
+    }
+
+    .quick-action:hover .quick-action-icon {
+        @apply bg-primary/[0.1] text-primary;
+    }
+
+    /* Segmented control — replaces bare <select> for small option sets. */
+    .seg {
+        @apply inline-flex items-center gap-0.5 rounded-lg border border-border bg-secondary p-0.5;
+    }
+
+    .seg-item {
+        @apply inline-flex h-8 items-center justify-center whitespace-nowrap rounded-md px-3 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+    }
+
+    .seg-item-active {
+        @apply bg-card text-foreground shadow-xs hover:text-foreground;
     }
 
     /* ---------- Feedback ---------- */
     .flash-ok {
-        @apply flex items-center gap-2.5 rounded-xl border border-success/25 bg-success/[0.07] px-4 py-3 text-sm font-medium text-success;
+        @apply flex items-center gap-2.5 rounded-lg border border-success/20 bg-success/[0.06] px-3.5 py-2.5 text-[13px] font-medium text-success;
     }
 
     .flash-ok::before {
         content: '';
-        @apply h-2 w-2 shrink-0 rounded-full bg-success;
+        @apply h-1.5 w-1.5 shrink-0 rounded-full bg-success;
+    }
+
+    /* ---------- Menus & dialogs ---------- */
+    .menu {
+        @apply z-50 min-w-[11rem] overflow-hidden rounded-xl border border-border bg-card p-1 shadow-menu;
+        animation: menu-in 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .menu-item {
+        @apply flex w-full min-h-9 cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-[13px] font-medium text-foreground transition-colors hover:bg-secondary focus-visible:bg-secondary focus-visible:outline-none;
+    }
+
+    .menu-item-danger {
+        @apply menu-item text-destructive hover:bg-destructive/[0.07] focus-visible:bg-destructive/[0.07];
+    }
+
+    .menu-label {
+        @apply px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground;
+    }
+
+    .menu-separator {
+        @apply -mx-1 my-1 h-px bg-border;
+    }
+
+    .dialog-overlay {
+        @apply fixed inset-0 z-[60] bg-ink-950/40 backdrop-blur-[2px];
+        animation: overlay-in 0.15s ease-out;
+    }
+
+    .dialog-panel {
+        @apply relative w-full max-w-[26rem] rounded-2xl border border-border bg-card p-5 shadow-dialog;
+        animation: dialog-in 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* ---------- Loading ---------- */
+    .skeleton {
+        @apply relative overflow-hidden rounded-md bg-muted;
+    }
+
+    .skeleton::after {
+        content: '';
+        @apply absolute inset-0 -translate-x-full;
+        background-image: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.6), transparent);
+        animation: shimmer 1.6s infinite;
     }
 
     /* ---------- Badges ---------- */
     .badge {
-        @apply inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium leading-none transition-colors;
+        @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-[3px] text-[11.5px] font-medium leading-none transition-colors;
     }
 
     .badge-default {
-        @apply badge border-transparent bg-secondary text-secondary-foreground;
+        @apply badge border-border bg-secondary text-secondary-foreground;
     }
 
     .badge-outline {
@@ -180,79 +298,159 @@
     }
 
     .badge-muted {
-        @apply badge border-transparent bg-muted text-muted-foreground;
+        @apply badge border-border bg-muted text-muted-foreground;
     }
 
     .badge-success {
-        @apply badge border-success/25 bg-success/[0.08] text-success;
+        @apply badge border-success/20 bg-success/[0.08] text-success;
     }
 
     .badge-warning {
-        @apply badge border-warning/30 bg-warning/[0.09] text-warning;
+        @apply badge border-warning/25 bg-warning/[0.09] text-warning;
+    }
+
+    .badge-danger {
+        @apply badge border-destructive/20 bg-destructive/[0.07] text-destructive;
     }
 
     .badge-dot::before {
         content: '';
-        @apply h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-80;
+        @apply h-1.5 w-1.5 shrink-0 rounded-full bg-current;
     }
 
     .status-pill {
         @apply badge-outline;
     }
 
-    /* ---------- Tables ---------- */
+    /* ---------- Tables ----------
+       Data density: 13px body, 11px caps header, sticky head, and a hover
+       state you can actually see. */
     .data-table {
-        @apply w-full caption-bottom text-sm;
+        @apply w-full caption-bottom text-data-sm;
+        font-variant-numeric: tabular-nums;
     }
 
     .data-table thead {
-        @apply border-b border-border/70 bg-muted/50;
+        @apply bg-secondary/70;
+    }
+
+    .data-table thead th {
+        @apply border-b border-border;
     }
 
     .data-table th {
-        @apply h-10 px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:h-11 sm:px-5;
+        @apply h-9 whitespace-nowrap px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground sm:h-10 sm:px-4;
     }
 
     .data-table td {
-        @apply px-3 py-3.5 align-middle text-sm text-foreground sm:px-5 sm:py-4 sm:text-base;
+        @apply px-3 py-2.5 align-middle text-data-sm text-foreground sm:px-4 sm:py-3;
     }
 
     .data-table tbody tr {
-        @apply border-b border-border/50 transition-colors hover:bg-primary/[0.025];
+        @apply border-b border-border/70 transition-colors hover:bg-secondary/60;
     }
 
     .data-table tbody tr:last-child {
         @apply border-0;
     }
 
-    /* ---------- Forms ---------- */
+    .data-table .cell-primary {
+        @apply font-medium text-foreground;
+    }
+
+    .data-table .cell-muted {
+        @apply text-muted-foreground;
+    }
+
+    /* Row actions stay out of the way until the row is hovered or focused,
+       so a list of 20 rows doesn't read as 20 delete buttons. */
+    .row-actions {
+        @apply flex items-center justify-end gap-1 opacity-0 transition-opacity duration-150 focus-within:opacity-100;
+    }
+
+    tr:hover .row-actions,
+    tr:focus-within .row-actions {
+        @apply opacity-100;
+    }
+
+    @media (hover: none) {
+        .row-actions {
+            @apply opacity-100;
+        }
+    }
+
+    /* Toolbar above a table: search + filters + count. */
+    .toolbar {
+        @apply flex flex-col gap-2.5 border-b border-border px-3 py-3 sm:flex-row sm:items-center sm:gap-3 sm:px-4;
+    }
+
+    .search-field {
+        @apply relative flex min-w-0 flex-1 items-center sm:max-w-xs;
+    }
+
+    .search-field svg {
+        @apply pointer-events-none absolute left-3 h-4 w-4 text-muted-foreground;
+    }
+
+    .search-field input {
+        @apply h-9 w-full rounded-lg border border-input bg-card pl-9 pr-8 text-[13px] text-foreground transition-colors placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/15;
+    }
+
+    .result-count {
+        @apply shrink-0 text-[12px] text-muted-foreground;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* ---------- Forms ----------
+       Bordered white fields: a grey fill on a white card reads as disabled. */
     .form-select,
     .form-textarea,
     .form-input {
-        @apply flex h-11 w-full rounded-xl border-0 bg-secondary/80 px-3.5 py-1 text-sm shadow-none transition-all duration-150 placeholder:text-muted-foreground/70 focus-visible:bg-secondary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/15 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50;
+        @apply flex h-10 w-full rounded-lg border border-input bg-card px-3 py-1 text-sm text-foreground shadow-xs transition-colors duration-150 placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/15 disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-60;
     }
 
     .form-textarea {
-        @apply min-h-[96px] py-2.5;
+        @apply min-h-[88px] py-2.5 leading-relaxed;
     }
 
     .form-select {
-        @apply h-11;
+        @apply h-10 pr-9;
     }
 
-    /* ---------- Sidebar (dark) ---------- */
+    .form-input-error {
+        @apply border-destructive/60 focus-visible:border-destructive focus-visible:ring-destructive/15;
+    }
+
+    .form-label {
+        @apply block text-[13px] font-medium text-foreground;
+    }
+
+    .form-hint {
+        @apply text-[12px] text-muted-foreground;
+    }
+
+    .form-error {
+        @apply flex items-start gap-1.5 text-[12px] font-medium text-destructive;
+    }
+
+    .form-card-body {
+        @apply space-y-4 px-4 py-4 sm:px-5 sm:py-5;
+    }
+
+    .form-check {
+        @apply flex cursor-pointer items-start gap-2.5 rounded-lg border border-border bg-secondary/50 px-3 py-2.5 text-[13px] transition-colors hover:bg-secondary;
+    }
+
+    .form-checkbox {
+        @apply mt-px h-4 w-4 shrink-0 rounded border-input text-primary focus:ring-2 focus:ring-primary/25 focus:ring-offset-0;
+    }
+
+    /* ---------- Sidebar (dark) ----------
+       Flat surface with a single hairline. The old primary glow washing up
+       from the bottom fought the active-item highlight for attention. */
     .app-sidebar {
-        @apply relative overflow-hidden bg-sidebar;
-        background-image: linear-gradient(
-            to top,
-            hsl(var(--primary) / 0.34) 0%,
-            hsl(var(--primary) / 0.16) 32%,
-            hsl(var(--primary) / 0.05) 58%,
-            transparent 78%
-        );
-        background-repeat: no-repeat;
-        background-position: bottom;
-        background-size: 100% 22rem;
+        @apply relative bg-sidebar;
+        border-right: 1px solid hsl(var(--sidebar-border));
     }
 
     .app-sidebar > * {
@@ -260,28 +458,32 @@
     }
 
     .sidebar-link {
-        @apply flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition-all duration-150 hover:bg-white/[0.06] hover:text-white;
+        @apply flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-sidebar-foreground transition-colors duration-150 hover:bg-white/[0.05] hover:text-white;
+    }
+
+    .sidebar-link svg {
+        @apply text-sidebar-foreground/70 transition-colors;
+    }
+
+    .sidebar-link:hover svg {
+        @apply text-white;
     }
 
     .sidebar-link-active {
-        @apply text-white;
-        background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-deep)) 100%);
-        box-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / 0.15),
-            0 8px 20px -8px hsl(var(--primary) / 0.65);
+        @apply bg-primary text-white hover:bg-primary hover:text-white;
     }
 
-    .sidebar-link-active:hover {
-        @apply text-white;
-        background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-deep)) 100%);
-    }
-
-    .sidebar-link-active svg {
+    .sidebar-link-active svg,
+    .sidebar-link-active:hover svg {
         @apply text-white;
     }
 
     .sidebar-section-label {
-        @apply mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-sidebar-foreground/50;
+        @apply mb-1.5 px-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/45;
+    }
+
+    .sidebar-shop-card {
+        @apply mx-2.5 mb-1 flex items-center gap-2.5 rounded-lg border border-sidebar-border bg-sidebar-accent/70 px-2.5 py-2;
     }
 
     /* ---------- Shell ---------- */
@@ -292,11 +494,11 @@
     }
 
     .app-topbar {
-        @apply fixed inset-x-0 top-0 z-30 lg:left-[264px];
+        @apply fixed inset-x-0 top-0 z-30 lg:left-[248px];
     }
 
     .page-shell {
-        @apply mx-auto flex w-full max-w-7xl flex-1 flex-col gap-3 p-3 sm:gap-5 sm:p-4 md:p-6 lg:p-8;
+        @apply mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 p-3 sm:gap-5 sm:p-5 lg:px-8 lg:py-6;
         max-width: min(80rem, 100%);
         box-sizing: border-box;
     }
@@ -332,8 +534,11 @@
         @apply bg-primary/[0.08] text-primary;
     }
 
+    /* Corners are clipped by the enclosing .panel.overflow-hidden, so this
+       stays square — a radius here would round corners mid-card when a
+       toolbar sits above the table. */
     .table-scroll {
-        @apply max-w-full overflow-x-auto overscroll-x-contain rounded-2xl;
+        @apply max-w-full overflow-x-auto overscroll-x-contain;
         -webkit-overflow-scrolling: touch;
     }
 
@@ -344,57 +549,37 @@
 
     .app-shell-bg {
         background-color: hsl(var(--background));
-        background-image:
-            radial-gradient(900px 320px at 85% -10%, hsl(var(--primary) / 0.05), transparent 60%),
-            radial-gradient(700px 260px at -10% 100%, hsl(var(--primary) / 0.04), transparent 60%);
-        background-repeat: no-repeat;
     }
 
-    /* Full-bleed dashboard banner — header sits inside until scroll */
+    /* Full-bleed page header band. Every page gets one so it opens with a
+       visual anchor instead of a bare table. */
+    .page-band {
+        @apply relative w-full border-b border-border bg-card;
+    }
+
+    /* Dashboard variant: one soft tint. The previous version stacked six
+       gradients, a layer of sparkle dots and a blurred blob. */
     .dash-hero-band {
-        @apply relative w-full overflow-hidden;
-        background-image:
-            radial-gradient(110% 95% at -5% -10%, hsl(var(--primary) / 0.42), transparent 58%),
-            radial-gradient(95% 85% at 105% 0%, hsl(var(--primary) / 0.28), transparent 55%),
-            radial-gradient(70% 60% at 78% 75%, hsl(var(--primary) / 0.18), transparent 62%),
-            radial-gradient(80% 55% at 20% 100%, hsl(var(--accent) / 0.7), transparent 55%),
-            radial-gradient(50% 40% at 55% 35%, hsl(var(--primary) / 0.1), transparent 70%),
-            linear-gradient(
-                155deg,
-                hsl(var(--primary) / 0.22) 0%,
-                hsl(var(--primary) / 0.1) 28%,
-                hsl(var(--background)) 62%,
-                hsl(var(--background)) 100%
-            );
-    }
-
-    .dash-hero-band::before {
-        content: '';
-        @apply pointer-events-none absolute inset-0;
-        background-image:
-            linear-gradient(180deg, hsl(0 0% 100% / 0.38), hsl(0 0% 100% / 0.08) 35%, transparent 58%),
-            radial-gradient(1.5px 1.5px at 18% 28%, hsl(var(--primary) / 0.22), transparent),
-            radial-gradient(1.5px 1.5px at 72% 36%, hsl(var(--primary) / 0.16), transparent),
-            radial-gradient(1px 1px at 42% 62%, hsl(var(--primary) / 0.14), transparent),
-            radial-gradient(1px 1px at 88% 58%, hsl(var(--primary) / 0.12), transparent);
-        opacity: 1;
-    }
-
-    .dash-hero-band::after {
-        content: '';
-        @apply pointer-events-none absolute -right-16 top-0 h-[120%] w-[55%] max-w-xl;
-        background: linear-gradient(
-            210deg,
-            hsl(var(--primary) / 0.2) 0%,
-            hsl(var(--primary) / 0.06) 40%,
-            transparent 72%
+        @apply page-band;
+        background-image: linear-gradient(
+            180deg,
+            hsl(var(--primary) / 0.06) 0%,
+            hsl(var(--primary) / 0.02) 45%,
+            hsl(var(--card)) 100%
         );
-        filter: blur(28px);
-        opacity: 0.9;
     }
 
-    .dash-hero-copy {
-        @apply relative z-10 px-4 pb-8 pt-2 sm:px-5 sm:pb-10 sm:pt-3 lg:px-8;
+    /* Shares page-shell's centred 80rem column so the title lines up with
+       the content beneath it on wide screens. */
+    .page-band-copy {
+        @apply relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-3 px-3 pb-4 pt-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4 sm:px-5 sm:pb-5 sm:pt-3 lg:px-8;
+        max-width: min(80rem, 100%);
+        box-sizing: border-box;
+    }
+
+    /* Below lg these live in .mobile-actionbar instead. */
+    .page-band-actions {
+        @apply hidden shrink-0 items-center gap-2 lg:flex;
     }
 
     /* Typographic wordmark — the name is the logo */
@@ -428,37 +613,51 @@
 
     /* ---------- Stat cards ---------- */
     .stat-card {
-        @apply card relative overflow-hidden p-4 transition-all duration-300 sm:p-5 sm:hover:-translate-y-0.5 sm:hover:shadow-card-hover;
+        @apply card block p-4 transition-colors duration-150 sm:p-[1.125rem];
     }
 
-    .stat-card::after {
-        content: '';
-        @apply pointer-events-none absolute inset-x-0 top-0 h-px;
-        background-image: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.35), transparent);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .stat-card:hover::after {
-        opacity: 1;
+    /* Only cards that navigate get an interactive affordance. */
+    a.stat-card:hover {
+        @apply border-primary/30 bg-accent/40;
     }
 
     .stat-card-icon {
-        @apply flex h-10 w-10 items-center justify-center rounded-xl bg-primary/[0.09] text-primary;
+        @apply flex h-8 w-8 items-center justify-center rounded-md bg-secondary text-muted-foreground transition-colors;
+    }
+
+    a.stat-card:hover .stat-card-icon {
+        @apply bg-primary/[0.1] text-primary;
+    }
+
+    .stat-delta {
+        @apply inline-flex items-center gap-1 text-[12px] font-medium;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .stat-delta-up {
+        @apply text-success;
+    }
+
+    .stat-delta-down {
+        @apply text-destructive;
+    }
+
+    .stat-delta-flat {
+        @apply text-muted-foreground;
     }
 
     /* ---------- Empty state ---------- */
     .empty-state {
-        @apply flex flex-col items-center justify-center rounded-2xl bg-muted/30 px-6 py-10 text-center;
+        @apply flex flex-col items-center justify-center px-6 py-12 text-center;
     }
 
     .empty-state-icon {
-        @apply mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/[0.08] text-primary;
+        @apply mb-3.5 flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-secondary text-muted-foreground;
     }
 
     /* ---------- Avatars ---------- */
     .avatar {
-        @apply inline-flex h-9 w-9 shrink-0 select-none items-center justify-center rounded-full text-xs font-semibold uppercase;
+        @apply inline-flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full text-[11px] font-semibold uppercase;
     }
 
     .avatar-tint-0 { @apply bg-blue-100 text-blue-700; }
@@ -468,141 +667,36 @@
     .avatar-tint-4 { @apply bg-rose-100 text-rose-700; }
     .avatar-tint-5 { @apply bg-cyan-100 text-cyan-700; }
 
-    /* ---------- Landing page ---------- */
-    @keyframes landing-fade-up {
-        from {
-            opacity: 0;
-            transform: translateY(28px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes landing-fade-in {
+    /* ---------- App chrome motion ---------- */
+    @keyframes overlay-in {
         from { opacity: 0; }
         to { opacity: 1; }
     }
 
-    @keyframes landing-float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
-
-    @keyframes landing-shimmer {
-        0% { background-position: 200% center; }
-        100% { background-position: -200% center; }
-    }
-
-    @keyframes landing-pulse-ring {
-        0%, 100% { opacity: 0.35; transform: scale(1); }
-        50% { opacity: 0.6; transform: scale(1.04); }
-    }
-
-    @keyframes landing-slide-in-right {
+    @keyframes dialog-in {
         from {
             opacity: 0;
-            transform: translateX(32px) scale(0.98);
+            transform: translateY(8px) scale(0.98);
         }
         to {
             opacity: 1;
-            transform: translateX(0) scale(1);
+            transform: translateY(0) scale(1);
         }
     }
 
-    .landing-hero-in {
-        animation: landing-fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+    @keyframes menu-in {
+        from {
+            opacity: 0;
+            transform: translateY(-4px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
     }
 
-    .landing-hero-in-1 { animation-delay: 0.05s; }
-    .landing-hero-in-2 { animation-delay: 0.15s; }
-    .landing-hero-in-3 { animation-delay: 0.25s; }
-    .landing-hero-in-4 { animation-delay: 0.35s; }
-    .landing-hero-in-5 { animation-delay: 0.45s; }
-
-    .landing-preview {
-        animation: landing-slide-in-right 1s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both,
-                   landing-float 6s ease-in-out 1.3s infinite;
-    }
-
-    .landing-reveal {
-        opacity: 0;
-        transform: translateY(24px);
-        transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-                    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .landing-reveal.is-revealed {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    .landing-reveal-delay-1 { transition-delay: 0.08s; }
-    .landing-reveal-delay-2 { transition-delay: 0.16s; }
-    .landing-reveal-delay-3 { transition-delay: 0.24s; }
-
-    .landing-card-hover {
-        @apply transition-all duration-300 ease-out;
-    }
-
-    .landing-card-hover:hover {
-        @apply -translate-y-1 border-primary/25 shadow-lg shadow-primary/10;
-    }
-
-    .landing-grid-bg {
-        background-image:
-            linear-gradient(to right, hsl(var(--primary) / 0.06) 1px, transparent 1px),
-            linear-gradient(to bottom, hsl(var(--primary) / 0.06) 1px, transparent 1px);
-        background-size: 64px 64px;
-        mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 20%, transparent 75%);
-    }
-
-    .landing-gradient-text {
-        @apply bg-clip-text text-transparent;
-        background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(226 78% 66%) 100%);
-    }
-
-    .landing-shimmer-badge {
-        @apply border-primary/20 bg-primary/5 text-primary;
-        background-image: linear-gradient(
-            90deg,
-            hsl(var(--primary) / 0.08) 0%,
-            hsl(var(--primary) / 0.15) 50%,
-            hsl(var(--primary) / 0.08) 100%
-        );
-        background-size: 200% auto;
-        animation: landing-shimmer 4s linear infinite;
-    }
-
-    .landing-orb {
-        animation: landing-pulse-ring 8s ease-in-out infinite;
-    }
-
-    .landing-orb-delay {
-        animation-delay: 2s;
-    }
-
-    .landing-btn-shine {
-        @apply relative overflow-hidden transition-all duration-300;
-    }
-
-    .landing-btn-shine:hover {
-        @apply shadow-lg shadow-primary/25;
-        transform: translateY(-1px);
-    }
-
-    .landing-btn-shine::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
-        transform: translateX(-100%);
-        transition: transform 0.6s ease;
-    }
-
-    .landing-btn-shine:hover::after {
-        transform: translateX(100%);
+    @keyframes shimmer {
+        100% { transform: translateX(100%); }
     }
 
     .earnings-bar {
@@ -644,17 +738,6 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .landing-hero-in,
-        .landing-preview,
-        .landing-reveal,
-        .landing-orb,
-        .landing-shimmer-badge {
-            animation: none !important;
-            transition: none !important;
-            opacity: 1 !important;
-            transform: none !important;
-        }
-
         .earnings-bar,
         .earnings-bar.is-in,
         .earnings-legend-row,
@@ -666,6 +749,13 @@
 
         .earnings-donut-segment {
             transition: none !important;
+        }
+
+        .menu,
+        .dialog-overlay,
+        .dialog-panel,
+        .skeleton::after {
+            animation: none !important;
         }
     }
 }

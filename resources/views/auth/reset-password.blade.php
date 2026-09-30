@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="mb-6 space-y-1">
-        <h2 class="font-display text-xl font-semibold tracking-tight">Reset password</h2>
+        <h2 class="font-display text-lg font-semibold tracking-[-0.02em]">Reset password</h2>
         <p class="text-sm text-muted-foreground">Choose a new password for your account.</p>
     </div>
 
@@ -9,19 +9,19 @@
 
         <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-        <div class="space-y-2">
+        <div class="space-y-1.5">
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" class="block w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" />
         </div>
 
-        <div class="space-y-2">
+        <div class="space-y-1.5">
             <x-input-label for="password" :value="__('Password')" />
             <x-text-input id="password" class="block w-full" type="password" name="password" required autocomplete="new-password" />
             <x-input-error :messages="$errors->get('password')" />
         </div>
 
-        <div class="space-y-2">
+        <div class="space-y-1.5">
             <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
             <x-text-input id="password_confirmation" class="block w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
             <x-input-error :messages="$errors->get('password_confirmation')" />

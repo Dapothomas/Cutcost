@@ -13,13 +13,22 @@ const selectedIndex = ref(null);
 const chartIn = ref(false);
 
 const palette = [
-    'hsl(226 78% 55%)',
-    'hsl(152 60% 36%)',
-    'hsl(36 92% 46%)',
-    'hsl(280 45% 48%)',
-    'hsl(190 65% 38%)',
-    'hsl(355 72% 52%)',
+    'hsl(226 70% 55%)',
+    'hsl(152 52% 38%)',
+    'hsl(33 88% 50%)',
+    'hsl(280 42% 52%)',
+    'hsl(190 60% 40%)',
+    'hsl(0 65% 55%)',
 ];
+
+// The segmented control needs labels that fit; "This month" doesn't.
+const shortLabels = {
+    today: 'Today',
+    week: 'Week',
+    month: 'Month',
+    year: 'Year',
+    all: 'All',
+};
 
 const active = computed(() => props.byPeriod[period.value] ?? props.byPeriod.month);
 const summary = computed(() => active.value?.summary ?? {});
@@ -107,42 +116,53 @@ function barDelay(index) {
 
 <template>
     <div class="card overflow-hidden">
-        <div class="card-header flex-row flex-wrap items-center justify-between gap-3 space-y-0">
+        <div class="card-header-bordered flex-row flex-wrap items-center justify-between gap-3 space-y-0">
             <div class="min-w-0">
                 <h2 class="card-title">Earnings</h2>
                 <p class="card-description truncate">Paid client bookings · {{ summary.label }}</p>
             </div>
             <div class="flex w-full items-center gap-2 sm:w-auto">
-                <select v-model="period" class="form-select h-10 min-w-0 flex-1 py-1 text-xs font-medium sm:h-9 sm:w-auto sm:min-w-[9.5rem] sm:flex-none">
-                    <option v-for="option in periods" :key="option.value" :value="option.value">
-                        {{ option.label }}
-                    </option>
-                </select>
+                <div class="-mx-0.5 min-w-0 flex-1 overflow-x-auto px-0.5 [scrollbar-width:none] sm:flex-none [&::-webkit-scrollbar]:hidden">
+                    <div class="seg w-max" role="tablist" aria-label="Earnings period">
+                        <button
+                            v-for="option in periods"
+                            :key="option.value"
+                            type="button"
+                            role="tab"
+                            class="seg-item"
+                            :class="period === option.value ? 'seg-item-active' : ''"
+                            :aria-selected="period === option.value"
+                            @click="period = option.value"
+                        >
+                            {{ shortLabels[option.value] ?? option.label }}
+                        </button>
+                    </div>
+                </div>
                 <Link href="/business/payments" class="btn-ghost shrink-0">Details</Link>
             </div>
         </div>
 
-        <div class="card-content">
+        <div class="card-content-flush">
             <div class="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                    <p class="font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                    <p class="font-display text-[2rem] font-semibold leading-none tracking-[-0.03em] tabular-nums text-foreground sm:text-[2.25rem]">
                         {{ summary.amount_label }}
                     </p>
-                    <p class="mt-1 text-sm text-muted-foreground">
+                    <p class="mt-2 text-[13px] text-muted-foreground">
                         {{ summary.paid_bookings_count }}
                         paid booking{{ summary.paid_bookings_count === 1 ? '' : 's' }}
                     </p>
                 </div>
                 <p
                     v-if="selectedPoint"
-                    class="rounded-xl bg-muted/70 px-3 py-2 text-right text-xs sm:hidden"
+                    class="rounded-lg border border-border bg-secondary/70 px-2.5 py-1.5 text-right text-[12px] sm:hidden"
                 >
                     <span class="font-medium text-foreground">{{ selectedPoint.label }}</span>
-                    <span class="mt-0.5 block font-semibold text-primary">{{ selectedPoint.amount_label }}</span>
+                    <span class="mt-0.5 block font-semibold tabular-nums text-primary">{{ selectedPoint.amount_label }}</span>
                 </p>
             </div>
 
-            <div class="mt-5 grid gap-6 font-display lg:mt-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center lg:gap-8">
+            <div class="mt-5 grid gap-6 lg:mt-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center lg:gap-8">
                 <div class="min-w-0">
                     <div
                         class="-mx-1 overflow-x-auto overscroll-x-contain px-1 pb-1 [scrollbar-width:thin] max-sm:touch-pan-x"
@@ -161,18 +181,18 @@ function barDelay(index) {
                                 @click="selectBar(index)"
                             >
                                 <div
-                                    class="pointer-events-none absolute bottom-full z-10 mb-1 hidden whitespace-nowrap rounded-md bg-ink-950 px-2 py-1 text-[10px] font-medium text-white sm:group-hover:block"
+                                    class="pointer-events-none absolute bottom-full z-10 mb-1.5 hidden whitespace-nowrap rounded-md bg-ink-950 px-2 py-1 text-[10.5px] font-medium tabular-nums text-white shadow-menu sm:group-hover:block"
                                     :class="{ 'sm:!block': selectedIndex === index }"
                                 >
                                     {{ point.amount_label }}
                                 </div>
                                 <div
-                                    class="earnings-bar w-full max-w-[2.25rem] rounded-t-sm bg-primary/15"
+                                    class="earnings-bar w-full max-w-[2.25rem] rounded-t-[3px] bg-secondary"
                                     :class="[
                                         chartIn ? 'is-in' : '',
-                                        point.amount_cents > 0 ? 'bg-primary/55 group-hover:bg-primary/70' : '',
+                                        point.amount_cents > 0 ? 'bg-primary/50 group-hover:bg-primary/70' : '',
                                         selectedIndex === index ? '!bg-primary opacity-100' : '',
-                                        selectedIndex !== null && selectedIndex !== index ? 'opacity-45' : '',
+                                        selectedIndex !== null && selectedIndex !== index ? 'opacity-40' : '',
                                     ]"
                                     :style="{
                                         height: barHeight(point),
@@ -202,7 +222,7 @@ function barDelay(index) {
                     </p>
                 </div>
 
-                <div class="flex flex-col items-center gap-4 border-t border-border/40 pt-5 sm:flex-row sm:items-center sm:pt-0 lg:flex-col lg:items-center lg:border-t-0 lg:pt-0">
+                <div class="flex flex-col items-center gap-4 border-t border-border pt-5 sm:flex-row sm:items-center lg:flex-col lg:items-center lg:border-t-0 lg:pt-0">
                     <div class="relative shrink-0" :style="{ width: `${donut.size}px`, height: `${donut.size}px` }">
                         <svg :viewBox="`0 0 ${donut.size} ${donut.size}`" class="h-full w-full -rotate-90">
                             <circle
@@ -231,33 +251,33 @@ function barDelay(index) {
                             />
                         </svg>
                         <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                            <p class="text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">Share</p>
-                            <p class="text-lg font-semibold text-foreground">
+                            <p class="text-[9.5px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Top service</p>
+                            <p class="mt-0.5 text-[1.05rem] font-semibold tabular-nums text-foreground">
                                 {{ hasRevenue ? `${breakdown[0]?.percent ?? 0}%` : '—' }}
                             </p>
                         </div>
                     </div>
 
-                    <div class="w-full min-w-0 space-y-2 text-sm">
+                    <div class="w-full min-w-0 space-y-1.5">
                         <template v-if="hasRevenue">
                             <div
                                 v-for="(item, index) in breakdown"
                                 :key="item.label"
-                                class="earnings-legend-row flex items-center justify-between gap-3"
+                                class="earnings-legend-row flex items-center justify-between gap-3 text-[13px]"
                                 :class="{ 'is-in': chartIn }"
                                 :style="{ '--legend-delay': `${180 + index * 70}ms` }"
                             >
                                 <div class="flex min-w-0 items-center gap-2">
                                     <span
-                                        class="h-2.5 w-2.5 shrink-0"
+                                        class="h-2 w-2 shrink-0 rounded-sm"
                                         :style="{ backgroundColor: palette[index % palette.length] }"
                                     />
-                                    <span class="truncate font-medium text-muted-foreground">{{ item.label }}</span>
+                                    <span class="truncate text-muted-foreground">{{ item.label }}</span>
                                 </div>
-                                <span class="shrink-0 font-semibold text-foreground">{{ item.amount_label }}</span>
+                                <span class="shrink-0 font-medium tabular-nums text-foreground">{{ item.amount_label }}</span>
                             </div>
                         </template>
-                        <p v-else class="text-center text-muted-foreground sm:text-left lg:text-center">
+                        <p v-else class="text-center text-[13px] text-muted-foreground sm:text-left lg:text-center">
                             No paid bookings in this period yet.
                         </p>
                     </div>

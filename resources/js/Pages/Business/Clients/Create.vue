@@ -24,19 +24,28 @@ function submit() {
 
         <div class="page-shell max-w-xl">
             <form class="card overflow-hidden" @submit.prevent="submit">
-                <div class="border-b border-border/60 px-6 py-5">
+                <div class="card-header-bordered">
                     <h2 class="card-title">Client details</h2>
                     <p class="card-description">Name is required — everything else is optional.</p>
                 </div>
-                <div class="space-y-4 p-6">
+                <div class="form-card-body">
                     <FormInput v-model="form.name" label="Name" name="name" required :error="form.errors.name" />
                     <FormInput v-model="form.email" label="Email" name="email" type="email" optional :error="form.errors.email" />
                     <FormInput v-model="form.phone" label="Phone" name="phone" optional :error="form.errors.phone" />
-                    <FormTextarea v-model="form.notes" label="Notes" name="notes" optional :error="form.errors.notes" />
-                    <div class="flex flex-wrap gap-2 border-t border-border/60 pt-5">
-                        <button type="submit" class="btn-primary" :disabled="form.processing">Save client</button>
-                        <Link href="/business/clients" class="btn-secondary">Cancel</Link>
-                    </div>
+                    <FormTextarea
+                        v-model="form.notes"
+                        label="Notes"
+                        name="notes"
+                        optional
+                        hint="Preferences, allergies, anything worth remembering next visit."
+                        :error="form.errors.notes"
+                    />
+                </div>
+                <div class="card-footer justify-end">
+                    <Link href="/business/clients" class="btn-secondary">Cancel</Link>
+                    <button type="submit" class="btn-primary" :disabled="form.processing">
+                        {{ form.processing ? 'Saving…' : 'Save client' }}
+                    </button>
                 </div>
             </form>
         </div>

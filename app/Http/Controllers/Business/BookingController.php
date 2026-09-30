@@ -21,11 +21,27 @@ class BookingController extends Controller
     public function index(Request $request): Response
     {
         $business = $request->user()->ownedBusiness;
+        $search = trim((string) $request->query('search', ''));
+        $status = (string) $request->query('status', '');
+
+        if ($status !== '' && ! BookingStatus::tryFrom($status)) {
+            $status = '';
+        }
 
         $bookings = $business->bookings()
             ->with(['client', 'service', 'barber'])
+            ->when($search !== '', function ($query) use ($search) {
+                $term = '%'.$search.'%';
+
+                $query->where(fn ($q) => $q
+                    ->whereHas('client', fn ($c) => $c->where('name', 'like', $term))
+                    ->orWhereHas('service', fn ($s) => $s->where('name', 'like', $term))
+                    ->orWhereHas('barber', fn ($b) => $b->where('name', 'like', $term)));
+            })
+            ->when($status !== '', fn ($query) => $query->where('status', $status))
             ->latest('starts_at')
             ->paginate(20)
+            ->withQueryString()
             ->through(fn (Booking $booking) => [
                 'id' => $booking->id,
                 'starts_at_label' => $booking->starts_at->format('D j M · H:i'),
@@ -33,10 +49,17 @@ class BookingController extends Controller
                 'service_name' => $booking->service->name,
                 'barber_name' => $booking->barber->name,
                 'status' => $booking->status->value,
+                'amount_label' => $booking->amount_cents
+                    ? '£'.number_format($booking->amount_cents / 100, 2)
+                    : '—',
             ]);
 
         return Inertia::render('Business/Bookings/Index', [
             'bookings' => $bookings,
+            'filters' => [
+                'search' => $search,
+                'status' => $status,
+            ],
         ]);
     }
 

@@ -6,7 +6,7 @@
         <title>Book at {{ $business->name }} · Cutcost</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/blade.js'])
         @if ($tokens = $business->brandTheme())
             <style>
@@ -30,10 +30,11 @@
             [x-cloak] { display: none !important; }
             .book-shell {
                 background-color: hsl(var(--background));
-                background-image:
-                    radial-gradient(1000px 480px at 0% 0%, hsl(var(--primary) / 0.16), transparent 55%),
-                    radial-gradient(800px 420px at 100% 0%, hsl(var(--primary) / 0.10), transparent 50%),
-                    linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--secondary) / 0.45) 100%);
+                background-image: radial-gradient(
+                    1100px 520px at 0% 0%,
+                    hsl(var(--primary) / 0.07),
+                    transparent 58%
+                );
             }
         </style>
     </head>
@@ -131,7 +132,7 @@
                         </p>
 
                         @if ($paymentsBlocked ?? false)
-                            <div class="mt-5 rounded-2xl bg-warning/[0.1] px-4 py-3 text-sm text-foreground">
+                            <div class="mt-5 rounded-xl border border-warning/25 bg-warning/[0.07] px-4 py-3 text-sm text-foreground">
                                 <p class="font-semibold">Online payment unavailable</p>
                                 <p class="mt-1 text-[13px] text-muted-foreground">Contact {{ $business->name }} to book paid services.</p>
                             </div>
@@ -141,7 +142,7 @@
                             <div class="flash-ok mt-5">{{ session('status') }}</div>
                         @endif
 
-                        <div class="mt-6 hidden rounded-2xl bg-card/70 p-5 shadow-card backdrop-blur-sm lg:block">
+                        <div class="mt-6 hidden rounded-xl border border-border bg-card/80 p-4 shadow-card backdrop-blur-sm lg:block">
                             <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Your booking</p>
                             <dl class="mt-4 space-y-3 text-sm">
                                 <div class="flex justify-between gap-4">
@@ -182,33 +183,33 @@
                 {{-- Booking form --}}
                 <main class="relative flex min-h-0 flex-1 flex-col px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-6 lg:px-8 lg:py-6">
                     @if ($services->isEmpty())
-                        <div class="my-auto rounded-2xl bg-card p-6 shadow-card">
+                        <div class="my-auto rounded-2xl border border-border bg-card p-6 shadow-card">
                             <p class="text-sm text-muted-foreground">This shop hasn’t published any services yet. Please check back soon.</p>
                         </div>
                     @else
                         <form
                             method="POST"
                             action="{{ route('public.booking.store', $business) }}"
-                            class="flex min-h-0 flex-1 flex-col rounded-2xl bg-card shadow-card lg:overflow-hidden"
+                            class="flex min-h-0 flex-1 flex-col rounded-2xl border border-border bg-card shadow-card lg:overflow-hidden"
                             @submit="onSubmit"
                         >
                             @csrf
 
                             {{-- Progress --}}
-                            <div class="shrink-0 border-b border-border/40 px-4 py-3.5 sm:px-6">
+                            <div class="shrink-0 border-b border-border px-4 py-3.5 sm:px-6">
                                 <ol class="flex items-center gap-2 sm:gap-3">
                                     <li class="flex min-w-0 items-center gap-2">
-                                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition" :class="step > 1 ? 'bg-primary text-primary-foreground' : (step === 1 ? 'bg-primary text-primary-foreground ring-4 ring-primary/15' : 'bg-muted text-muted-foreground')">1</span>
+                                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition" :class="step > 1 ? 'bg-primary text-primary-foreground' : (step === 1 ? 'bg-primary text-primary-foreground ring-[3px] ring-primary/20' : 'bg-muted text-muted-foreground')">1</span>
                                         <span class="truncate text-xs font-medium sm:text-sm" :class="step >= 1 ? 'text-foreground' : 'text-muted-foreground'">Service</span>
                                     </li>
                                     <span class="h-px flex-1 bg-border/70"></span>
                                     <li class="flex min-w-0 items-center gap-2">
-                                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition" :class="step > 2 ? 'bg-primary text-primary-foreground' : (step === 2 ? 'bg-primary text-primary-foreground ring-4 ring-primary/15' : 'bg-muted text-muted-foreground')">2</span>
+                                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition" :class="step > 2 ? 'bg-primary text-primary-foreground' : (step === 2 ? 'bg-primary text-primary-foreground ring-[3px] ring-primary/20' : 'bg-muted text-muted-foreground')">2</span>
                                         <span class="truncate text-xs font-medium sm:text-sm" :class="step >= 2 ? 'text-foreground' : 'text-muted-foreground'">When</span>
                                     </li>
                                     <span class="h-px flex-1 bg-border/70"></span>
                                     <li class="flex min-w-0 items-center gap-2">
-                                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition" :class="step === 3 && hasDetails ? 'bg-primary text-primary-foreground' : (step === 3 ? 'bg-primary text-primary-foreground ring-4 ring-primary/15' : 'bg-muted text-muted-foreground')">3</span>
+                                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition" :class="step === 3 && hasDetails ? 'bg-primary text-primary-foreground' : (step === 3 ? 'bg-primary text-primary-foreground ring-[3px] ring-primary/20' : 'bg-muted text-muted-foreground')">3</span>
                                         <span class="truncate text-xs font-medium sm:text-sm" :class="step >= 3 ? 'text-foreground' : 'text-muted-foreground'">Details</span>
                                     </li>
                                 </ol>
@@ -216,7 +217,7 @@
                                 <div
                                     x-show="submitted && missing().length"
                                     x-cloak
-                                    class="mt-3 rounded-xl bg-destructive/[0.08] px-3 py-2.5 text-sm text-destructive"
+                                    class="mt-3 rounded-lg border border-destructive/20 bg-destructive/[0.06] px-3 py-2.5 text-sm text-destructive"
                                 >
                                     <p class="font-semibold">Still needed:</p>
                                     <ul class="mt-1 list-disc ps-5">
@@ -227,7 +228,7 @@
                                 </div>
 
                                 @if ($errors->any())
-                                    <div class="mt-3 rounded-xl bg-destructive/[0.08] px-3 py-2.5 text-sm text-destructive">
+                                    <div class="mt-3 rounded-lg border border-destructive/20 bg-destructive/[0.06] px-3 py-2.5 text-sm text-destructive">
                                         <p class="font-semibold">Please fix the following:</p>
                                         <ul class="mt-1 list-disc ps-5">
                                             @foreach ($errors->all() as $error)
@@ -363,7 +364,7 @@
                                                 required
                                                 autocomplete="name"
                                                 x-model="name"
-                                                :class="submitted && !name.trim() ? 'bg-destructive/[0.08] ring-4 ring-destructive/15' : ''"
+                                                :class="submitted && !name.trim() ? 'form-input-error' : ''"
                                             >
                                         </div>
                                         <div>
@@ -378,7 +379,7 @@
                                                 required
                                                 autocomplete="tel"
                                                 x-model="phone"
-                                                :class="submitted && !phone.trim() ? 'bg-destructive/[0.08] ring-4 ring-destructive/15' : ''"
+                                                :class="submitted && !phone.trim() ? 'form-input-error' : ''"
                                             >
                                         </div>
                                         <div class="sm:col-span-2">
@@ -415,7 +416,7 @@
                                 </section>
 
                                 {{-- Mobile summary --}}
-                                <div class="rounded-2xl bg-secondary/70 p-4 lg:hidden">
+                                <div class="rounded-xl border border-border bg-secondary/60 p-3.5 lg:hidden">
                                     <div class="flex items-start justify-between gap-3">
                                         <div class="min-w-0">
                                             <p class="truncate text-sm font-semibold" x-text="service?.name || 'Select a service'"></p>
@@ -431,7 +432,7 @@
                                 </div>
                             </div>
 
-                            <div class="shrink-0 border-t border-border/40 bg-card px-4 py-3.5 sm:px-6">
+                            <div class="shrink-0 border-t border-border bg-card px-4 py-3.5 sm:px-6">
                                 <button
                                     type="submit"
                                     class="btn-primary w-full justify-center"

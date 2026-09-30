@@ -18,13 +18,24 @@ class StaffController extends Controller
     public function index(Request $request): Response
     {
         $business = $request->user()->ownedBusiness;
+        $search = trim((string) $request->query('search', ''));
 
         $barbers = $business->barbers()
+            ->when($search !== '', function ($query) use ($search) {
+                $term = '%'.$search.'%';
+
+                $query->where(fn ($q) => $q
+                    ->where('name', 'like', $term)
+                    ->orWhere('email', 'like', $term)
+                    ->orWhere('phone', 'like', $term));
+            })
             ->latest()
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         return Inertia::render('Business/Staff/Index', [
             'barbers' => $barbers,
+            'filters' => ['search' => $search],
         ]);
     }
 

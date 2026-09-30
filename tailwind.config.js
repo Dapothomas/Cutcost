@@ -11,15 +11,16 @@ export default {
     ],
 
     theme: {
+        // Tiered on purpose: chips < controls < nested surfaces < cards < panels.
         borderRadius: {
             none: '0',
             sm: '0.25rem',
             DEFAULT: '0.375rem',
             md: '0.5rem',
             lg: '0.5rem',
-            xl: '0.5rem',
-            '2xl': '0.5rem',
-            '3xl': '0.5rem',
+            xl: '0.625rem',
+            '2xl': '0.75rem',
+            '3xl': '1rem',
             full: '9999px',
         },
         extend: {
@@ -96,14 +97,21 @@ export default {
                 },
             },
             fontFamily: {
-                sans: ['Poppins', ...defaultTheme.fontFamily.sans],
-                display: ['Poppins', ...defaultTheme.fontFamily.sans],
+                sans: ['Inter', ...defaultTheme.fontFamily.sans],
+                display: ['Inter', ...defaultTheme.fontFamily.sans],
+            },
+            fontSize: {
+                'data-sm': ['0.8125rem', { lineHeight: '1.25rem' }],
+                data: ['0.875rem', { lineHeight: '1.375rem' }],
             },
             boxShadow: {
-                sm: '0 1px 2px 0 rgb(19 23 34 / 0.04)',
-                card: '0 1px 2px rgb(19 23 34 / 0.04), 0 8px 24px -12px rgb(19 23 34 / 0.10)',
-                'card-hover': '0 2px 4px rgb(19 23 34 / 0.05), 0 16px 40px -16px rgb(19 23 34 / 0.18)',
-                pop: '0 12px 32px -12px hsl(var(--primary) / 0.45)',
+                xs: '0 1px 2px 0 rgb(16 24 40 / 0.04)',
+                sm: '0 1px 2px 0 rgb(16 24 40 / 0.05)',
+                card: '0 1px 2px 0 rgb(16 24 40 / 0.04)',
+                'card-hover': '0 1px 2px 0 rgb(16 24 40 / 0.04), 0 4px 12px -4px rgb(16 24 40 / 0.10)',
+                menu: '0 8px 24px -6px rgb(16 24 40 / 0.14), 0 2px 6px -2px rgb(16 24 40 / 0.06)',
+                dialog: '0 24px 56px -16px rgb(16 24 40 / 0.28), 0 4px 12px -4px rgb(16 24 40 / 0.10)',
+                pop: '0 8px 20px -8px hsl(var(--primary) / 0.35)',
             },
         },
     },

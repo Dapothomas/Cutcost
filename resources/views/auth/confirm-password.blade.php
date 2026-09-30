@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="mb-6 space-y-1">
-        <h2 class="font-display text-xl font-semibold tracking-tight">Confirm password</h2>
+        <h2 class="font-display text-lg font-semibold tracking-[-0.02em]">Confirm password</h2>
         <p class="text-sm text-muted-foreground">
             {{ __('This is a secure area. Please confirm your password before continuing.') }}
         </p>
@@ -9,7 +9,7 @@
     <form method="POST" action="{{ route('password.confirm') }}" class="space-y-4">
         @csrf
 
-        <div class="space-y-2">
+        <div class="space-y-1.5">
             <x-input-label for="password" :value="__('Password')" />
             <x-text-input id="password" class="block w-full" type="password" name="password" required autocomplete="current-password" />
             <x-input-error :messages="$errors->get('password')" />

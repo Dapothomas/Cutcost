@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Business;
 use App\Models\User;
 use App\Services\StripeCheckoutService;
+use App\Support\VisitorMarket;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,10 +23,13 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    public function create(): View
+    public function create(Request $request): View
     {
+        $currency = VisitorMarket::currency($request);
+
         return view('auth.register', [
-            'plans' => SubscriptionPlan::options(),
+            'currency' => $currency,
+            'plans' => SubscriptionPlan::options($currency),
             'selectedPlan' => old('plan', request('plan', SubscriptionPlan::Shop->value)),
         ]);
     }

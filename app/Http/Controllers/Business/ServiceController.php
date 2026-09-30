@@ -14,10 +14,13 @@ class ServiceController extends Controller
     public function index(Request $request): Response
     {
         $business = $request->user()->ownedBusiness;
+        $search = trim((string) $request->query('search', ''));
 
         $services = $business->services()
+            ->when($search !== '', fn ($query) => $query->where('name', 'like', '%'.$search.'%'))
             ->latest()
             ->paginate(15)
+            ->withQueryString()
             ->through(fn (Service $service) => [
                 'id' => $service->id,
                 'name' => $service->name,
@@ -28,6 +31,7 @@ class ServiceController extends Controller
 
         return Inertia::render('Business/Services/Index', [
             'services' => $services,
+            'filters' => ['search' => $search],
         ]);
     }
 

@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="mb-6 space-y-1">
-        <h2 class="font-display text-xl font-semibold tracking-tight">Forgot password</h2>
+        <h2 class="font-display text-lg font-semibold tracking-[-0.02em]">Forgot password</h2>
         <p class="text-sm text-muted-foreground">
             {{ __('No problem. Enter your email and we’ll send a reset link.') }}
         </p>
@@ -11,7 +11,7 @@
     <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
         @csrf
 
-        <div class="space-y-2">
+        <div class="space-y-1.5">
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" class="block w-full" type="email" name="email" :value="old('email')" required autofocus />
             <x-input-error :messages="$errors->get('email')" />

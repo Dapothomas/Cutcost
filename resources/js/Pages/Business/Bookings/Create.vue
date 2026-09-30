@@ -1,10 +1,12 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import FormInput from '@/Components/FormInput.vue';
+import FormSelect from '@/Components/FormSelect.vue';
 import FormTextarea from '@/Components/FormTextarea.vue';
 import { Link, useForm } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
-defineProps({
+const props = defineProps({
     clients: { type: Array, default: () => [] },
     services: { type: Array, default: () => [] },
     barbers: { type: Array, default: () => [] },
@@ -17,6 +19,15 @@ const form = useForm({
     starts_at: '',
     notes: '',
 });
+
+const clientOptions = computed(() => props.clients.map((c) => ({ value: c.id, label: c.name })));
+const barberOptions = computed(() => props.barbers.map((b) => ({ value: b.id, label: b.name })));
+const serviceOptions = computed(() =>
+    props.services.map((s) => ({
+        value: s.id,
+        label: `${s.name} · ${s.duration_minutes} min · ${s.price_label}`,
+    })),
+);
 
 function submit() {
     form.post('/business/bookings');
@@ -31,48 +42,65 @@ function submit() {
 
         <div class="page-shell max-w-xl">
             <form class="card overflow-hidden" @submit.prevent="submit">
-                <div class="border-b border-border/60 px-6 py-5">
+                <div class="card-header-bordered">
                     <h2 class="card-title">Appointment</h2>
-                    <p class="card-description">Pick who, what, when — then save.</p>
+                    <p class="card-description">Pick who, what and when — then save.</p>
                 </div>
-                <div class="space-y-4 p-6">
-                    <div class="space-y-2">
-                        <label for="client_id" class="text-sm font-medium">Client <span class="text-destructive">*</span></label>
-                        <select id="client_id" v-model="form.client_id" name="client_id" required class="form-select">
-                            <option value="" disabled>Select client</option>
-                            <option v-for="client in clients" :key="client.id" :value="client.id">{{ client.name }}</option>
-                        </select>
-                        <p v-if="form.errors.client_id" class="text-sm text-destructive">{{ form.errors.client_id }}</p>
-                        <Link href="/business/clients/create" class="inline-flex text-sm font-medium text-primary hover:underline">+ Add new client</Link>
-                    </div>
 
-                    <div class="space-y-2">
-                        <label for="service_id" class="text-sm font-medium">Service <span class="text-destructive">*</span></label>
-                        <select id="service_id" v-model="form.service_id" name="service_id" required class="form-select">
-                            <option value="" disabled>Select service</option>
-                            <option v-for="service in services" :key="service.id" :value="service.id">
-                                {{ service.name }} ({{ service.duration_minutes }} min · {{ service.price_label }})
-                            </option>
-                        </select>
-                        <p v-if="form.errors.service_id" class="text-sm text-destructive">{{ form.errors.service_id }}</p>
-                    </div>
+                <div class="form-card-body">
+                    <FormSelect
+                        v-model="form.client_id"
+                        label="Client"
+                        name="client_id"
+                        required
+                        placeholder="Select client"
+                        :options="clientOptions"
+                        :error="form.errors.client_id"
+                    >
+                        <template #footer>
+                            <Link href="/business/clients/create" class="inline-flex text-[13px] font-medium text-primary hover:underline">
+                                Add a new client
+                            </Link>
+                        </template>
+                    </FormSelect>
 
-                    <div class="space-y-2">
-                        <label for="barber_id" class="text-sm font-medium">Stylist <span class="text-destructive">*</span></label>
-                        <select id="barber_id" v-model="form.barber_id" name="barber_id" required class="form-select">
-                            <option value="" disabled>Select stylist</option>
-                            <option v-for="barber in barbers" :key="barber.id" :value="barber.id">{{ barber.name }}</option>
-                        </select>
-                        <p v-if="form.errors.barber_id" class="text-sm text-destructive">{{ form.errors.barber_id }}</p>
-                    </div>
+                    <FormSelect
+                        v-model="form.service_id"
+                        label="Service"
+                        name="service_id"
+                        required
+                        placeholder="Select service"
+                        :options="serviceOptions"
+                        :error="form.errors.service_id"
+                    />
 
-                    <FormInput v-model="form.starts_at" label="Date & time" name="starts_at" type="datetime-local" required :error="form.errors.starts_at" />
+                    <FormSelect
+                        v-model="form.barber_id"
+                        label="Stylist"
+                        name="barber_id"
+                        required
+                        placeholder="Select stylist"
+                        :options="barberOptions"
+                        :error="form.errors.barber_id"
+                    />
+
+                    <FormInput
+                        v-model="form.starts_at"
+                        label="Date & time"
+                        name="starts_at"
+                        type="datetime-local"
+                        required
+                        :error="form.errors.starts_at"
+                    />
+
                     <FormTextarea v-model="form.notes" label="Notes" name="notes" optional :error="form.errors.notes" />
+                </div>
 
-                    <div class="flex flex-wrap gap-2 border-t border-border/60 pt-5">
-                        <button type="submit" class="btn-primary" :disabled="form.processing">Book appointment</button>
-                        <Link href="/business/bookings" class="btn-secondary">Cancel</Link>
-                    </div>
+                <div class="card-footer justify-end">
+                    <Link href="/business/bookings" class="btn-secondary">Cancel</Link>
+                    <button type="submit" class="btn-primary" :disabled="form.processing">
+                        {{ form.processing ? 'Booking…' : 'Book appointment' }}
+                    </button>
                 </div>
             </form>
         </div>

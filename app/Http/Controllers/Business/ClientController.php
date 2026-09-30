@@ -15,14 +15,25 @@ class ClientController extends Controller
     public function index(Request $request): Response
     {
         $business = $request->user()->ownedBusiness;
+        $search = trim((string) $request->query('search', ''));
 
         $clients = $business->clients()
             ->withCount('bookings')
+            ->when($search !== '', function ($query) use ($search) {
+                $term = '%'.$search.'%';
+
+                $query->where(fn ($q) => $q
+                    ->where('name', 'like', $term)
+                    ->orWhere('email', 'like', $term)
+                    ->orWhere('phone', 'like', $term));
+            })
             ->latest()
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         return Inertia::render('Business/Clients/Index', [
             'clients' => $clients,
+            'filters' => ['search' => $search],
         ]);
     }
 

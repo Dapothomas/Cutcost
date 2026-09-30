@@ -24,6 +24,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'stripe/webhook',
         ]);
 
+        // Set client-side by partials/market-detect, so it must stay readable unencrypted.
+        $middleware->encryptCookies(except: [
+            \App\Support\VisitorMarket::COOKIE,
+        ]);
+
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
         ]);

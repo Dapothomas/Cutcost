@@ -45,51 +45,65 @@ function deleteAccount() {
 <template>
     <AppLayout title="Profile" subtitle="Manage your account settings">
         <div class="page-shell max-w-2xl space-y-4">
-            <div class="card overflow-hidden">
-                <div class="border-b border-border/60 px-6 py-5">
+            <form class="card overflow-hidden" @submit.prevent="updateProfile">
+                <div class="card-header-bordered">
                     <h2 class="card-title">Profile information</h2>
                     <p class="card-description">Update your name and email address.</p>
                 </div>
-                <form class="space-y-4 p-6" @submit.prevent="updateProfile">
+                <div class="form-card-body">
                     <FormInput v-model="profileForm.name" label="Name" name="name" required :error="profileForm.errors.name" />
                     <FormInput v-model="profileForm.email" label="Email" name="email" type="email" required :error="profileForm.errors.email" />
-                    <div class="flex items-center gap-3 border-t border-border/60 pt-5">
-                        <button type="submit" class="btn-primary" :disabled="profileForm.processing">Save</button>
-                        <p v-if="page.props.flash?.status === 'profile-updated'" class="text-sm font-medium text-success">Saved.</p>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="card-footer justify-end">
+                    <p v-if="page.props.flash?.status === 'profile-updated'" class="mr-auto text-[13px] font-medium text-success">Saved.</p>
+                    <button type="submit" class="btn-primary" :disabled="profileForm.processing">
+                        {{ profileForm.processing ? 'Saving…' : 'Save changes' }}
+                    </button>
+                </div>
+            </form>
 
-            <div class="card overflow-hidden">
-                <div class="border-b border-border/60 px-6 py-5">
+            <form class="card overflow-hidden" @submit.prevent="updatePassword">
+                <div class="card-header-bordered">
                     <h2 class="card-title">Update password</h2>
                     <p class="card-description">Use a long, random password to stay secure.</p>
                 </div>
-                <form class="space-y-4 p-6" @submit.prevent="updatePassword">
+                <div class="form-card-body">
                     <FormInput v-model="passwordForm.current_password" label="Current password" name="current_password" type="password" :error="passwordForm.errors.current_password" />
                     <FormInput v-model="passwordForm.password" label="New password" name="password" type="password" :error="passwordForm.errors.password" />
                     <FormInput v-model="passwordForm.password_confirmation" label="Confirm password" name="password_confirmation" type="password" />
-                    <div class="flex items-center gap-3 border-t border-border/60 pt-5">
-                        <button type="submit" class="btn-primary" :disabled="passwordForm.processing">Save</button>
-                        <p v-if="page.props.flash?.status === 'password-updated'" class="text-sm font-medium text-success">Saved.</p>
-                    </div>
-                </form>
-            </div>
-
-            <div class="card overflow-hidden border-destructive/25">
-                <div class="border-b border-destructive/15 bg-destructive/[0.03] px-6 py-5">
-                    <h2 class="card-title text-destructive">Delete account</h2>
-                    <p class="card-description">Once deleted, all data is permanently removed.</p>
                 </div>
-                <div class="p-6">
-                    <div v-if="!showDeleteConfirm">
-                        <button type="button" class="btn-destructive" @click="showDeleteConfirm = true">Delete account</button>
-                    </div>
+                <div class="card-footer justify-end">
+                    <p v-if="page.props.flash?.status === 'password-updated'" class="mr-auto text-[13px] font-medium text-success">Saved.</p>
+                    <button type="submit" class="btn-primary" :disabled="passwordForm.processing">
+                        {{ passwordForm.processing ? 'Saving…' : 'Update password' }}
+                    </button>
+                </div>
+            </form>
 
-                    <form v-else class="space-y-4 rounded-xl border border-destructive/20 bg-destructive/[0.04] p-4" @submit.prevent="deleteAccount">
+            <div class="card overflow-hidden">
+                <div class="card-header-bordered">
+                    <h2 class="card-title">Delete account</h2>
+                    <p class="card-description">Once deleted, all of your shop data is permanently removed.</p>
+                </div>
+                <div class="form-card-body">
+                    <button
+                        v-if="!showDeleteConfirm"
+                        type="button"
+                        class="btn-secondary text-destructive hover:border-destructive/40 hover:bg-destructive/[0.05]"
+                        @click="showDeleteConfirm = true"
+                    >
+                        Delete account
+                    </button>
+
+                    <form v-else class="space-y-3.5 rounded-lg border border-destructive/25 bg-destructive/[0.04] p-3.5" @submit.prevent="deleteAccount">
+                        <p class="text-[13px] leading-relaxed text-foreground">
+                            This can't be undone. Enter your password to confirm.
+                        </p>
                         <FormInput v-model="deleteForm.password" label="Password" name="password" type="password" :error="deleteForm.errors.password" />
                         <div class="flex flex-wrap gap-2">
-                            <button type="submit" class="btn-destructive" :disabled="deleteForm.processing">Confirm delete</button>
+                            <button type="submit" class="btn-destructive" :disabled="deleteForm.processing">
+                                {{ deleteForm.processing ? 'Deleting…' : 'Permanently delete' }}
+                            </button>
                             <button type="button" class="btn-secondary" @click="showDeleteConfirm = false; deleteForm.reset()">Cancel</button>
                         </div>
                     </form>

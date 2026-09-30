@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="mb-6 space-y-1">
-        <h2 class="font-display text-xl font-semibold tracking-tight">Verify your email</h2>
+        <h2 class="font-display text-lg font-semibold tracking-[-0.02em]">Verify your email</h2>
         <p class="text-sm text-muted-foreground">
             {{ __('Thanks for signing up! Click the link we emailed you to get started. Didn’t get it? We’ll send another.') }}
         </p>

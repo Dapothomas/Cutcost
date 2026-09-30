@@ -8,7 +8,7 @@
         <title>Join the waitlist · Cutcost</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/blade.js'])
         <style>
             .font-display,
@@ -42,6 +42,64 @@
                 animation: cc-draw 0.9s ease-out 0.4s forwards;
             }
             @keyframes cc-draw { to { stroke-dashoffset: 0; } }
+
+            @keyframes landing-shimmer {
+                0% { background-position: 200% center; }
+                100% { background-position: -200% center; }
+            }
+
+            .landing-grid-bg {
+                background-image:
+                    linear-gradient(to right, hsl(var(--primary) / 0.06) 1px, transparent 1px),
+                    linear-gradient(to bottom, hsl(var(--primary) / 0.06) 1px, transparent 1px);
+                background-size: 64px 64px;
+                mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 20%, transparent 75%);
+            }
+
+            .landing-gradient-text {
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+                background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(226 78% 66%) 100%);
+            }
+
+            .landing-shimmer-badge {
+                border: 1px solid hsl(var(--primary) / 0.2);
+                background-color: hsl(var(--primary) / 0.05);
+                color: hsl(var(--primary));
+                background-image: linear-gradient(
+                    90deg,
+                    hsl(var(--primary) / 0.08) 0%,
+                    hsl(var(--primary) / 0.15) 50%,
+                    hsl(var(--primary) / 0.08) 100%
+                );
+                background-size: 200% auto;
+                animation: landing-shimmer 4s linear infinite;
+            }
+
+            .landing-btn-shine {
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .landing-btn-shine:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 10px 15px -3px hsl(var(--primary) / 0.25);
+            }
+
+            .landing-btn-shine::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.15) 50%, transparent 60%);
+                transform: translateX(-100%);
+                transition: transform 0.6s ease;
+            }
+
+            .landing-btn-shine:hover::after {
+                transform: translateX(100%);
+            }
 
             @media (prefers-reduced-motion: reduce) {
                 *, *::before, *::after {
@@ -105,13 +163,13 @@
                 </div>
 
                 <div class="w-full lg:w-[52%]">
-                    <div class="rounded-2xl bg-card p-6 shadow-card sm:p-8">
+                    <div class="rounded-2xl border border-border bg-card p-6 shadow-card sm:p-7">
                         @if (session('status'))
                             <div class="flash-ok mb-5">{{ session('status') }}</div>
                         @endif
 
                         <div class="mb-6">
-                            <h2 class="font-display text-xl font-semibold tracking-tight">Join the waitlist</h2>
+                            <h2 class="font-display text-lg font-semibold tracking-[-0.02em]">Join the waitlist</h2>
                             <p class="mt-1.5 text-sm text-muted-foreground">
                                 Prefer updates first? Leave your details — or
                                 <a href="{{ route('register') }}" class="font-medium text-primary hover:underline">create your shop now</a>.
@@ -123,7 +181,7 @@
                             <input type="hidden" name="source" value="waitlist">
 
                             <div>
-                                <label for="email" class="mb-1.5 block text-sm font-medium">Email</label>
+                                <label for="email" class="form-label mb-1.5 block">Email</label>
                                 <input
                                     id="email"
                                     type="email"
@@ -135,13 +193,13 @@
                                     class="form-input"
                                 >
                                 @error('email')
-                                    <p class="mt-1.5 text-xs text-destructive">{{ $message }}</p>
+                                    <p class="form-error mt-1.5">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div>
-                                    <label for="name" class="mb-1.5 block text-sm font-medium">Your name <span class="font-normal text-muted-foreground">(optional)</span></label>
+                                    <label for="name" class="form-label mb-1.5 block">Your name <span class="font-normal text-muted-foreground">(optional)</span></label>
                                     <input
                                         id="name"
                                         type="text"
@@ -152,11 +210,11 @@
                                         class="form-input"
                                     >
                                     @error('name')
-                                        <p class="mt-1.5 text-xs text-destructive">{{ $message }}</p>
+                                        <p class="form-error mt-1.5">{{ $message }}</p>
                                     @enderror
                                 </div>
                                 <div>
-                                    <label for="shop_name" class="mb-1.5 block text-sm font-medium">Shop name <span class="font-normal text-muted-foreground">(optional)</span></label>
+                                    <label for="shop_name" class="form-label mb-1.5 block">Shop name <span class="font-normal text-muted-foreground">(optional)</span></label>
                                     <input
                                         id="shop_name"
                                         type="text"
@@ -166,7 +224,7 @@
                                         class="form-input"
                                     >
                                     @error('shop_name')
-                                        <p class="mt-1.5 text-xs text-destructive">{{ $message }}</p>
+                                        <p class="form-error mt-1.5">{{ $message }}</p>
                                     @enderror
                                 </div>
                             </div>

@@ -17,8 +17,16 @@ enum SubscriptionPlan: string
         };
     }
 
-    public function priceLabel(): string
+    public function priceLabel(string $currency = 'GBP'): string
     {
+        if ($currency === 'NGN') {
+            return match ($this) {
+                self::Starter => '₦20,000',
+                self::Shop => '₦50,000',
+                self::Studio => '₦120,000',
+            };
+        }
+
         return match ($this) {
             self::Starter => '£10',
             self::Shop => '£25',
@@ -45,13 +53,13 @@ enum SubscriptionPlan: string
     /**
      * @return array<int, array{value: string, label: string, price: string, description: string, features: array<int, string>}>
      */
-    public static function options(): array
+    public static function options(string $currency = 'GBP'): array
     {
         return [
             [
                 'value' => self::Starter->value,
                 'label' => self::Starter->label(),
-                'price' => self::Starter->priceLabel(),
+                'price' => self::Starter->priceLabel($currency),
                 'description' => 'For solo barbers getting organised.',
                 'features' => [
                     '1 barber seat',
@@ -62,7 +70,7 @@ enum SubscriptionPlan: string
             [
                 'value' => self::Shop->value,
                 'label' => self::Shop->label(),
-                'price' => self::Shop->priceLabel(),
+                'price' => self::Shop->priceLabel($currency),
                 'description' => 'Everything a busy shop floor needs.',
                 'features' => [
                     'Up to 5 barbers',
@@ -73,7 +81,7 @@ enum SubscriptionPlan: string
             [
                 'value' => self::Studio->value,
                 'label' => self::Studio->label(),
-                'price' => self::Studio->priceLabel(),
+                'price' => self::Studio->priceLabel($currency),
                 'description' => 'For multi-chair salons and growing teams.',
                 'features' => [
                     'Unlimited barbers',

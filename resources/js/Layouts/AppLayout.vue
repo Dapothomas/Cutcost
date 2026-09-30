@@ -1,4 +1,5 @@
 <script setup>
+import Icon from '@/Components/Icon.vue';
 import SidebarLink from '@/Components/SidebarLink.vue';
 import { Link, usePage, router } from '@inertiajs/vue3';
 import { computed, ref, onMounted, onUnmounted, watchEffect } from 'vue';
@@ -20,7 +21,7 @@ const bookingLinkCopied = ref(false);
 const notificationsOpen = ref(false);
 const profileOpen = ref(false);
 const headerRef = ref(null);
-const heroRef = ref(null);
+const bandRef = ref(null);
 const scrolled = ref(false);
 const headerHeight = ref(64);
 
@@ -76,7 +77,9 @@ const navItems = computed(() => (user.value?.role === 'owner' ? ownerNav : barbe
 const isOwner = computed(() => user.value?.role === 'owner');
 const homeHref = computed(() => (isOwner.value ? '/business' : '/barber'));
 const headerSolid = computed(() => !props.hero || scrolled.value);
-const showCompactTitle = computed(() => headerSolid.value);
+// The big title lives in the page band; it only collapses into the topbar
+// once you've scrolled past it.
+const showCompactTitle = computed(() => scrolled.value);
 
 const mobileTabs = computed(() => {
     if (isOwner.value) {
@@ -164,6 +167,12 @@ function onDocumentClick(event) {
     }
 }
 
+function onKeydown(event) {
+    if (event.key !== 'Escape') return;
+    closeMenus();
+    closeSidebar();
+}
+
 function measureHeader() {
     if (headerRef.value) {
         headerHeight.value = headerRef.value.offsetHeight;
@@ -171,18 +180,19 @@ function measureHeader() {
 }
 
 function onScroll() {
-    if (!props.hero || !heroRef.value) {
-        scrolled.value = false;
+    if (!bandRef.value) {
+        scrolled.value = window.scrollY > 24;
         return;
     }
 
-    scrolled.value = heroRef.value.getBoundingClientRect().bottom <= headerHeight.value + 8;
+    scrolled.value = bandRef.value.getBoundingClientRect().bottom <= headerHeight.value + 8;
 }
 
 let removeListener;
 let headerObserver;
 onMounted(() => {
     document.addEventListener('click', onDocumentClick);
+    document.addEventListener('keydown', onKeydown);
     measureHeader();
     headerObserver = typeof ResizeObserver !== 'undefined' && headerRef.value
         ? new ResizeObserver(() => {
@@ -207,6 +217,7 @@ onMounted(() => {
 });
 onUnmounted(() => {
     document.removeEventListener('click', onDocumentClick);
+    document.removeEventListener('keydown', onKeydown);
     window.removeEventListener('scroll', onScroll);
     window.removeEventListener('resize', measureHeader);
     headerObserver?.disconnect();
@@ -224,11 +235,11 @@ onUnmounted(() => {
 
         <aside
             :class="[
-                'app-sidebar fixed inset-y-0 left-0 z-50 flex w-[min(18rem,86vw)] flex-col pt-[env(safe-area-inset-top)] transition-transform duration-300 ease-out lg:w-[264px] lg:translate-x-0',
+                'app-sidebar fixed inset-y-0 left-0 z-50 flex w-[min(17rem,86vw)] flex-col pt-[env(safe-area-inset-top)] transition-transform duration-300 ease-out lg:w-[248px] lg:translate-x-0',
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full',
             ]"
         >
-            <div class="flex h-14 items-center justify-between px-4 sm:h-16 sm:px-5">
+            <div class="flex h-14 items-center justify-between px-4 sm:h-16">
                 <Link :href="homeHref" class="group" @click="closeSidebar">
                     <span class="brand-logo brand-logo-light brand-logo-sm transition-opacity group-hover:opacity-90">
                         Cut<span class="brand-logo-accent">cost</span>
@@ -236,20 +247,25 @@ onUnmounted(() => {
                 </Link>
                 <button
                     type="button"
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl text-sidebar-foreground hover:bg-white/10 lg:hidden"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground transition-colors hover:bg-white/10 hover:text-white lg:hidden"
                     aria-label="Close menu"
                     @click="closeSidebar"
                 >
-                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                    <Icon name="close" :size="18" :stroke-width="2" />
                 </button>
             </div>
 
-            <div v-if="user?.shop_name" class="mx-3 mb-2 rounded-xl border border-sidebar-border bg-sidebar-accent/60 px-3.5 py-3">
-                <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-sidebar-foreground/50">Shop</p>
-                <p class="mt-0.5 truncate text-sm font-medium text-white">{{ user.shop_name }}</p>
+            <div v-if="user?.shop_name" class="sidebar-shop-card">
+                <span class="avatar h-7 w-7 bg-primary/20 text-[10px] text-white">
+                    {{ user.shop_name.charAt(0) }}
+                </span>
+                <div class="min-w-0">
+                    <p class="truncate text-[13px] font-medium leading-tight text-white">{{ user.shop_name }}</p>
+                    <p class="text-[11px] leading-tight text-sidebar-foreground/60">{{ isOwner ? 'Owner' : 'Stylist' }}</p>
+                </div>
             </div>
 
-            <nav class="flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-3 py-2 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+            <nav class="flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-2.5 py-2 pb-[calc(1rem+env(safe-area-inset-bottom))]">
                 <p class="sidebar-section-label">
                     {{ isOwner ? 'Manage' : 'Schedule' }}
                 </p>
@@ -264,18 +280,17 @@ onUnmounted(() => {
                 />
 
                 <template v-if="isOwner && user?.booking_url">
-                    <div class="my-4 border-t border-sidebar-border" />
+                    <div class="my-3 border-t border-sidebar-border" />
                     <p class="sidebar-section-label">Share</p>
-                    <button type="button" class="sidebar-link" @click="copyBookingLink">
-                        <svg v-if="!bookingLinkCopied" class="h-[18px] w-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                        <svg v-else class="h-[18px] w-[18px] shrink-0 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    <button type="button" class="sidebar-link min-h-10" @click="copyBookingLink">
+                        <Icon :name="bookingLinkCopied ? 'check' : 'link'" :size="17" />
                         <span :class="bookingLinkCopied ? 'text-emerald-400' : ''">
-                            {{ bookingLinkCopied ? 'Copied!' : 'Booking link' }}
+                            {{ bookingLinkCopied ? 'Copied' : 'Booking link' }}
                         </span>
                     </button>
                 </template>
 
-                <div class="my-4 border-t border-sidebar-border lg:hidden" />
+                <div class="my-3 border-t border-sidebar-border lg:hidden" />
                 <SidebarLink
                     class="lg:hidden"
                     href="/profile"
@@ -284,89 +299,65 @@ onUnmounted(() => {
                     icon="profile"
                     @click="closeSidebar"
                 />
-                <button type="button" class="sidebar-link lg:hidden" @click="logout">
-                    <svg class="h-[18px] w-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                <button type="button" class="sidebar-link min-h-10 lg:hidden" @click="logout">
+                    <Icon name="logout" :size="17" />
                     Log out
                 </button>
             </nav>
         </aside>
 
-        <div class="app-main relative flex min-h-dvh min-w-0 flex-1 flex-col lg:pl-[264px]">
+        <div class="app-main relative flex min-h-dvh min-w-0 flex-1 flex-col lg:pl-[248px]">
             <header
                 ref="headerRef"
                 :class="[
-                    'app-topbar pt-[env(safe-area-inset-top)] transition-all duration-300',
+                    'app-topbar pt-[env(safe-area-inset-top)] transition-colors duration-200',
                     headerSolid
-                        ? 'border-b border-border/50 bg-background/95 shadow-sm backdrop-blur-xl'
+                        ? 'border-b border-border bg-card/90 backdrop-blur-xl'
                         : 'border-b border-transparent bg-transparent',
                 ]"
             >
-                <div class="flex min-h-14 w-full items-center gap-2 px-3 py-2.5 sm:min-h-16 sm:gap-3 sm:px-5 sm:py-3 lg:px-8">
+                <div class="mx-auto flex min-h-14 w-full max-w-7xl items-center gap-2 px-3 py-2 sm:min-h-16 sm:gap-3 sm:px-5 lg:px-8">
                     <div class="flex min-w-0 flex-1 items-center gap-2">
                         <button
                             type="button"
-                            :class="[
-                                'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl lg:hidden',
-                                headerSolid ? 'bg-card text-foreground shadow-sm' : 'bg-white/70 text-foreground shadow-sm backdrop-blur',
-                            ]"
+                            class="icon-btn border border-border bg-card lg:hidden"
                             aria-label="Open menu"
                             @click="sidebarOpen = true"
                         >
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                            <Icon name="menu" :size="18" :stroke-width="2" />
                         </button>
 
-                        <div
-                            class="min-w-0 transition-all duration-300"
-                            :class="showCompactTitle ? 'opacity-100' : 'pointer-events-none absolute opacity-0'"
-                        >
-                            <div class="flex min-w-0 items-center gap-2.5">
-                                <Link :href="homeHref" class="hidden shrink-0 lg:inline-flex">
-                                    <span class="brand-logo brand-logo-gradient text-[1.05rem]">
-                                        Cut<span class="brand-logo-accent">cost</span>
-                                    </span>
-                                </Link>
-                                <span v-if="title" class="hidden h-4 w-px shrink-0 bg-border/70 lg:block" />
-                                <div class="min-w-0">
-                                    <h1 v-if="title" class="page-title truncate">{{ title }}</h1>
-                                    <p v-if="subtitle" class="page-sub hidden truncate sm:block">{{ subtitle }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <Link
-                            v-if="!showCompactTitle"
-                            :href="homeHref"
-                            class="hidden min-w-0 lg:inline-flex"
-                        >
+                        <Link :href="homeHref" class="hidden shrink-0 lg:inline-flex">
                             <span class="brand-logo brand-logo-gradient text-[1.05rem]">
                                 Cut<span class="brand-logo-accent">cost</span>
                             </span>
                         </Link>
+
+                        <!-- Collapsed page title: appears once the band scrolls away. -->
+                        <div
+                            v-if="title"
+                            class="min-w-0 items-center gap-2.5 transition-opacity duration-200"
+                            :class="showCompactTitle ? 'flex opacity-100' : 'pointer-events-none hidden opacity-0 lg:flex'"
+                        >
+                            <span class="hidden h-4 w-px shrink-0 bg-border lg:block" />
+                            <h2 class="page-title truncate">{{ title }}</h2>
+                        </div>
                     </div>
 
-                    <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
-                        <div v-if="$slots.actions" class="mr-0.5 hidden items-center gap-2 md:flex">
-                            <slot name="actions" />
-                        </div>
-
+                    <div class="flex shrink-0 items-center gap-1 sm:gap-1.5">
                         <div class="relative">
                             <button
                                 type="button"
-                                :class="[
-                                    'relative inline-flex h-10 w-10 items-center justify-center rounded-xl transition-colors',
-                                    headerSolid ? 'bg-card text-foreground shadow-sm hover:bg-muted/70' : 'bg-white/70 text-foreground shadow-sm backdrop-blur hover:bg-white/90',
-                                ]"
+                                class="icon-btn relative border border-border bg-card"
+                                :class="notificationsOpen ? 'bg-secondary text-foreground' : ''"
                                 aria-label="Notifications"
                                 :aria-expanded="notificationsOpen"
                                 @click.stop="toggleNotifications"
                             >
-                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-                                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-                                </svg>
+                                <Icon name="bell" :size="18" />
                                 <span
                                     v-if="notifications.unread_count"
-                                    class="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground"
+                                    class="absolute -right-0.5 -top-0.5 flex h-[17px] min-w-[17px] items-center justify-center rounded-full border-2 border-card bg-primary px-1 text-[9px] font-semibold leading-none text-primary-foreground"
                                 >
                                     {{ notifications.unread_count > 9 ? '9+' : notifications.unread_count }}
                                 </span>
@@ -374,47 +365,44 @@ onUnmounted(() => {
 
                             <div
                                 v-if="notificationsOpen"
-                                class="absolute right-0 mt-2 w-80 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-card py-1 shadow-card sm:max-w-none"
+                                class="menu absolute right-0 top-full mt-1.5 w-[20rem] max-w-[calc(100vw-1.5rem)] p-0"
                             >
-                                <div class="flex items-center justify-between px-4 py-3">
-                                    <p class="text-sm font-semibold">Notifications</p>
-                                    <span v-if="notifications.unread_count" class="text-xs text-muted-foreground">
+                                <div class="flex items-center justify-between border-b border-border px-3.5 py-2.5">
+                                    <p class="text-[13px] font-semibold">Notifications</p>
+                                    <span v-if="notifications.unread_count" class="badge-outline">
                                         {{ notifications.unread_count }} new
                                     </span>
                                 </div>
-                                <div v-if="notifications.items?.length" class="max-h-72 overflow-y-auto overscroll-contain">
+                                <div v-if="notifications.items?.length" class="max-h-[19rem] overflow-y-auto overscroll-contain">
                                     <Link
                                         v-for="item in notifications.items"
                                         :key="item.id"
                                         :href="item.href"
-                                        class="block px-4 py-3 transition-colors hover:bg-muted/50"
-                                        :class="{ 'bg-primary/[0.04]': item.read === false }"
+                                        class="flex items-start gap-2.5 border-b border-border/60 px-3.5 py-2.5 transition-colors last:border-0 hover:bg-secondary"
                                         @click="closeMenus"
                                     >
-                                        <div class="flex items-start gap-2">
-                                            <span
-                                                v-if="item.read === false"
-                                                class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
-                                                aria-hidden="true"
-                                            />
-                                            <div class="min-w-0 flex-1" :class="{ 'pl-3.5': item.read !== false && notifications.see_all_href }">
-                                                <p class="truncate text-sm font-medium text-foreground">{{ item.title }}</p>
-                                                <p class="mt-0.5 text-xs text-muted-foreground">{{ item.body }}</p>
-                                                <p v-if="item.created_at_label" class="mt-1 text-[11px] text-muted-foreground/80">{{ item.created_at_label }}</p>
-                                            </div>
+                                        <span
+                                            class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
+                                            :class="item.read === false ? 'bg-primary' : 'bg-transparent'"
+                                            aria-hidden="true"
+                                        />
+                                        <div class="min-w-0 flex-1">
+                                            <p class="truncate text-[13px] font-medium text-foreground">{{ item.title }}</p>
+                                            <p class="mt-0.5 text-[12px] leading-snug text-muted-foreground">{{ item.body }}</p>
+                                            <p v-if="item.created_at_label" class="mt-1 text-[11px] text-muted-foreground/80">{{ item.created_at_label }}</p>
                                         </div>
                                     </Link>
                                 </div>
                                 <div v-else class="px-4 py-8 text-center">
-                                    <p class="text-sm font-medium text-foreground">You’re all caught up</p>
-                                    <p class="mt-1 text-xs text-muted-foreground">
+                                    <p class="text-[13px] font-medium text-foreground">You’re all caught up</p>
+                                    <p class="mt-1 text-[12px] text-muted-foreground">
                                         {{ notifications.see_all_href ? 'No notifications yet.' : 'No upcoming bookings for today.' }}
                                     </p>
                                 </div>
-                                <div v-if="notifications.see_all_href" class="border-t border-border/40 px-2 py-2">
+                                <div v-if="notifications.see_all_href" class="border-t border-border p-1">
                                     <Link
                                         :href="notifications.see_all_href"
-                                        class="block rounded-xl px-3 py-2.5 text-center text-sm font-medium text-primary transition-colors hover:bg-muted/50"
+                                        class="menu-item justify-center text-primary"
                                         @click="closeMenus"
                                     >
                                         See all notifications
@@ -426,10 +414,9 @@ onUnmounted(() => {
                         <div class="relative">
                             <button
                                 type="button"
-                                :class="[
-                                    'inline-flex items-center gap-2 rounded-full p-1 transition-colors sm:py-1 sm:pl-1 sm:pr-2.5',
-                                    headerSolid ? 'bg-card shadow-sm hover:bg-muted/70' : 'bg-white/70 shadow-sm backdrop-blur hover:bg-white/90',
-                                ]"
+                                class="inline-flex items-center gap-2 rounded-lg border border-border bg-card p-1 transition-colors hover:bg-secondary sm:pr-2.5"
+                                :class="profileOpen ? 'bg-secondary' : ''"
+                                aria-label="Account menu"
                                 :aria-expanded="profileOpen"
                                 @click.stop="toggleProfile"
                             >
@@ -437,65 +424,59 @@ onUnmounted(() => {
                                     {{ user?.initials || user?.name?.charAt(0)?.toUpperCase() }}
                                 </span>
                                 <span class="hidden min-w-0 text-left sm:block">
-                                    <span class="block max-w-[8rem] truncate text-sm font-medium leading-tight">{{ user?.name }}</span>
-                                    <span class="block max-w-[8rem] truncate text-[11px] text-muted-foreground">{{ user?.shop_name || user?.email }}</span>
+                                    <span class="block max-w-[8rem] truncate text-[13px] font-medium leading-tight">{{ user?.name }}</span>
+                                    <span class="block max-w-[8rem] truncate text-[11px] leading-tight text-muted-foreground">{{ user?.shop_name || user?.email }}</span>
                                 </span>
+                                <Icon name="chevron-down" :size="14" class="hidden text-muted-foreground sm:block" />
                             </button>
 
-                            <div
-                                v-if="profileOpen"
-                                class="absolute right-0 mt-2 w-56 rounded-2xl bg-card py-1 shadow-card"
-                            >
-                                <div class="border-b border-border/40 px-3 py-3 sm:hidden">
-                                    <p class="truncate text-sm font-medium">{{ user?.name }}</p>
-                                    <p class="truncate text-xs text-muted-foreground">{{ user?.email }}</p>
+                            <div v-if="profileOpen" class="menu absolute right-0 top-full mt-1.5 w-56">
+                                <div class="border-b border-border px-2.5 pb-2 pt-1 sm:hidden">
+                                    <p class="truncate text-[13px] font-medium">{{ user?.name }}</p>
+                                    <p class="truncate text-[12px] text-muted-foreground">{{ user?.email }}</p>
                                 </div>
-                                <Link
-                                    href="/profile"
-                                    class="flex min-h-11 items-center gap-2.5 px-3 py-2.5 text-sm transition-colors hover:bg-muted/50"
-                                    @click="closeMenus"
-                                >
+                                <Link href="/profile" class="menu-item" @click="closeMenus">
+                                    <Icon name="profile" :size="16" class="text-muted-foreground" />
                                     Profile
                                 </Link>
                                 <Link
                                     v-if="user?.is_platform_admin"
                                     href="/admin/waitlist"
-                                    class="flex min-h-11 items-center gap-2.5 px-3 py-2.5 text-sm transition-colors hover:bg-muted/50"
+                                    class="menu-item"
                                     @click="closeMenus"
                                 >
+                                    <Icon name="clients" :size="16" class="text-muted-foreground" />
                                     Waitlist
                                 </Link>
-                                <button
-                                    type="button"
-                                    class="flex min-h-11 w-full items-center gap-2.5 px-3 py-2.5 text-sm transition-colors hover:bg-muted/50"
-                                    @click="logout"
-                                >
+                                <div class="menu-separator" />
+                                <button type="button" class="menu-item" @click="logout">
+                                    <Icon name="logout" :size="16" class="text-muted-foreground" />
                                     Log out
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </header>
 
             <div class="flex min-h-0 min-w-0 flex-1 flex-col">
                 <div
-                    v-if="hero"
-                    ref="heroRef"
-                    class="dash-hero-band"
+                    v-if="title"
+                    ref="bandRef"
+                    :class="hero ? 'dash-hero-band' : 'page-band'"
                     :style="{ paddingTop: `${headerHeight}px` }"
                 >
-                    <div class="dash-hero-copy">
-                        <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-                            {{ greeting }}{{ user?.name ? `, ${user.name.split(' ')[0]}` : '' }}
-                        </p>
-                        <h1 class="mt-2 font-display text-[1.85rem] font-semibold tracking-tight text-foreground sm:text-4xl">
-                            {{ title }}
-                        </h1>
-                        <p v-if="subtitle" class="mt-2 max-w-xl text-sm text-muted-foreground sm:text-[15px]">
-                            {{ subtitle }}
-                        </p>
+                    <div class="page-band-copy">
+                        <div class="min-w-0">
+                            <p v-if="hero" class="page-band-eyebrow">
+                                {{ greeting }}{{ user?.name ? `, ${user.name.split(' ')[0]}` : '' }}
+                            </p>
+                            <h1 class="page-band-title" :class="hero ? 'mt-1.5' : ''">{{ title }}</h1>
+                            <p v-if="subtitle" class="page-band-sub">{{ subtitle }}</p>
+                        </div>
+                        <div v-if="$slots.actions" class="page-band-actions">
+                            <slot name="actions" />
+                        </div>
                     </div>
                 </div>
                 <div v-else aria-hidden="true" :style="{ height: `${headerHeight}px` }" class="shrink-0" />
@@ -503,7 +484,7 @@ onUnmounted(() => {
                 <main
                     class="min-w-0 flex-1 lg:pb-0"
                     :class="$slots.actions
-                        ? 'pb-[calc(8.75rem+env(safe-area-inset-bottom))]'
+                        ? 'pb-[calc(8.5rem+env(safe-area-inset-bottom))]'
                         : 'pb-[calc(4.25rem+env(safe-area-inset-bottom))]'"
                 >
                     <div v-if="flash" class="page-shell pb-0">
@@ -526,16 +507,13 @@ onUnmounted(() => {
                         :href="tab.href"
                         class="mobile-tab"
                         :class="{ 'mobile-tab-active': tabActive(tab) }"
+                        :aria-current="tabActive(tab) ? 'page' : undefined"
                     >
-                        <svg v-if="tab.icon === 'home'" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                        <svg v-else-if="tab.icon === 'bookings'" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-                        <svg v-else-if="tab.icon === 'clients'" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <svg v-else-if="tab.icon === 'settings'" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-                        <svg v-else-if="tab.icon === 'profile'" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <Icon :name="tab.icon" :size="19" />
                         <span>{{ tab.label }}</span>
                     </Link>
                     <button type="button" class="mobile-tab" aria-label="Open menu" @click="sidebarOpen = true">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                        <Icon name="menu" :size="19" />
                         <span>More</span>
                     </button>
                 </nav>
