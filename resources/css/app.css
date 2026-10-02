@@ -611,6 +611,20 @@
         @apply text-[1.15rem];
     }
 
+    .brand-mark {
+        display: block;
+        height: 1.85rem;
+        width: auto;
+        max-width: 100%;
+        flex-shrink: 0;
+        align-self: flex-start;
+        object-fit: contain;
+    }
+
+    .brand-mark-sm {
+        height: 1.45rem;
+    }
+
     /* ---------- Stat cards ---------- */
     .stat-card {
         @apply card block p-4 transition-colors duration-150 sm:p-[1.125rem];

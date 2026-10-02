@@ -167,6 +167,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        @include('partials.favicon')
         @vite(['resources/css/app.css', 'resources/js/blade.js'])
         <style>
             /* ================= Cutcost homepage — page-owned styles ================= */
@@ -1308,7 +1309,7 @@
         <header id="lp-nav" class="lp-nav">
             <div class="lp-wrap flex h-16 items-center justify-between">
                 <a href="{{ route('home') }}" class="transition-opacity hover:opacity-80" aria-label="Cutcost home">
-                    <span class="brand-logo brand-logo-gradient">Cut<span class="brand-logo-accent">cost</span></span>
+                    <x-logo />
                 </a>
                 <nav class="hidden items-center gap-1 md:flex" aria-label="Main">
                     <a href="#features" class="btn-ghost">Product</a>
@@ -2204,7 +2205,7 @@
 
                     <div class="lp-hub ui order-first lg:order-2" aria-label="Cutcost’s record of the day">
                         <div class="flex items-center justify-between gap-3 bg-sidebar px-4 py-3 text-white">
-                            <span class="brand-logo brand-logo-light brand-logo-sm">Cut<span class="brand-logo-accent">cost</span></span>
+                            <x-logo tone="light" size="sm" />
                             <span class="text-[12px] font-medium tabular-nums text-sidebar-foreground" data-day-clock>18:45</span>
                         </div>
                         <div class="h-1 bg-secondary"><div class="lp-hub-bar h-full bg-primary" data-day-bar style="width:100%"></div></div>
@@ -2247,7 +2248,7 @@
                 <div class="lp-rv relative mt-14" style="--i:1">
                     <div class="lp-app ui" aria-hidden="true">
                         <aside class="lp-app-side hidden md:flex">
-                            <span class="brand-logo brand-logo-light brand-logo-sm px-2.5">Cut<span class="brand-logo-accent">cost</span></span>
+                            <x-logo tone="light" size="sm" class="px-2.5" />
                             <div class="sidebar-shop-card mx-0 mt-5">
                                 <span class="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-[11px] font-bold text-white">N</span>
                                 <span class="min-w-0"><span class="block truncate text-[12px] font-semibold text-white">North &amp; Co.</span><span class="block truncate text-[10.5px]">Shop plan</span></span>
@@ -2618,7 +2619,7 @@
             <div class="lp-wrap py-16 sm:py-20">
                 <div class="grid gap-12 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))] lg:gap-8">
                     <div class="sm:col-span-2 lg:col-span-1">
-                        <a href="{{ route('home') }}" class="brand-logo brand-logo-gradient" aria-label="Cutcost home">Cut<span class="brand-logo-accent">cost</span></a>
+                        <a href="{{ route('home') }}" class="inline-block transition-opacity hover:opacity-80" aria-label="Cutcost home"><x-logo /></a>
                         <p class="mt-6 font-display text-[28px] font-extrabold leading-[1.02] tracking-[-0.04em]">Run your shop.<br><span class="text-primary">Fill your <span class="lp-hl">chair.</span></span></p>
                         <p class="mt-4 max-w-xs text-[13px] leading-relaxed text-muted-foreground">The private CRM and booking platform for salons, barbershops, stylists and beauty professionals. No marketplace.</p>
                     </div>

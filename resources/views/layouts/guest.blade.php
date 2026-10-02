@@ -10,6 +10,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        @include('partials.favicon')
 
         @vite(['resources/css/app.css', 'resources/js/blade.js'])
     </head>
@@ -21,8 +22,8 @@
                 aria-hidden="true"
             ></div>
 
-            <a href="{{ route('home') }}" class="relative mb-7 transition-opacity hover:opacity-85">
-                <span class="brand-logo brand-logo-gradient">Cut<span class="brand-logo-accent">cost</span></span>
+            <a href="{{ route('home') }}" class="relative mb-7 transition-opacity hover:opacity-85" aria-label="Cutcost home">
+                <x-logo />
             </a>
 
             <div class="card relative w-full max-w-md p-6 sm:p-7">

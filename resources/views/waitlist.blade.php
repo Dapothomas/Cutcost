@@ -9,6 +9,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        @include('partials.favicon')
         @vite(['resources/css/app.css', 'resources/js/blade.js'])
         <style>
             .font-display,
@@ -116,8 +117,8 @@
             <div class="cc-stripe pointer-events-none absolute right-0 top-0 h-[380px] w-[380px] text-primary/[0.06]" aria-hidden="true"></div>
 
             <header class="relative z-10 mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
-                <a href="{{ route('home') }}" class="transition-opacity hover:opacity-85">
-                    <span class="brand-logo brand-logo-gradient">Cut<span class="brand-logo-accent">cost</span></span>
+                <a href="{{ route('home') }}" class="transition-opacity hover:opacity-85" aria-label="Cutcost home">
+                    <x-logo size="sm" />
                 </a>
                 <div class="flex items-center gap-2">
                     <a href="{{ route('home') }}#features" class="btn-ghost hidden sm:inline-flex">Features</a>

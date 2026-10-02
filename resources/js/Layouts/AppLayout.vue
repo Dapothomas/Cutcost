@@ -240,10 +240,14 @@ onUnmounted(() => {
             ]"
         >
             <div class="flex h-14 items-center justify-between px-4 sm:h-16">
-                <Link :href="homeHref" class="group" @click="closeSidebar">
-                    <span class="brand-logo brand-logo-light brand-logo-sm transition-opacity group-hover:opacity-90">
-                        Cut<span class="brand-logo-accent">cost</span>
-                    </span>
+                <Link :href="homeHref" class="group" aria-label="Cutcost home" @click="closeSidebar">
+                    <img
+                        src="/images/logo-on-dark.png"
+                        alt=""
+                        width="2499"
+                        height="615"
+                        class="brand-mark brand-mark-sm transition-opacity group-hover:opacity-90"
+                    />
                 </Link>
                 <button
                     type="button"
@@ -327,10 +331,8 @@ onUnmounted(() => {
                             <Icon name="menu" :size="18" :stroke-width="2" />
                         </button>
 
-                        <Link :href="homeHref" class="hidden shrink-0 lg:inline-flex">
-                            <span class="brand-logo brand-logo-gradient text-[1.05rem]">
-                                Cut<span class="brand-logo-accent">cost</span>
-                            </span>
+                        <Link :href="homeHref" class="hidden shrink-0 lg:inline-flex" aria-label="Cutcost home">
+                            <img src="/images/logo.png" alt="" width="2499" height="615" class="brand-mark brand-mark-sm" />
                         </Link>
 
                         <!-- Collapsed page title: appears once the band scrolls away. -->

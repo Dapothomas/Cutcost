@@ -7,6 +7,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        @include('partials.favicon')
         @vite(['resources/css/app.css', 'resources/js/blade.js'])
         @if ($tokens = $business->brandTheme())
             <style>
@@ -123,7 +124,7 @@
                 {{-- Brand / summary rail --}}
                 <aside class="relative flex flex-col justify-between px-5 pb-4 pt-[max(1.25rem,env(safe-area-inset-top))] sm:px-8 lg:w-[38%] lg:px-10 lg:py-8 xl:w-[36%]">
                     <div>
-                        <p class="brand-logo brand-logo-gradient brand-logo-sm">Cut<span class="brand-logo-accent">cost</span></p>
+                        <x-logo size="sm" />
                         <h1 class="mt-5 font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:mt-8 lg:text-[2.5rem] lg:leading-[1.1]">
                             {{ $business->name }}
                         </h1>
