@@ -2,8 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Enums\BookingStatus;
+use App\Enums\PaymentStatus;
+use App\Enums\Role;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
+use App\Models\Booking;
+use App\Models\Business;
+use App\Models\Client;
+use App\Models\Service;
 use App\Models\User;
 use App\Services\Payments\BachsCheckoutService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -90,6 +97,69 @@ class BachsCheckoutTest extends TestCase
         $this->assertSame(SubscriptionStatus::Active, $user->subscription_status);
         $this->assertSame('sub_1', $user->bachs_subscription_id);
         $this->assertSame('cust_1', $user->bachs_customer_id);
+    }
+
+    public function test_booking_checkout_keeps_the_client_email_after_a_partial_load(): void
+    {
+        config([
+            'bachs.secret' => 'sk_sandbox_test',
+            'bachs.base_url' => 'https://sandbox-api.bachs.io',
+        ]);
+
+        Http::fake([
+            'https://sandbox-api.bachs.io/v1/checkout-sessions' => Http::response([
+                'checkout_id' => 'chk_book',
+                'checkout_url' => 'https://checkout.bachs.io/c/book',
+                'status' => 'open',
+            ], 201),
+        ]);
+
+        $owner = User::factory()->owner()->create();
+        $business = Business::create([
+            'owner_id' => $owner->id,
+            'payment_provider' => 'bachs',
+            'name' => 'Lagos Shop',
+            'slug' => 'lagos-shop',
+        ]);
+        $barber = User::factory()->barber()->create([
+            'role' => Role::Barber,
+            'business_id' => $business->id,
+        ]);
+        $service = Service::create([
+            'business_id' => $business->id,
+            'name' => 'Braids',
+            'duration_minutes' => 30,
+            'price_cents' => 3000,
+            'is_active' => true,
+        ]);
+        $client = Client::create([
+            'business_id' => $business->id,
+            'name' => 'Ada',
+            'phone' => '08030000000',
+            'email' => 'ada@example.com',
+        ]);
+        $booking = Booking::create([
+            'business_id' => $business->id,
+            'client_id' => $client->id,
+            'barber_id' => $barber->id,
+            'service_id' => $service->id,
+            'starts_at' => now()->addDay(),
+            'ends_at' => now()->addDay()->addMinutes(30),
+            'status' => BookingStatus::PendingPayment,
+            'payment_status' => PaymentStatus::Pending,
+            'amount_cents' => 3000,
+        ]);
+        $booking->setRelation('client', new Client([
+            'id' => $client->id,
+            'name' => $client->name,
+        ]));
+
+        $session = app(BachsCheckoutService::class)->createBookingCheckoutSession($booking, $business, $service);
+
+        $this->assertSame('chk_book', $session->id);
+        Http::assertSent(function ($request) {
+            return ($request->data()['customer']['email'] ?? null) === 'ada@example.com';
+        });
     }
 
     public function test_webhook_rejects_a_bad_signature(): void

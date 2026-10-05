@@ -28,29 +28,7 @@ class StripeConnectTest extends TestCase
             );
     }
 
-    public function test_paid_public_booking_is_blocked_without_stripe_connect(): void
-    {
-        config(['stripe.bypass_checkout' => false]);
-
-        [$business, $service, $barber] = $this->shopWithService();
-
-        $date = now()->addDay()->toDateString();
-
-        $this->from(route('public.booking.show', $business))
-            ->post(route('public.booking.store', $business), [
-                'service_id' => $service->id,
-                'barber_id' => $barber->id,
-                'date' => $date,
-                'time' => '10:00',
-                'name' => 'Blocked Booker',
-                'phone' => '07700901112',
-            ])
-            ->assertSessionHasErrors('service_id');
-
-        $this->assertDatabaseCount('bookings', 0);
-    }
-
-    public function test_public_booking_page_shows_payment_blocked_message(): void
+    public function test_public_booking_page_does_not_block_an_unconnected_uk_shop(): void
     {
         config(['stripe.bypass_checkout' => false]);
 
@@ -61,7 +39,7 @@ class StripeConnectTest extends TestCase
             'service_id' => $service->id,
         ]))
             ->assertOk()
-            ->assertSee('Online payment is not available yet');
+            ->assertDontSee('Online payment unavailable');
     }
 
     private function ownerWithBusiness(): User

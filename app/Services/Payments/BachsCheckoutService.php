@@ -91,7 +91,7 @@ class BachsCheckoutService
 
     public function createBookingCheckoutSession(Booking $booking, Business $business, Service $service): CheckoutSession
     {
-        $booking->loadMissing(['client', 'barber']);
+        $booking->load(['client', 'barber']);
 
         $email = $booking->client->email;
 

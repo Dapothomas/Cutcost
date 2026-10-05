@@ -107,14 +107,6 @@ class StripeCheckoutService
 
     public function createBookingCheckoutSession(Booking $booking, Business $business, Service $service): Session
     {
-        if (! $business->canAcceptPayments()) {
-            throw new \RuntimeException('This shop is not ready to accept payments yet.');
-        }
-
-        if (blank($business->stripe_account_id)) {
-            throw new \RuntimeException('This shop has not connected Stripe yet.');
-        }
-
         Stripe::setApiKey(config('stripe.secret'));
 
         $booking->loadMissing(['client', 'barber']);
@@ -151,21 +143,19 @@ class StripeCheckoutService
             ],
         ];
 
-        $applicationFee = $this->bookingApplicationFeeCents($booking->amount_cents);
+        if (filled($business->stripe_account_id)) {
+            $applicationFee = $this->bookingApplicationFeeCents($booking->amount_cents);
+            $paymentIntent = [
+                'transfer_data' => [
+                    'destination' => $business->stripe_account_id,
+                ],
+            ];
 
-        if ($applicationFee > 0) {
-            $sessionPayload['payment_intent_data'] = [
-                'application_fee_amount' => $applicationFee,
-                'transfer_data' => [
-                    'destination' => $business->stripe_account_id,
-                ],
-            ];
-        } else {
-            $sessionPayload['payment_intent_data'] = [
-                'transfer_data' => [
-                    'destination' => $business->stripe_account_id,
-                ],
-            ];
+            if ($applicationFee > 0) {
+                $paymentIntent['application_fee_amount'] = $applicationFee;
+            }
+
+            $sessionPayload['payment_intent_data'] = $paymentIntent;
         }
 
         return Session::create($sessionPayload);

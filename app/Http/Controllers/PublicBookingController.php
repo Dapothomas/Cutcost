@@ -272,28 +272,12 @@ class PublicBookingController extends Controller
             return false;
         }
 
-        if (PaymentProvider::forBusiness($business) === PaymentProvider::BACHS) {
-            return true;
-        }
-
-        return $business->canAcceptPayments();
+        return true;
     }
 
     private function paymentsBlocked(Business $business, ?Service $service): bool
     {
-        if (! $service || $service->price_cents <= 0) {
-            return false;
-        }
-
-        if (CheckoutGateway::shouldBypass($business)) {
-            return false;
-        }
-
-        if (PaymentProvider::forBusiness($business) === PaymentProvider::BACHS) {
-            return false;
-        }
-
-        return ! $business->canAcceptPayments();
+        return false;
     }
 
     /**

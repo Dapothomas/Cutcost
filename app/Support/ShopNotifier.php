@@ -27,7 +27,7 @@ class ShopNotifier
 
     public static function bookingCreated(Booking $booking, string $source = 'shop'): void
     {
-        $booking->loadMissing(['client:id,name', 'service:id,name', 'barber:id,name', 'business']);
+        $booking->loadMissing(['client:id,name,email', 'service:id,name', 'barber:id,name', 'business']);
 
         $business = $booking->business;
         if (! $business) {
