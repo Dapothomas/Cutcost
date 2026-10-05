@@ -16,6 +16,21 @@ class CheckoutGateway
         private BachsCheckoutService $bachs,
     ) {}
 
+    public static function failureMessage(\Throwable $exception): string
+    {
+        $reason = trim(preg_replace('/\s+/', ' ', $exception->getMessage()) ?? '');
+
+        if ($reason === '') {
+            $reason = 'The payment service did not return a reason.';
+        }
+
+        if (strlen($reason) > 280) {
+            $reason = substr($reason, 0, 280).'…';
+        }
+
+        return 'Unable to start checkout: '.$reason;
+    }
+
     public static function shouldBypass(?Business $business = null): bool
     {
         $provider = $business

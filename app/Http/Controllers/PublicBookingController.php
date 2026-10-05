@@ -184,11 +184,12 @@ class PublicBookingController extends Controller
 
         try {
             $session = $checkout->createBookingCheckoutSession($booking, $business, $service);
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
+            report($exception);
             $checkout->cancelPendingBooking($booking);
 
             throw ValidationException::withMessages([
-                'time' => 'We could not start checkout. Please try again.',
+                'time' => CheckoutGateway::failureMessage($exception),
             ]);
         }
 

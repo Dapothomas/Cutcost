@@ -92,8 +92,10 @@ class RegisteredUserController extends Controller
         try {
             $session = $checkout->createCheckoutSession($user, $plan);
         } catch (\Throwable $exception) {
+            report($exception);
+
             throw ValidationException::withMessages([
-                'plan' => 'Unable to start checkout. Please try again or contact support.',
+                'plan' => CheckoutGateway::failureMessage($exception),
             ]);
         }
 
