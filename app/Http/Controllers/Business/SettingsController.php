@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Business;
 
 use App\Http\Controllers\Controller;
 use App\Models\Business;
-use App\Services\StripeCheckoutService;
+use App\Services\Payments\CheckoutGateway;
 use App\Support\BrandColor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -124,7 +124,7 @@ class SettingsController extends Controller
         return back()->with('status', 'Settings saved.');
     }
 
-    public function cancelSubscription(Request $request, StripeCheckoutService $checkout): RedirectResponse
+    public function cancelSubscription(Request $request, CheckoutGateway $checkout): RedirectResponse
     {
         $request->validate([
             'confirm' => ['accepted'],

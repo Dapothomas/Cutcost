@@ -60,7 +60,7 @@ async function copyBookingLink() {
                         <Icon name="payments" :size="17" />
                     </span>
                     <div>
-                        <p class="text-[13px] font-semibold text-foreground">Connect Stripe to accept client payments</p>
+                        <p class="text-[13px] font-semibold text-foreground">Connect {{ business.payments_provider }} to accept client payments</p>
                         <p class="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">
                             Clients can't pay online until your shop is connected. Booking links still work for free services.
                         </p>

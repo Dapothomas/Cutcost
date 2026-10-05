@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Business;
 use App\Enums\BookingStatus;
 use App\Http\Controllers\Controller;
 use App\Services\BookingRevenueService;
-use App\Services\StripeConnectService;
+use App\Services\Payments\ConnectGateway;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,8 +21,10 @@ class DashboardController extends Controller
             'bookings',
         ])->firstOrFail();
 
-        if (filled($business->stripe_account_id) && ! $business->stripe_charges_enabled) {
-            $business = app(StripeConnectService::class)->syncAccount($business);
+        $connect = app(ConnectGateway::class);
+
+        if ($connect->needsSync($business)) {
+            $business = $connect->syncAccount($business);
         }
 
         $todaysBookings = $business->bookings()
@@ -49,7 +51,8 @@ class DashboardController extends Controller
                 'bookings_count' => $business->bookings_count,
                 'public_booking_url' => $business->publicBookingUrl(),
                 'payments_ready' => $business->canAcceptPayments(),
-                'payments_bypassed' => StripeConnectService::shouldBypass(),
+                'payments_bypassed' => ConnectGateway::shouldBypass($business),
+                'payments_provider' => \App\Services\Payments\PaymentProvider::labelForBusiness($business),
             ],
             'todaysBookings' => $todaysBookings,
             'todayLabel' => now()->format('l, j F'),

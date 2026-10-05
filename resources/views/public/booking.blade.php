@@ -172,7 +172,7 @@
                                         <p class="text-xs text-muted-foreground">Total due today</p>
                                         <p class="mt-0.5 font-display text-2xl font-semibold text-primary" x-text="service?.price || '—'"></p>
                                     </div>
-                                    <p class="pb-1 text-[11px] text-muted-foreground">Secure Stripe checkout</p>
+                                    <p class="pb-1 text-[11px] text-muted-foreground">Secure {{ $checkoutLabel }} checkout</p>
                                 </div>
                             @endif
                         </div>
@@ -451,7 +451,7 @@
                                 </p>
                                 <p class="mt-2 text-center text-xs text-muted-foreground" x-show="canSubmit" x-cloak>
                                     @if ($requiresPayment)
-                                        Next: secure Stripe checkout
+                                        Next: secure {{ $checkoutLabel }} checkout
                                     @else
                                         You’re ready to book
                                     @endif

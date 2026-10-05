@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 
 #[Fillable([
     'owner_id',
+    'payment_provider',
     'name',
     'slug',
     'phone',
@@ -29,6 +30,10 @@ use Illuminate\Support\Str;
     'stripe_charges_enabled',
     'stripe_payouts_enabled',
     'stripe_onboarding_completed_at',
+    'bachs_account_id',
+    'bachs_charges_enabled',
+    'bachs_payouts_enabled',
+    'bachs_onboarding_completed_at',
 ])]
 class Business extends Model
 {
@@ -42,6 +47,9 @@ class Business extends Model
             'stripe_charges_enabled' => 'boolean',
             'stripe_payouts_enabled' => 'boolean',
             'stripe_onboarding_completed_at' => 'datetime',
+            'bachs_charges_enabled' => 'boolean',
+            'bachs_payouts_enabled' => 'boolean',
+            'bachs_onboarding_completed_at' => 'datetime',
             'opening_hours' => 'array',
             'slot_interval_minutes' => 'integer',
             'booking_lead_minutes' => 'integer',
@@ -146,7 +154,7 @@ class Business extends Model
 
     public function canAcceptPayments(): bool
     {
-        return app(\App\Services\StripeConnectService::class)->canAcceptPayments($this);
+        return app(\App\Services\Payments\ConnectGateway::class)->canAcceptPayments($this);
     }
 
     /**

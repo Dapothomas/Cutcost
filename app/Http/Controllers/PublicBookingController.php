@@ -8,7 +8,8 @@ use App\Models\Booking;
 use App\Models\Business;
 use App\Models\Client;
 use App\Models\Service;
-use App\Services\StripeCheckoutService;
+use App\Services\Payments\CheckoutGateway;
+use App\Services\Payments\PaymentProvider;
 use App\Support\BookingSlots;
 use App\Support\ShopNotifier;
 use Carbon\Carbon;
@@ -91,10 +92,11 @@ class PublicBookingController extends Controller
             'minDate' => $minDate,
             'maxDate' => $maxDate,
             'hoursLabel' => $business->openingHoursLabelFor($date),
+            'checkoutLabel' => PaymentProvider::labelForBusiness($business),
         ]);
     }
 
-    public function store(Request $request, Business $business, BookingSlots $slots, StripeCheckoutService $checkout): RedirectResponse
+    public function store(Request $request, Business $business, BookingSlots $slots, CheckoutGateway $checkout): RedirectResponse
     {
         abort_unless($business->public_booking_enabled, 404);
 
@@ -190,16 +192,22 @@ class PublicBookingController extends Controller
             ]);
         }
 
-        $booking->update(['stripe_checkout_session_id' => $session->id]);
+        $booking->update([
+            PaymentProvider::forBusiness($business) === PaymentProvider::BACHS
+                ? 'bachs_checkout_id'
+                : 'stripe_checkout_session_id' => $session->id,
+        ]);
 
         return redirect()->away($session->url);
     }
 
-    public function checkoutSuccess(Request $request, Business $business, StripeCheckoutService $checkout): RedirectResponse
+    public function checkoutSuccess(Request $request, Business $business, CheckoutGateway $checkout): RedirectResponse
     {
         abort_unless($business->public_booking_enabled, 404);
 
-        $sessionId = $request->string('session_id');
+        $sessionId = $request->string(
+            PaymentProvider::forBusiness($business) === PaymentProvider::BACHS ? 'checkout_id' : 'session_id',
+        );
 
         if ($sessionId->isEmpty()) {
             return redirect()
@@ -208,7 +216,7 @@ class PublicBookingController extends Controller
         }
 
         try {
-            $booking = $checkout->completeBookingCheckout($sessionId->value());
+            $booking = $checkout->completeBookingCheckout($sessionId->value(), $business);
         } catch (\Throwable) {
             return redirect()
                 ->route('public.booking.show', $business)
@@ -222,7 +230,7 @@ class PublicBookingController extends Controller
             ->with('status', 'Payment confirmed — you’re booked.');
     }
 
-    public function checkoutCancel(Business $business, Booking $booking, StripeCheckoutService $checkout): RedirectResponse
+    public function checkoutCancel(Business $business, Booking $booking, CheckoutGateway $checkout): RedirectResponse
     {
         abort_unless($business->public_booking_enabled, 404);
         abort_unless($booking->business_id === $business->id, 404);
@@ -254,7 +262,7 @@ class PublicBookingController extends Controller
             return false;
         }
 
-        if (StripeCheckoutService::shouldBypass()) {
+        if (CheckoutGateway::shouldBypass($business)) {
             return false;
         }
 
@@ -267,7 +275,7 @@ class PublicBookingController extends Controller
             return false;
         }
 
-        if (StripeCheckoutService::shouldBypass()) {
+        if (CheckoutGateway::shouldBypass($business)) {
             return false;
         }
 

@@ -8,7 +8,8 @@ use App\Enums\SubscriptionStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Business;
 use App\Models\User;
-use App\Services\StripeCheckoutService;
+use App\Services\Payments\CheckoutGateway;
+use App\Services\Payments\PaymentProvider;
 use App\Support\VisitorMarket;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -37,7 +38,7 @@ class RegisteredUserController extends Controller
     /**
      * @throws ValidationException
      */
-    public function store(Request $request, StripeCheckoutService $checkout): RedirectResponse
+    public function store(Request $request, CheckoutGateway $checkout): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -50,8 +51,9 @@ class RegisteredUserController extends Controller
         ]);
 
         $plan = SubscriptionPlan::from($request->string('plan')->value());
+        $provider = PaymentProvider::forRequest($request);
 
-        $user = DB::transaction(function () use ($request, $plan) {
+        $user = DB::transaction(function () use ($request, $plan, $provider) {
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -64,6 +66,7 @@ class RegisteredUserController extends Controller
 
             $business = Business::create([
                 'owner_id' => $user->id,
+                'payment_provider' => $provider,
                 'name' => $request->business_name,
                 'phone' => $request->phone,
                 'city' => $request->city,
@@ -74,7 +77,9 @@ class RegisteredUserController extends Controller
             return $user;
         });
 
-        if (StripeCheckoutService::shouldBypass()) {
+        $user->load('business');
+
+        if (CheckoutGateway::shouldBypass($user->business)) {
             $checkout->activateWithoutCheckout($user, $plan);
 
             event(new Registered($user));

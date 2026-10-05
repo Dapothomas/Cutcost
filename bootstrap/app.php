@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(except: [
             'stripe/webhook',
+            'bachs/webhook',
         ]);
 
         // Set client-side by partials/market-detect, so it must stay readable unencrypted.

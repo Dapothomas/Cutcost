@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'payment_status',
     'amount_cents',
     'stripe_checkout_session_id',
+    'bachs_checkout_id',
     'notes',
 ])]
 class Booking extends Model

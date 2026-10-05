@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Enums\SubscriptionPlan;
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Services\StripeCheckoutService;
+use App\Services\Payments\CheckoutGateway;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +13,7 @@ use Illuminate\View\View;
 
 class ResumeCheckoutController extends Controller
 {
-    public function __invoke(Request $request, StripeCheckoutService $checkout): RedirectResponse|View
+    public function __invoke(Request $request, CheckoutGateway $checkout): RedirectResponse|View
     {
         $user = $request->user();
 
@@ -22,8 +22,9 @@ class ResumeCheckoutController extends Controller
         }
 
         $plan = $user->subscription_plan ?? SubscriptionPlan::Starter;
+        $user->loadMissing('business');
 
-        if (StripeCheckoutService::shouldBypass()) {
+        if (CheckoutGateway::shouldBypass($user->business)) {
             $checkout->activateWithoutCheckout($user, $plan);
 
             return redirect()->route('business.dashboard')

@@ -39,5 +39,26 @@ class RegistrationTest extends TestCase
         $this->assertSame(Role::Owner, $user->role);
         $this->assertNotNull($user->ownedBusiness);
         $this->assertSame('Test Cuts', $user->ownedBusiness->name);
+        $this->assertSame('stripe', $user->ownedBusiness->payment_provider);
+    }
+
+    public function test_nigerian_shops_are_assigned_bachs(): void
+    {
+        $response = $this->withHeaders(['CF-IPCountry' => 'NG'])->post('/register', [
+            'name' => 'Lagos Owner',
+            'email' => 'lagos@example.com',
+            'phone' => '08030000000',
+            'business_name' => 'Lagos Cuts',
+            'city' => 'Lagos',
+            'plan' => 'shop',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('business.dashboard', absolute: false));
+
+        $user = User::where('email', 'lagos@example.com')->first();
+        $this->assertSame('bachs', $user->ownedBusiness->payment_provider);
     }
 }

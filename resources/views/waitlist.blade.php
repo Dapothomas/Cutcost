@@ -158,7 +158,7 @@
                         </li>
                         <li class="flex items-start gap-2.5">
                             <svg class="mt-0.5 h-4 w-4 shrink-0 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Online payments when you’re ready (Stripe)</span>
+                            <span>Online payments when you’re ready ({{ \App\Services\Payments\PaymentProvider::labelForRequest() }})</span>
                         </li>
                     </ul>
                 </div>

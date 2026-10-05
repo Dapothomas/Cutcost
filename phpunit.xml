@@ -34,6 +34,7 @@
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <env name="STRIPE_BYPASS_CHECKOUT" value="true"/>
+        <env name="PAYMENT_PROVIDER" value="stripe"/>
         <env name="WAITLIST_ONLY" value="false"/>
     </php>
 </phpunit>

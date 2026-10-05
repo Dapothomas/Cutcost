@@ -25,7 +25,7 @@ function setPeriod(period) {
 </script>
 
 <template>
-    <AppLayout title="Payments" subtitle="Stripe setup and booking revenue">
+    <AppLayout title="Payments" :subtitle="`${payments.provider_label} setup and booking revenue`">
         <div class="page-shell max-w-3xl space-y-4">
             <div class="card overflow-hidden">
                 <div class="card-header-bordered flex-row flex-wrap items-center justify-between gap-3 space-y-0">
@@ -86,9 +86,9 @@ function setPeriod(period) {
 
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Stripe Connect</h2>
+                    <h2 class="card-title">{{ payments.provider_label }}</h2>
                     <p class="card-description">
-                        Client booking payments go to your Stripe account. Cutcost only charges your monthly subscription separately.
+                        Client booking payments go to your {{ payments.provider_label }} account. Cutcost only charges your monthly subscription separately.
                     </p>
                 </div>
                 <div class="card-content space-y-3.5">
@@ -102,7 +102,7 @@ function setPeriod(period) {
 
                     <dl v-if="payments.account_id" class="divide-y divide-border rounded-lg border border-border text-[13px]">
                         <div class="flex items-center justify-between gap-4 px-3.5 py-2.5">
-                            <dt class="text-muted-foreground">Stripe account</dt>
+                            <dt class="text-muted-foreground">{{ payments.provider_label }} account</dt>
                             <dd class="rounded-md bg-secondary px-2 py-1 font-mono text-[11.5px] text-muted-foreground">{{ payments.account_id }}</dd>
                         </div>
                         <div class="flex items-center justify-between gap-4 px-3.5 py-2.5">
@@ -120,11 +120,11 @@ function setPeriod(period) {
                     </dl>
 
                     <p v-if="payments.bypass_enabled" class="rounded-lg border border-dashed border-border px-3.5 py-2.5 text-[13px] leading-relaxed text-muted-foreground">
-                        Payment bypass is on in this environment, so bookings confirm without Stripe Connect.
+                        Payment bypass is on in this environment, so bookings confirm without connecting {{ payments.provider_label }}.
                     </p>
 
                     <p v-else-if="!payments.ready && !payments.account_id" class="rounded-lg border border-dashed border-border px-3.5 py-2.5 text-[13px] leading-relaxed text-muted-foreground">
-                        First time? The Cutcost platform Stripe account must have Connect enabled (Stripe Dashboard → Connect → Get started) before shop owners can connect.
+                        First time? The Cutcost {{ payments.provider_label }} account must have connected accounts enabled before shop owners can connect.
                     </p>
 
                     <form
@@ -134,7 +134,7 @@ function setPeriod(period) {
                     >
                         <input type="hidden" name="_token" :value="csrfToken">
                         <button type="submit" class="btn-primary">
-                            {{ payments.account_id ? 'Continue Stripe setup' : 'Connect Stripe' }}
+                            {{ payments.account_id ? `Continue ${payments.provider_label} setup` : `Connect ${payments.provider_label}` }}
                         </button>
                     </form>
 
@@ -145,7 +145,7 @@ function setPeriod(period) {
                     >
                         <input type="hidden" name="_token" :value="csrfToken">
                         <button type="submit" class="btn-secondary">
-                            Update Stripe details
+                            Update {{ payments.provider_label }} details
                         </button>
                     </form>
                 </div>

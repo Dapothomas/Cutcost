@@ -331,17 +331,12 @@ onUnmounted(() => {
                             <Icon name="menu" :size="18" :stroke-width="2" />
                         </button>
 
-                        <Link :href="homeHref" class="hidden shrink-0 lg:inline-flex" aria-label="Cutcost home">
-                            <img src="/images/logo.png" alt="" width="2499" height="615" class="brand-mark brand-mark-sm" />
-                        </Link>
-
                         <!-- Collapsed page title: appears once the band scrolls away. -->
                         <div
                             v-if="title"
                             class="min-w-0 items-center gap-2.5 transition-opacity duration-200"
                             :class="showCompactTitle ? 'flex opacity-100' : 'pointer-events-none hidden opacity-0 lg:flex'"
                         >
-                            <span class="hidden h-4 w-px shrink-0 bg-border lg:block" />
                             <h2 class="page-title truncate">{{ title }}</h2>
                         </div>
                     </div>

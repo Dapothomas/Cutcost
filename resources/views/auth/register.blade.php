@@ -42,7 +42,7 @@
                             Create your shop
                         </h1>
                         <p class="mt-2 text-sm text-muted-foreground">
-                            Pick a plan, set up your account, then finish with secure Stripe checkout.
+                            Pick a plan, set up your account, then finish with secure {{ \App\Services\Payments\PaymentProvider::labelForRequest() }} checkout.
                         </p>
 
                         <div class="mt-6 hidden rounded-xl border border-border bg-card/80 p-4 shadow-card backdrop-blur-sm lg:block">

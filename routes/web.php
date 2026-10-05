@@ -15,6 +15,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\ResumeCheckoutController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicBookingController;
+use App\Http\Controllers\BachsWebhookController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\Admin\WaitlistController as AdminWaitlistController;
 use App\Http\Controllers\WaitlistController;
@@ -38,6 +39,7 @@ Route::get('/book/{business:slug}/confirmed/{booking}', [PublicBookingController
 
 
 Route::post('/stripe/webhook', StripeWebhookController::class)->name('stripe.webhook');
+Route::post('/bachs/webhook', BachsWebhookController::class)->name('bachs.webhook');
 
 Route::get('/dashboard', DashboardRedirectController::class)
     ->middleware(['auth', 'verified'])
