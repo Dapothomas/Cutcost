@@ -24,7 +24,7 @@ class ResumeCheckoutController extends Controller
         $plan = $user->subscription_plan ?? SubscriptionPlan::Starter;
         $user->loadMissing('business');
 
-        if (CheckoutGateway::shouldBypass($user->business)) {
+        if (CheckoutGateway::shouldBypassSubscription($user->business)) {
             $checkout->activateWithoutCheckout($user, $plan);
 
             return redirect()->route('business.dashboard')

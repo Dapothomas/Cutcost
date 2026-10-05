@@ -3,8 +3,10 @@
 namespace Tests\Feature\Auth;
 
 use App\Enums\Role;
+use App\Enums\SubscriptionStatus;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -60,5 +62,33 @@ class RegistrationTest extends TestCase
 
         $user = User::where('email', 'lagos@example.com')->first();
         $this->assertSame('bachs', $user->ownedBusiness->payment_provider);
+    }
+
+    public function test_nigerian_signup_skips_bachs_when_subscription_bypass_is_on(): void
+    {
+        config([
+            'bachs.secret' => 'sk_live_test',
+            'bachs.bypass_subscription' => true,
+        ]);
+
+        Http::fake();
+
+        $response = $this->withHeaders(['CF-IPCountry' => 'NG'])->post('/register', [
+            'name' => 'Lagos Owner',
+            'email' => 'lagos-bypass@example.com',
+            'phone' => '08030000001',
+            'business_name' => 'Lagos Bypass',
+            'city' => 'Lagos',
+            'plan' => 'shop',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('business.dashboard', absolute: false));
+
+        $user = User::where('email', 'lagos-bypass@example.com')->first();
+        $this->assertSame(SubscriptionStatus::Active, $user->subscription_status);
+        Http::assertNothingSent();
     }
 }

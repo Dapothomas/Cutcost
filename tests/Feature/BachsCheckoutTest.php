@@ -45,6 +45,7 @@ class BachsCheckoutTest extends TestCase
 
             return $request->url() === 'https://sandbox-api.bachs.io/v1/checkout-sessions'
                 && ($body['product_cart'][0]['product_id'] ?? null) === 'prod_shop'
+                && ($body['billing_currency'] ?? null) === 'USD'
                 && ($body['metadata']['user_id'] ?? null) === (string) $user->id
                 && ($body['customer']['email'] ?? null) === $user->email;
         });

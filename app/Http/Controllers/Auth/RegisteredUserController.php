@@ -79,7 +79,7 @@ class RegisteredUserController extends Controller
 
         $user->load('business');
 
-        if (CheckoutGateway::shouldBypass($user->business)) {
+        if (CheckoutGateway::shouldBypassSubscription($user->business)) {
             $checkout->activateWithoutCheckout($user, $plan);
 
             event(new Registered($user));

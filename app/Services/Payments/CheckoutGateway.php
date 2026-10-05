@@ -42,6 +42,17 @@ class CheckoutGateway
             : StripeCheckoutService::shouldBypass();
     }
 
+    public static function shouldBypassSubscription(?Business $business = null): bool
+    {
+        $provider = $business
+            ? PaymentProvider::forBusiness($business)
+            : PaymentProvider::forRequest();
+
+        return $provider === PaymentProvider::BACHS
+            ? BachsCheckoutService::shouldBypassSubscription()
+            : StripeCheckoutService::shouldBypass();
+    }
+
     public function activateWithoutCheckout(User $user, SubscriptionPlan $plan): void
     {
         $this->driver($user)->activateWithoutCheckout($user, $plan);

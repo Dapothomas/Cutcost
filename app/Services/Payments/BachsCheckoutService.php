@@ -30,6 +30,11 @@ class BachsCheckoutService
         return false;
     }
 
+    public static function shouldBypassSubscription(): bool
+    {
+        return (bool) config('bachs.bypass_subscription') || self::shouldBypass();
+    }
+
     public function activateWithoutCheckout(User $user, SubscriptionPlan $plan): void
     {
         $user->update([
@@ -55,6 +60,8 @@ class BachsCheckoutService
                 'product_id' => $productId,
                 'quantity' => 1,
             ]],
+            // Bachs will not start a subscription in naira. Plans bill in dollars.
+            'billing_currency' => 'USD',
             'metadata' => [
                 'type' => 'subscription',
                 'user_id' => (string) $user->id,

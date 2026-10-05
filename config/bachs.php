@@ -15,6 +15,12 @@ return [
     */
     'base_url' => env('BACHS_BASE_URL', 'https://sandbox-api.bachs.io'),
 
+    /*
+    | When true, shop signup skips Bachs and marks the subscription active.
+    | Client booking payments are unchanged.
+    */
+    'bypass_subscription' => env('BACHS_BYPASS_SUBSCRIPTION', false),
+
     'products' => [
         'starter' => env('BACHS_PRODUCT_STARTER'),
         'shop' => env('BACHS_PRODUCT_SHOP'),
