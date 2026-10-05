@@ -51,7 +51,7 @@ class RegisteredUserController extends Controller
         ]);
 
         $plan = SubscriptionPlan::from($request->string('plan')->value());
-        $provider = PaymentProvider::forRequest($request);
+        $provider = PaymentProvider::forPlace($request->string('city')->value(), $request);
 
         $user = DB::transaction(function () use ($request, $plan, $provider) {
             $user = User::create([

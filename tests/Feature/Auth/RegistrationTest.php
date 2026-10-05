@@ -44,6 +44,23 @@ class RegistrationTest extends TestCase
         $this->assertSame('stripe', $user->ownedBusiness->payment_provider);
     }
 
+    public function test_a_uk_city_stays_on_stripe_even_from_nigeria(): void
+    {
+        $this->withHeaders(['CF-IPCountry' => 'NG'])->post('/register', [
+            'name' => 'UK Owner',
+            'email' => 'mk@example.com',
+            'phone' => '07700900112',
+            'business_name' => 'MK Cuts',
+            'city' => 'Milton Keynes',
+            'plan' => 'starter',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $user = User::where('email', 'mk@example.com')->first();
+        $this->assertSame('stripe', $user->ownedBusiness->payment_provider);
+    }
+
     public function test_nigerian_shops_are_assigned_bachs(): void
     {
         $response = $this->withHeaders(['CF-IPCountry' => 'NG'])->post('/register', [
