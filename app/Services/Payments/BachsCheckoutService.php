@@ -91,14 +91,6 @@ class BachsCheckoutService
 
     public function createBookingCheckoutSession(Booking $booking, Business $business, Service $service): CheckoutSession
     {
-        if (! $business->canAcceptPayments()) {
-            throw new RuntimeException('This shop is not ready to accept payments yet.');
-        }
-
-        if (blank($business->bachs_account_id)) {
-            throw new RuntimeException('This shop has not connected Bachs yet.');
-        }
-
         $booking->loadMissing(['client', 'barber']);
 
         $email = $booking->client->email;
@@ -119,7 +111,7 @@ class BachsCheckoutService
                 'name' => $booking->client->name,
             ],
             'pricing' => [
-                'currency' => 'GBP',
+                'currency' => $business->currency(),
                 'amount' => $amount,
             ],
             'metadata' => [
@@ -130,15 +122,18 @@ class BachsCheckoutService
             'reference' => 'booking_'.$booking->id.'_'.Str::lower(Str::random(6)),
             'success_url' => route('public.booking.checkout.success', $business),
             'cancel_url' => route('public.booking.checkout.cancel', [$business, $booking]),
-            'transfer_data' => [
-                'destination' => $business->bachs_account_id,
-            ],
         ];
 
-        if ($fee !== null && $fee !== '0.00') {
-            $payload['platform_fee'] = $fee;
-        } else {
-            $payload['transfer_data']['amount'] = $amount;
+        if ($business->canAcceptPayments() && filled($business->bachs_account_id)) {
+            $payload['transfer_data'] = [
+                'destination' => $business->bachs_account_id,
+            ];
+
+            if ($fee !== null && $fee !== '0.00') {
+                $payload['platform_fee'] = $fee;
+            } else {
+                $payload['transfer_data']['amount'] = $amount;
+            }
         }
 
         $session = $this->bachs->post('/v1/checkout-sessions', $payload, 'checkout-booking-'.$booking->id.'-'.Str::lower(Str::random(6)));

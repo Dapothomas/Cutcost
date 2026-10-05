@@ -93,6 +93,7 @@ class PublicBookingController extends Controller
             'maxDate' => $maxDate,
             'hoursLabel' => $business->openingHoursLabelFor($date),
             'checkoutLabel' => PaymentProvider::labelForBusiness($business),
+            'emailRequired' => PaymentProvider::forBusiness($business) === PaymentProvider::BACHS,
         ]);
     }
 
@@ -110,7 +111,11 @@ class PublicBookingController extends Controller
             'time' => ['required', 'date_format:H:i'],
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:50'],
-            'email' => ['nullable', 'email', 'max:255'],
+            'email' => [
+                PaymentProvider::forBusiness($business) === PaymentProvider::BACHS ? 'required' : 'nullable',
+                'email',
+                'max:255',
+            ],
             'notes' => ['nullable', 'string', 'max:2000'],
         ]);
 
@@ -267,6 +272,10 @@ class PublicBookingController extends Controller
             return false;
         }
 
+        if (PaymentProvider::forBusiness($business) === PaymentProvider::BACHS) {
+            return true;
+        }
+
         return $business->canAcceptPayments();
     }
 
@@ -277,6 +286,10 @@ class PublicBookingController extends Controller
         }
 
         if (CheckoutGateway::shouldBypass($business)) {
+            return false;
+        }
+
+        if (PaymentProvider::forBusiness($business) === PaymentProvider::BACHS) {
             return false;
         }
 

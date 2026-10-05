@@ -385,7 +385,10 @@
                                         </div>
                                         <div class="sm:col-span-2">
                                             <label for="email" class="mb-1.5 block text-sm font-medium">
-                                                Email <span class="font-normal text-muted-foreground">(optional)</span>
+                                                Email
+                                                @unless ($emailRequired ?? false)
+                                                    <span class="font-normal text-muted-foreground">(optional)</span>
+                                                @endunless
                                             </label>
                                             <input
                                                 id="email"
@@ -394,6 +397,7 @@
                                                 class="form-input"
                                                 autocomplete="email"
                                                 x-model="email"
+                                                @if ($emailRequired ?? false) required @endif
                                             >
                                         </div>
                                     </div>
