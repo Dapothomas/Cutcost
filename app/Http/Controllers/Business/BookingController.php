@@ -50,7 +50,7 @@ class BookingController extends Controller
                 'barber_name' => $booking->barber->name,
                 'status' => $booking->status->value,
                 'amount_label' => $booking->amount_cents
-                    ? '£'.number_format($booking->amount_cents / 100, 2)
+                    ? $business->formatMoney($booking->amount_cents)
                     : '—',
             ]);
 
@@ -85,7 +85,7 @@ class BookingController extends Controller
                 'id' => $service->id,
                 'name' => $service->name,
                 'duration_minutes' => $service->duration_minutes,
-                'price_label' => '£'.number_format($service->price_cents / 100, 2),
+                'price_label' => $business->formatMoney($service->price_cents),
             ]),
             'barbers' => $assignableBarbers->map(fn ($barber) => [
                 'id' => $barber->id,

@@ -49,7 +49,7 @@
                     @if ($booking->amount_cents)
                         <div class="flex justify-between gap-4 px-5 py-3.5">
                             <span class="text-muted-foreground">Paid</span>
-                            <span class="font-semibold text-success">£{{ number_format($booking->amount_cents / 100, 2) }}</span>
+                            <span class="font-semibold text-success">{{ $booking->business->formatMoney($booking->amount_cents) }}</span>
                         </div>
                     @endif
                     <div class="flex justify-between gap-4 px-5 py-3.5">

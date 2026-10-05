@@ -52,6 +52,32 @@ class BookingRevenueTest extends TestCase
         $this->assertSame(1, $summary['all_time']['paid_bookings_count']);
     }
 
+    public function test_nigerian_shop_dashboard_shows_naira(): void
+    {
+        [$business, $service, $client, $barber, $owner] = $this->shopFixtures(withOwner: true);
+        $business->update(['payment_provider' => 'bachs']);
+
+        Booking::create([
+            'business_id' => $business->id,
+            'client_id' => $client->id,
+            'barber_id' => $barber->id,
+            'service_id' => $service->id,
+            'starts_at' => now()->addDay(),
+            'ends_at' => now()->addDay()->addMinutes(45),
+            'status' => BookingStatus::Scheduled,
+            'payment_status' => PaymentStatus::Paid,
+            'amount_cents' => 800000,
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('business.dashboard'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('earningsByPeriod.all.summary.amount_label', '₦8,000.00')
+                ->where('shopCurrencySymbol', '₦')
+            );
+    }
+
     public function test_owner_dashboard_includes_earnings(): void
     {
         [$business, $service, $client, $barber, $owner] = $this->shopFixtures(withOwner: true);

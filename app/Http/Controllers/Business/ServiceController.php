@@ -25,7 +25,7 @@ class ServiceController extends Controller
                 'id' => $service->id,
                 'name' => $service->name,
                 'duration_minutes' => $service->duration_minutes,
-                'price_label' => '£'.number_format($service->price_cents / 100, 2),
+                'price_label' => $business->formatMoney($service->price_cents),
                 'is_active' => $service->is_active,
             ]);
 

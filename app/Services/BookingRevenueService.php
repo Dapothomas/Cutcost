@@ -56,11 +56,11 @@ class BookingRevenueService
                     'period' => $period,
                     'label' => $this->periodLabel($period),
                     'amount_cents' => $cents,
-                    'amount_label' => $this->formatMoney($cents),
+                    'amount_label' => $business->formatMoney($cents),
                     'paid_bookings_count' => $filtered->count(),
                 ],
-                'series' => $this->buildSeries($filtered, $period),
-                'breakdown' => $this->buildBreakdown($filtered),
+                'series' => $this->buildSeries($filtered, $period, $business),
+                'breakdown' => $this->buildBreakdown($filtered, $business),
             ];
         }
 
@@ -85,7 +85,7 @@ class BookingRevenueService
             'period' => $period,
             'label' => $this->periodLabel($period),
             'amount_cents' => $cents,
-            'amount_label' => $this->formatMoney($cents),
+            'amount_label' => $business->formatMoney($cents),
             'paid_bookings_count' => $this->paidBookingsQuery($business, $period)->count(),
         ];
     }
@@ -105,7 +105,7 @@ class BookingRevenueService
             ->map(fn ($booking) => [
                 'client_name' => $booking->client->name,
                 'service_name' => $booking->service->name,
-                'amount_label' => $this->formatMoney($booking->amount_cents ?? 0),
+                'amount_label' => $business->formatMoney($booking->amount_cents ?? 0),
                 'paid_at_label' => $booking->updated_at->format('D j M · H:i'),
             ])
             ->all();
@@ -129,9 +129,11 @@ class BookingRevenueService
         return in_array($period, self::PERIODS, true) ? $period : 'month';
     }
 
-    public function formatMoney(int $cents): string
+    public function formatMoney(int $cents, ?Business $business = null): string
     {
-        return '£'.number_format($cents / 100, 2);
+        return $business
+            ? $business->formatMoney($cents)
+            : '£'.number_format($cents / 100, 2);
     }
 
     private function periodLabel(string $period): string
@@ -176,7 +178,7 @@ class BookingRevenueService
      * @param  Collection<int, Booking>  $bookings
      * @return list<array{label: string, amount_cents: int, amount_label: string}>
      */
-    private function buildSeries(Collection $bookings, string $period): array
+    private function buildSeries(Collection $bookings, string $period, Business $business): array
     {
         $buckets = match ($period) {
             'today' => $this->hourlyBuckets(),
@@ -206,7 +208,7 @@ class BookingRevenueService
             ->map(fn (array $bucket) => [
                 'label' => $bucket['label'],
                 'amount_cents' => $bucket['amount_cents'],
-                'amount_label' => $this->formatMoney($bucket['amount_cents']),
+                'amount_label' => $business->formatMoney($bucket['amount_cents']),
             ])
             ->values()
             ->all();
@@ -216,7 +218,7 @@ class BookingRevenueService
      * @param  Collection<int, Booking>  $bookings
      * @return list<array{label: string, amount_cents: int, amount_label: string, percent: float}>
      */
-    private function buildBreakdown(Collection $bookings): array
+    private function buildBreakdown(Collection $bookings, Business $business): array
     {
         $total = (int) $bookings->sum('amount_cents');
 
@@ -226,13 +228,13 @@ class BookingRevenueService
 
         return $bookings
             ->groupBy(fn (Booking $booking) => $booking->service?->name ?: 'Service')
-            ->map(function (Collection $group, string $label) use ($total) {
+            ->map(function (Collection $group, string $label) use ($total, $business) {
                 $cents = (int) $group->sum('amount_cents');
 
                 return [
                     'label' => $label,
                     'amount_cents' => $cents,
-                    'amount_label' => $this->formatMoney($cents),
+                    'amount_label' => $business->formatMoney($cents),
                     'percent' => round(($cents / $total) * 100, 1),
                 ];
             })

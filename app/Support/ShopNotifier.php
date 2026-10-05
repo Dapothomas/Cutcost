@@ -63,7 +63,7 @@ class ShopNotifier
         }
 
         $amount = $booking->amount_cents
-            ? '£'.number_format($booking->amount_cents / 100, 2)
+            ? $business->formatMoney($booking->amount_cents)
             : 'Payment';
 
         self::owner(

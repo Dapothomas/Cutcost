@@ -157,6 +157,21 @@ class Business extends Model
         return app(\App\Services\Payments\ConnectGateway::class)->canAcceptPayments($this);
     }
 
+    public function currency(): string
+    {
+        return $this->payment_provider === \App\Services\Payments\PaymentProvider::BACHS ? 'NGN' : 'GBP';
+    }
+
+    public function currencySymbol(): string
+    {
+        return $this->currency() === 'NGN' ? '₦' : '£';
+    }
+
+    public function formatMoney(int $cents): string
+    {
+        return $this->currencySymbol().number_format($cents / 100, 2);
+    }
+
     /**
      * @return array<string, string>|null
      */

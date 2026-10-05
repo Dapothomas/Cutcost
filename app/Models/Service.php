@@ -31,6 +31,10 @@ class Service extends Model
 
     public function priceLabel(): string
     {
-        return '£'.number_format($this->price_cents / 100, 2);
+        $this->loadMissing('business');
+
+        return $this->business
+            ? $this->business->formatMoney($this->price_cents)
+            : '£'.number_format($this->price_cents / 100, 2);
     }
 }

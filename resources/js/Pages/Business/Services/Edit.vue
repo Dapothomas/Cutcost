@@ -1,7 +1,8 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import FormInput from '@/Components/FormInput.vue';
-import { Link, useForm } from '@inertiajs/vue3';
+import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const props = defineProps({
     service: { type: Object, required: true },
@@ -13,6 +14,8 @@ const form = useForm({
     price: props.service.price,
     is_active: props.service.is_active,
 });
+
+const priceLabel = computed(() => `Price (${usePage().props.shopCurrencySymbol || '£'})`);
 
 function submit() {
     form.put(`/business/services/${props.service.id}`);
@@ -35,7 +38,7 @@ function submit() {
                     <FormInput v-model="form.name" label="Name" name="name" required :error="form.errors.name" />
                     <div class="grid gap-4 sm:grid-cols-2">
                         <FormInput v-model="form.duration_minutes" label="Duration (minutes)" name="duration_minutes" type="number" required :error="form.errors.duration_minutes" />
-                        <FormInput v-model="form.price" label="Price (£)" name="price" type="number" required :error="form.errors.price" />
+                        <FormInput v-model="form.price" :label="priceLabel" name="price" type="number" required :error="form.errors.price" />
                     </div>
                     <label class="form-check">
                         <input v-model="form.is_active" type="checkbox" name="is_active" class="form-checkbox" />

@@ -44,6 +44,7 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
             ],
             'notifications' => fn () => $this->notificationsFor($user, $shop?->id),
+            'shopCurrencySymbol' => $shop?->currencySymbol() ?? '£',
             'theme' => [
                 'primary_color' => $shop?->primary_color,
                 'tokens' => $shop?->brandTheme(),
